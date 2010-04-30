@@ -16,6 +16,7 @@ static char THIS_FILE[] = __FILE__;
 
 CBatteryLabel::CBatteryLabel()
 {
+	
 }
 
 CBatteryLabel::~CBatteryLabel()
@@ -56,15 +57,14 @@ void CBatteryLabel::OnPaint()
 	TRACE("l=%d,t=%d,r=%d,b=%d",rect.left,rect.top,rect.right,rect.bottom);
 
 
-#define BATTERY_STEP 20
-#define BATTERY_COUNT 13
+
 
 	//Draw the battery
-	int width_step = rect.right/BATTERY_STEP;
+	int width_step = rect.right/m_MaxLevel;
 
-	for(int i=0;i<BATTERY_STEP;i++)
+	for(int i=0;i<m_MaxLevel;i++)
 	{
-		if (i < BATTERY_COUNT)
+		if (i < m_BatteryLevel)
 		{
 			pOldBrush=dc.SelectObject(&RedBrush);
 		}
@@ -87,3 +87,10 @@ void CBatteryLabel::OnPaint()
 
 
 }
+
+void CBatteryLabel::SetBatteryLevel(int maxlevel,int batterylevel)
+{
+	m_MaxLevel = maxlevel;
+	m_BatteryLevel=batterylevel;
+}
+

@@ -116,9 +116,9 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
-	DWORD   xy;  
-	xy=MAKEWORD(200,40)  ;
-	m_Battery.SendMessage(WM_SIZE,   WPARAM(SIZE_MAXSHOW),(LPARAM)xy);
+	m_Battery.SetBatteryLevel(20,6);
+	m_Graph.SetDays(20);
+//	m_Battery.MoveWindow(rect.left,rect.top,rect.Width(),rect.Height());
 	// TODO: Add extra initialization here
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
