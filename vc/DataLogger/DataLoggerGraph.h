@@ -29,6 +29,7 @@ public:
 
 // Implementation
 public:
+	void SetDays(int day);
 	virtual ~CDataLoggerGraph();
 
 	// Generated message map functions
@@ -36,7 +37,23 @@ protected:
 	//{{AFX_MSG(CDataLoggerGraph)
 	afx_msg void OnPaint();
 	//}}AFX_MSG
+private:
+	int GetXAxisCharsIndex();
 
+	int m_LeftOffset;
+	int m_RightOffset;
+	int m_TopOffset;
+	int m_BottomOffset;
+
+	int m_XGrid ;
+	int m_YGrid;
+
+	int m_xpixel;
+	int m_ypixel;
+
+	int m_Days;
+
+	
 	DECLARE_MESSAGE_MAP()
 };
 

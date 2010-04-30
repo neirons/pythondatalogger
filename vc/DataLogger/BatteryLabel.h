@@ -29,6 +29,7 @@ public:
 
 // Implementation
 public:
+	void SetBatteryLevel(int maxlevel,int batterylevel);
 	virtual ~CBatteryLabel();
 
 	// Generated message map functions
@@ -38,6 +39,9 @@ protected:
 	//}}AFX_MSG
 
 	DECLARE_MESSAGE_MAP()
+private:
+	int m_BatteryLevel;
+	int m_MaxLevel;
 };
 
 /////////////////////////////////////////////////////////////////////////////
