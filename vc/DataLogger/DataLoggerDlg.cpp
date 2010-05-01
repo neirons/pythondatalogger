@@ -116,7 +116,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
-	m_Battery.SetBatteryLevel(20,6);
+	m_Battery.SetBatteryLevel(16,1);
 	m_Graph.SetDays(20);
 //	m_Battery.MoveWindow(rect.left,rect.top,rect.Width(),rect.Height());
 	// TODO: Add extra initialization here
