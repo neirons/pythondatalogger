@@ -58,31 +58,6 @@ void CDataLoggerGraph::OnPaint()
 	this->DrawGridAndText(dc);
 	
 	this->DrawData(dc);
-#if 1
-	CRect rect;
-	CDC memdc;
-	CBitmap   bmp;
-	CBitmap *pOldBMP;
-
-	this->GetClientRect(&rect);
-	bmp.CreateCompatibleBitmap(&dc, rect.Width(),rect.Height());   	
-
-	//Create compatibledc
-	if(!memdc.CreateCompatibleDC(&dc))  
-	{  
-		TRACE("Can't create compatibaleDC\n");
-		::PostQuitMessage(0);  
-	}   
-	pOldBMP = memdc.SelectObject(&bmp);   
-	memdc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &dc,   0,   0,   SRCCOPY);  	
-
-	memdc.MoveTo(0,0);
-	memdc.LineTo(100,100);
-
-	dc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &memdc,   0,   0,   SRCCOPY);  	
-	memdc.SelectObject(pOldBMP);
-	memdc.DeleteDC();
-#endif
 
 	// Do not call CStatic::OnPaint() for painting messages
 }
@@ -268,4 +243,35 @@ void CDataLoggerGraph::DrawGridAndText(CPaintDC& dc)
 
 void CDataLoggerGraph::DrawData(CPaintDC& dc)
 {
+	CRect rect;
+	CDC memdc;
+	CBitmap   bmp;
+	CBitmap *pOldBMP;
+	CPen DataPen,*pOldPen;
+
+	this->GetClientRect(&rect);
+	bmp.CreateCompatibleBitmap(&dc, rect.Width(),rect.Height());   	
+
+	DataPen.CreatePen(PS_SOLID,2, RGB(15, 255, 5));
+
+
+	//Create compatibledc
+	if(!memdc.CreateCompatibleDC(&dc))  
+	{  
+		TRACE("Can't create compatibaleDC\n");
+		::PostQuitMessage(0);  
+	}   
+	pOldPen=memdc.SelectObject(&DataPen);
+	pOldBMP = memdc.SelectObject(&bmp);   
+
+	memdc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &dc,   0,   0,   SRCCOPY);  	
+
+	memdc.MoveTo(0,0);
+	memdc.LineTo(100,100);
+
+	dc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &memdc,   0,   0,   SRCCOPY);  	
+	memdc.SelectObject(pOldBMP);
+	memdc.SelectObject(pOldPen);
+	memdc.DeleteDC();
+
 }
