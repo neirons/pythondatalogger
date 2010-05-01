@@ -53,15 +53,18 @@ END_MESSAGE_MAP()
 void CDataLoggerGraph::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting
+
+
+	this->DrawGridAndText(dc);
+	
+	this->DrawData(dc);
+#if 1
 	CRect rect;
 	CDC memdc;
 	CBitmap   bmp;
 	CBitmap *pOldBMP;
 
 	this->GetClientRect(&rect);
-	this->DrawGridAndText(dc);
-	
-#if 1
 	bmp.CreateCompatibleBitmap(&dc, rect.Width(),rect.Height());   	
 
 	//Create compatibledc
