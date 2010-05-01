@@ -4,6 +4,11 @@
 #include "stdafx.h"
 #include "DataLogger.h"
 #include "DataLoggerDlg.h"
+#include <fstream.h>
+
+#include <iostream.h>
+
+#include <conio.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -83,6 +88,7 @@ BEGIN_MESSAGE_MAP(CDataLoggerDlg, CDialog)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_SAVE, OnButtonSave)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -170,4 +176,309 @@ void CDataLoggerDlg::OnPaint()
 HCURSOR CDataLoggerDlg::OnQueryDragIcon()
 {
 	return (HCURSOR) m_hIcon;
+}
+
+void CDataLoggerDlg::OnButtonSave() 
+{
+	// TODO: Add your control notification handler code here
+	
+	CString sFName;
+	
+	CFileDialog fd( FALSE,        // true for open, false for save  
+		
+		_T("BMP"),       // default extention  
+		
+		NULL,        // initial filename in box);  
+		
+		OFN_HIDEREADONLY & // flags for detailed behaviour  
+		
+		OFN_OVERWRITEPROMPT,  
+		
+		NULL,        // file-filter pairs  
+		
+		NULL);       // pointer to parent window  
+	
+	fd.m_ofn.lpstrTitle    = _T("Enter file name...");  
+	
+	fd.m_ofn.lpstrInitialDir = NULL;  
+	
+	fd.m_ofn.lpstrFilter   = _T("BMP files (*.bmp)\000*.BMP\000");  
+	
+	if(fd.DoModal() == IDOK)  
+		
+		sFName = fd.GetPathName();  
+	
+	else  
+		
+		return;  
+	
+	this->WriteWindowToDIB((LPSTR)(LPCSTR)sFName,(CWnd*)&m_Graph);	
+
+}
+BOOL CDataLoggerDlg::WriteWindowToDIB(LPTSTR szFile, CWnd *pWnd)
+
+{
+
+       CBitmap bitmap;
+
+       CWindowDC dc(pWnd);
+
+       CDC memDC;
+
+       CRect rect;
+
+       memDC.CreateCompatibleDC(&dc);
+
+       pWnd->GetWindowRect(rect);
+
+       bitmap.CreateCompatibleBitmap(&dc,rect.Width(),rect.Height());
+
+       CBitmap* pOldBitmap=memDC.SelectObject(&bitmap);
+
+       memDC.BitBlt(0,0,rect.Width(),rect.Height(),&dc,0,0,SRCCOPY);
+
+       CPalette pal;
+
+       if(dc.GetDeviceCaps(RASTERCAPS)&RC_PALETTE)
+
+       {
+
+              UINT nSize=sizeof(LOGPALETTE)+(sizeof(PALETTEENTRY)*256);
+
+              LOGPALETTE* pLP=(LOGPALETTE*)new BYTE[nSize];
+
+              pLP->palVersion=0x300;
+
+              pLP->palNumEntries=GetSystemPaletteEntries(dc,0,255,pLP->palPalEntry);
+
+              pal.CreatePalette(pLP);
+
+              delete[] pLP;
+
+ 
+
+       }
+
+       memDC.SelectObject(pOldBitmap);
+
+       HANDLE hDIB=DDBToDIB(bitmap,BI_RGB,&pal);
+
+       if(hDIB==NULL)
+
+              return FALSE;
+
+       WriteDIB(szFile,hDIB);
+
+       GlobalFree(hDIB);
+
+       return TRUE;
+
+ 
+
+}
+
+ 
+
+HANDLE CDataLoggerDlg::DDBToDIB(CBitmap &bitmap, DWORD dwCompression, CPalette *pPal)
+
+{
+
+       BITMAP bm;
+
+       BITMAPINFOHEADER bi;
+
+       LPBITMAPINFOHEADER lpbi;
+
+       DWORD dwLen;
+
+       HANDLE hDIB;
+
+       HANDLE handle;
+
+       HDC hDC;
+
+       HPALETTE hPal;
+
+       ASSERT(bitmap.GetSafeHandle());
+
+       if(dwCompression==BI_BITFIELDS)
+
+              return NULL;
+
+       hPal=(HPALETTE)pPal->GetSafeHandle();
+
+       if(hPal==NULL)
+
+              hPal=(HPALETTE)GetStockObject(DEFAULT_PALETTE);
+
+       bitmap.GetObject(sizeof(bm),(LPSTR)&bm);
+
+       bi.biSize=sizeof(BITMAPINFOHEADER);
+
+       bi.biWidth=bm.bmWidth;
+
+       bi.biHeight=bm.bmHeight;
+
+       bi.biPlanes=1;
+
+       bi.biBitCount=bm.bmPlanes*bm.bmBitsPixel;
+
+       bi.biCompression=dwCompression;
+
+       bi.biSizeImage=0;
+
+       bi.biXPelsPerMeter=0;
+
+       bi.biYPelsPerMeter=0;
+
+       bi.biClrImportant=0;
+
+       bi.biClrUsed=0;
+
+ 
+
+       int nColors=(1<<bi.biBitCount);
+
+       if(nColors>256)
+
+              nColors=0;
+
+       dwLen=bi.biSize+nColors*sizeof(RGBQUAD);
+
+       hDC=::GetDC(NULL);
+
+       hPal=SelectPalette(hDC,hPal,FALSE);
+
+       RealizePalette(hDC);
+
+       hDIB=GlobalAlloc(GMEM_FIXED,dwLen);
+
+       if(!hDIB)
+
+       {
+
+              SelectPalette(hDC,hPal,FALSE);
+
+                     ::ReleaseDC(NULL,hDC);
+
+              return NULL;
+
+ 
+
+       }
+
+      
+
+       lpbi=(LPBITMAPINFOHEADER)hDIB;
+
+       *lpbi=bi;
+
+       GetDIBits(hDC,(HBITMAP)bitmap.GetSafeHandle(),0L,(DWORD)bi.biHeight,(LPBYTE)NULL,(LPBITMAPINFO)lpbi,(DWORD)DIB_RGB_COLORS);
+
+       bi=*lpbi;
+
+       if(bi.biSizeImage==0)
+
+       {
+
+              bi.biSizeImage=((((bi.biWidth*bi.biBitCount)+31)& ~31)/8)*bi.biHeight;
+
+              if(dwCompression!=BI_RGB)
+
+                     bi.biSizeImage=(bi.biSizeImage*3)/2;
+
+       }
+
+ 
+
+       dwLen+=bi.biSizeImage;
+
+       if(handle=GlobalReAlloc(hDIB,dwLen,GMEM_MOVEABLE))
+
+              hDIB=handle;
+
+       else
+
+       {
+
+              GlobalFree(hDIB);
+
+              SelectPalette(hDC,hPal,FALSE);
+
+              ::ReleaseDC(NULL,hDC);
+
+              return NULL;
+
+       }
+
+       lpbi=(LPBITMAPINFOHEADER)hDIB;
+
+       BOOL bGotBits=GetDIBits(hDC,(HBITMAP)bitmap.GetSafeHandle(),0L,(DWORD)bi.biHeight,(LPBYTE)lpbi+(bi.biSize+nColors*sizeof(RGBQUAD)),
+
+              (LPBITMAPINFO)lpbi,(DWORD)DIB_RGB_COLORS);
+
+       if(!bGotBits)
+
+       {
+
+              GlobalFree(hDIB);
+
+              SelectPalette(hDC,hPal,FALSE);
+
+              ::ReleaseDC(NULL,hDC);
+
+              return NULL;
+
+       }
+
+       SelectPalette(hDC,hPal,FALSE);
+
+       ::ReleaseDC(NULL,hDC);
+
+       return hDIB;
+
+}
+
+ 
+
+BOOL CDataLoggerDlg::WriteDIB(LPTSTR szFile, HANDLE hDIB)
+
+{
+
+       BITMAPFILEHEADER hdr;
+
+       LPBITMAPINFOHEADER lpbi;
+
+       if(!hDIB)
+
+              return FALSE;
+
+       CFile file;
+
+       if(!file.Open(szFile,CFile::modeWrite|CFile::modeCreate))
+
+              return FALSE;
+
+       lpbi=(LPBITMAPINFOHEADER)hDIB;
+
+       int nColors=1<<lpbi->biBitCount;
+
+       hdr.bfType=((WORD)('M'<<8)|'B');
+
+       hdr.bfSize=::GlobalSize(hDIB)+sizeof(hdr);
+
+       hdr.bfReserved1=0;
+
+       hdr.bfReserved2=0;
+
+       hdr.bfOffBits=(DWORD)(sizeof(hdr)+lpbi->biSize+nColors*sizeof(RGBQUAD));
+
+       file.Write(&hdr,sizeof(hdr));
+
+       file.Write(lpbi,GlobalSize(hDIB));
+
+       return TRUE;
+
+ 
+
 }

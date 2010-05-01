@@ -12,6 +12,9 @@
 // CDataLoggerDlg dialog
 #include "DataLoggerGraph.h"
 #include "BatteryLabel.h"
+#define DEFAULT_BITMAP_FILE_EXTENSION						_T("bmp")
+#define DEFAULT_BITMAP_FILE_NAME							_T("My Drawing")
+
 class CDataLoggerDlg : public CDialog
 {
 // Construction
@@ -41,8 +44,17 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg void OnButtonSave();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+private:
+	BOOL WriteWindowToDIB(LPTSTR szFile, CWnd *pWnd);
+
+	HANDLE DDBToDIB(CBitmap &bitmap, DWORD dwCompression, CPalette *pPal);
+
+
+	BOOL WriteDIB( LPTSTR szFile, HANDLE hDIB)  ;
+
 };
 
 //{{AFX_INSERT_LOCATION}}
