@@ -181,6 +181,9 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     IDS_ABOUTBOX            "&About DataLogger..."
+    IDS_WINDOWS_BITMAP_FILES "Windows Bitmap Files (*.BMP; )|*.BMP; ||"
+    IDS_FILE_CREATE_ERROR_MESSAGE 
+                            "Cannot create the requested file. Please ensure that the path name is valid and that you have write access to the destination drive and try again."
 END
 
 #endif    // English (U.S.) resources
