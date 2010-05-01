@@ -271,20 +271,31 @@ void CDataLoggerGraph::DrawData(CPaintDC& dc)
 	int xorg = m_LeftOffset;
 	int yorg = rect.Height()-m_BottomOffset;
 
-//	xorg = 20;
-//	yorg = 20;
 
 	TRACE("xorg = %d,yorg = %d\n",xorg,yorg);
+	memdc.SetViewportOrg(xorg,yorg);
+
+	for(int i = 0;i<1440;i++)
+	{
+		this->DrawPixcel(memdc,i,30 + i * 0.015);
+	}
 	
-	memdc.SetWindowOrg(xorg,yorg);
 
-	memdc.MoveTo(2*xorg,2*yorg);
-	memdc.LineTo(2*xorg +100,2*yorg -100);
+	dc.BitBlt(0,0,  rect.Width(),   rect.Height(),   &memdc,   -xorg,   -yorg,   SRCCOPY);  	
 
-
-	dc.BitBlt(0,0,  rect.Width(),   rect.Height(),   &memdc,   xorg,   yorg,   SRCCOPY);  	
 	memdc.SelectObject(pOldBMP);
 	memdc.SelectObject(pOldPen);
 	memdc.DeleteDC();
 
+}
+
+void CDataLoggerGraph::DrawPixcel(CDC& memdc,int x, double y)
+{
+	 double MultiplyOnX = m_xpixel/1440.0;	
+
+	 double MultiplyOnY = m_ypixel/30.0;
+
+	 double r_y = -((y-30)*MultiplyOnY);
+	 double r_x = x * MultiplyOnX;
+	 memdc.SetPixel(r_x,r_y,RGB(0,0,255));
 }
