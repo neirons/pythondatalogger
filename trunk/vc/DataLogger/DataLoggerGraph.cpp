@@ -53,100 +53,27 @@ END_MESSAGE_MAP()
 void CDataLoggerGraph::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting
-	CDC MemDC;
-	CPen BorderPen,*pOldPen,UnderLinePen;
-	CBrush BGBrush,*pOldBrush;
-	
-	MemDC.CreateCompatibleDC(&dc);
-	MemDC.SetMapMode(dc.GetMapMode());
-
-	// TODO: Add your message handler code here
+	this->DrawGridAndText(dc);
+#if 1
 	CRect rect;
 	this->GetClientRect(&rect);
+	CDC memdc;
+	CBitmap     bmp;   
+	bmp.CreateCompatibleBitmap(&dc, rect.Width(),rect.Height());   	
 
-	TRACE(" DataLoggerGraph l=%d,t=%d,r=%d,b=%d\n",rect.left,rect.top,rect.right,rect.bottom);
-
-
-	m_xpixel = rect.Width()-m_LeftOffset- m_RightOffset;
-	TRACE("There are %d pixel x size\n",m_xpixel);
-	m_ypixel = rect.Height()-m_TopOffset - m_BottomOffset;
-	TRACE("There are %d pixel y size\n",m_ypixel);
-
-
-
-	BorderPen.CreatePen(PS_DASHDOTDOT, 1, RGB(255, 25, 5));
-	BGBrush.CreateSolidBrush(RGB(255,255,255));
-
-	pOldPen=dc.SelectObject(&BorderPen);
-	pOldBrush=dc.SelectObject(&BGBrush);
-
-	dc.Rectangle(&rect);
-
-
-//Draw the horizontal line
-	int x_start = m_LeftOffset;
-	int y_start = m_TopOffset;
-	int x_end = rect.Width() - m_RightOffset;
-	int y_end = y_start;
-
-	CString str1;
-	CRect rect1;
-
-	char pFDegree[][20] = {"60.0","55.0","50.0","45.0","40.0","35.0","30.0"};
-	char pCDegree[][20] = {"15.5","12.7","10.0","7.2","4.4","1.7","-1.0"};
-	for( int i = 0;i<m_YGrid + 1;i++)
-	{
-
-		rect1.left = x_start - 30;
-		rect1.top = y_start - 10;
-		rect1.right = x_start;
-		rect1.bottom = y_start + 30;
-		dc.DrawText(pFDegree[i],&rect1,DT_LEFT);
-		dc.MoveTo(x_start,y_start);
-		dc.LineTo(x_end,y_end);
-
-		rect1.left = x_end + 5;
-		rect1.top = y_end  - 10;
-		rect1.right = rect1.left + 30;
-		rect1.bottom = rect1.top + 30;
-		dc.DrawText(pCDegree[i],&rect1,DT_LEFT);
-		y_start += (rect.Height() - m_TopOffset - m_BottomOffset)/m_YGrid;
-		y_end = y_start;
-
-
-	}
-//Draw the vertical line
-
-	x_start = m_LeftOffset;
-	y_start = m_TopOffset;
-	x_end = x_start;
-	y_end = rect.Height() - m_BottomOffset;
-
-	int xaxis_index;
-
-	for(i = 0;i<m_XGrid + 1;i++)
-	{
-		dc.MoveTo(x_start,y_start);
-		dc.LineTo(x_end,y_end);
-		rect1.left = x_end - 5;
-		rect1.top = y_end ;
-		rect1.right = rect1.left + 30;
-		rect1.bottom = rect1.top + 30;
-		xaxis_index = GetXAxisCharsIndex();
-		dc.DrawText(XAXIS[xaxis_index][i],&rect1,DT_LEFT);
-		x_start +=(rect.Width() - m_LeftOffset - m_RightOffset)/m_XGrid; 
-
-
-		x_end = x_start;
-	}
-
-
-//Draw the template data
-	
-
-	dc.SelectObject(pOldPen);
-	dc.SelectObject(pOldBrush);
-
+	//Create compatibledc
+	if(!memdc.CreateCompatibleDC(&dc))  
+	{  
+		TRACE("Can't create compatibaleDC\n");
+		::PostQuitMessage(0);  
+	}   
+	CBitmap   *pOldBMP   =   memdc.SelectObject(&bmp);   
+	memdc.MoveTo(0,0);
+	memdc.LineTo(100,100);
+	dc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &memdc,   0,   0,   SRCCOPY);  	
+	memdc.SelectObject(pOldBMP);
+	memdc.DeleteDC();
+#endif
 
 	// Do not call CStatic::OnPaint() for painting messages
 }
@@ -220,4 +147,116 @@ void CDataLoggerGraph::SetDays(int days)
 		break;
 	}
 
+}
+
+void CDataLoggerGraph::DrawGridAndText(CPaintDC& dc)
+{
+	CDC memdc;
+	//Double buffer bitmap
+	CBitmap      bmp;   
+	CPen GridPen,*pOldPen;
+	CRect rect;
+	this->GetClientRect(&rect);
+	bmp.CreateCompatibleBitmap(&dc, rect.Width(),rect.Height());   	
+
+	//Create compatibledc
+	if(!memdc.CreateCompatibleDC(&dc))  
+	{  
+		TRACE("Can't create compatibaleDC\n");
+		::PostQuitMessage(0);  
+	}   
+
+  
+	CBitmap   *pOldBMP   =   memdc.SelectObject(&bmp);   
+	
+	memdc.FillSolidRect(&rect,  RGB(255,255,255));   
+
+	TRACE(" DataLoggerGraph l=%d,t=%d,r=%d,b=%d\n",rect.left,rect.top,rect.right,rect.bottom);
+
+	//adjust the offset
+	m_RightOffset +=  (rect.Width() - m_LeftOffset- m_RightOffset)%m_XGrid;
+	m_BottomOffset += (rect.Height()-m_TopOffset - m_BottomOffset)%m_YGrid;
+
+	m_xpixel = rect.Width()-m_LeftOffset- m_RightOffset;
+	TRACE("There are %d pixel x size\n",m_xpixel);
+
+	m_ypixel = rect.Height()-m_TopOffset - m_BottomOffset;
+	TRACE("There are %d pixel y size\n",m_ypixel);
+
+
+	GridPen.CreatePen(PS_DASHDOTDOT, 1, RGB(255, 25, 5));
+	pOldPen=memdc.SelectObject(&GridPen);
+
+
+
+//Draw the horizontal line
+	int x_start = m_LeftOffset;
+	int y_start = m_TopOffset;
+	int x_end = rect.Width() - m_RightOffset;
+	int y_end = y_start;
+
+	CString str1;
+	CRect rect1;
+
+	char pFDegree[][20] = {"60.0","55.0","50.0","45.0","40.0","35.0","30.0"};
+	char pCDegree[][20] = {"15.5","12.7","10.0","7.2","4.4","1.7","-1.0"};
+	for( int i = 0;i<m_YGrid + 1;i++)
+	{
+
+		rect1.left = x_start - 30;
+		rect1.top = y_start - 10;
+		rect1.right = x_start;
+		rect1.bottom = y_start + 30;
+		memdc.DrawText(pFDegree[i],&rect1,DT_LEFT);
+		memdc.MoveTo(x_start,y_start);
+		memdc.LineTo(x_end,y_end);
+
+		rect1.left = x_end + 5;
+		rect1.top = y_end  - 10;
+		rect1.right = rect1.left + 30;
+		rect1.bottom = rect1.top + 30;
+		memdc.DrawText(pCDegree[i],&rect1,DT_LEFT);
+		y_start += (rect.Height() - m_TopOffset - m_BottomOffset)/m_YGrid;
+		y_end = y_start;
+
+
+	}
+//Draw the vertical line
+
+	x_start = m_LeftOffset;
+	y_start = m_TopOffset;
+	x_end = x_start;
+	y_end = rect.Height() - m_BottomOffset;
+
+	int xaxis_index;
+
+	for(i = 0;i<m_XGrid + 1;i++)
+	{
+		memdc.MoveTo(x_start,y_start);
+		memdc.LineTo(x_end,y_end);
+		rect1.left = x_end - 5;
+		rect1.top = y_end ;
+		rect1.right = rect1.left + 30;
+		rect1.bottom = rect1.top + 30;
+		xaxis_index = GetXAxisCharsIndex();
+		memdc.DrawText(XAXIS[xaxis_index][i],&rect1,DT_LEFT);
+		x_start +=(rect.Width() - m_LeftOffset - m_RightOffset)/m_XGrid; 
+
+
+		x_end = x_start;
+	}
+
+//	//Biblt the bitmap to orignal dc
+
+	dc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &memdc,   0,   0,   SRCCOPY);  	
+	memdc.SelectObject(pOldPen);
+
+	memdc.SelectObject(pOldBMP);  
+
+	memdc.DeleteDC();
+
+}
+
+void CDataLoggerGraph::DrawData(CPaintDC& dc)
+{
 }
