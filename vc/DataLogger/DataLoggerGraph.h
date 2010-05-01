@@ -38,6 +38,9 @@ protected:
 	afx_msg void OnPaint();
 	//}}AFX_MSG
 private:
+	void DrawGridAndText(CPaintDC& dc);
+	void DrawData(CPaintDC& dc);
+
 	int GetXAxisCharsIndex();
 
 	int m_LeftOffset;
