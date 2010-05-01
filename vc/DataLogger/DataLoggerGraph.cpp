@@ -53,12 +53,15 @@ END_MESSAGE_MAP()
 void CDataLoggerGraph::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting
-	this->DrawGridAndText(dc);
-#if 1
 	CRect rect;
-	this->GetClientRect(&rect);
 	CDC memdc;
-	CBitmap     bmp;   
+	CBitmap   bmp;
+	CBitmap *pOldBMP;
+
+	this->GetClientRect(&rect);
+	this->DrawGridAndText(dc);
+	
+#if 1
 	bmp.CreateCompatibleBitmap(&dc, rect.Width(),rect.Height());   	
 
 	//Create compatibledc
@@ -67,9 +70,12 @@ void CDataLoggerGraph::OnPaint()
 		TRACE("Can't create compatibaleDC\n");
 		::PostQuitMessage(0);  
 	}   
-	CBitmap   *pOldBMP   =   memdc.SelectObject(&bmp);   
+	pOldBMP = memdc.SelectObject(&bmp);   
+	memdc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &dc,   0,   0,   SRCCOPY);  	
+
 	memdc.MoveTo(0,0);
 	memdc.LineTo(100,100);
+
 	dc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &memdc,   0,   0,   SRCCOPY);  	
 	memdc.SelectObject(pOldBMP);
 	memdc.DeleteDC();
