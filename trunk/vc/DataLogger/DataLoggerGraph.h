@@ -29,6 +29,7 @@ public:
 
 // Implementation
 public:
+
 	void SetDays(int day);
 	virtual ~CDataLoggerGraph();
 
@@ -40,7 +41,8 @@ protected:
 private:
 	void DrawGridAndText(CPaintDC& dc);
 	void DrawData(CPaintDC& dc);
-
+	void DrawPixcel(CDC& memdc,int x, double y);
+	
 	int GetXAxisCharsIndex();
 
 	int m_LeftOffset;
