@@ -52,7 +52,7 @@ private:
 
 	HANDLE DDBToDIB(CBitmap &bitmap, DWORD dwCompression, CPalette *pPal);
 
-
+	HANDLE CDataLoggerDlg::GetWindowDIB(CWnd *pWnd);
 	BOOL WriteDIB( LPTSTR szFile, HANDLE hDIB)  ;
 
 };

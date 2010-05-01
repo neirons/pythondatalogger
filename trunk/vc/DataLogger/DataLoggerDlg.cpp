@@ -204,6 +204,9 @@ void CDataLoggerDlg::OnButtonSave()
 	
 	fd.m_ofn.lpstrFilter   = _T("BMP files (*.bmp)\000*.BMP\000");  
 	
+	HANDLE hDIB = 0;
+	hDIB = GetWindowDIB((CWnd*)&m_Graph);
+	
 	if(fd.DoModal() == IDOK)  
 		
 		sFName = fd.GetPathName();  
@@ -212,14 +215,15 @@ void CDataLoggerDlg::OnButtonSave()
 		
 		return;  
 	
-	this->WriteWindowToDIB((LPSTR)(LPCSTR)sFName,(CWnd*)&m_Graph);	
+	 WriteDIB((LPSTR)(LPCSTR)sFName,hDIB);
+
+     GlobalFree(hDIB);
 
 }
-BOOL CDataLoggerDlg::WriteWindowToDIB(LPTSTR szFile, CWnd *pWnd)
-
+HANDLE CDataLoggerDlg::GetWindowDIB(CWnd *pWnd)
 {
 
-       CBitmap bitmap;
+	   CBitmap bitmap;
 
        CWindowDC dc(pWnd);
 
@@ -265,14 +269,15 @@ BOOL CDataLoggerDlg::WriteWindowToDIB(LPTSTR szFile, CWnd *pWnd)
 
        if(hDIB==NULL)
 
-              return FALSE;
+              return 0;
+		return hDIB;
 
-       WriteDIB(szFile,hDIB);
 
-       GlobalFree(hDIB);
+}
+BOOL CDataLoggerDlg::WriteWindowToDIB(LPTSTR szFile, CWnd *pWnd)
+{
 
-       return TRUE;
-
+return FALSE;
  
 
 }
