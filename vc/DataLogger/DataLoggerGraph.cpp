@@ -155,6 +155,7 @@ void CDataLoggerGraph::DrawGridAndText(CPaintDC& dc)
 	
 	memdc.FillSolidRect(&rect,  RGB(255,255,255));   
 
+	
 	TRACE(" DataLoggerGraph l=%d,t=%d,r=%d,b=%d\n",rect.left,rect.top,rect.right,rect.bottom);
 
 	//adjust the offset
@@ -172,6 +173,7 @@ void CDataLoggerGraph::DrawGridAndText(CPaintDC& dc)
 	pOldPen=memdc.SelectObject(&GridPen);
 
 
+	memdc.Rectangle(&rect);
 
 //Draw the horizontal line
 	int x_start = m_LeftOffset;
@@ -252,7 +254,7 @@ void CDataLoggerGraph::DrawData(CPaintDC& dc)
 	this->GetClientRect(&rect);
 	bmp.CreateCompatibleBitmap(&dc, rect.Width(),rect.Height());   	
 
-	DataPen.CreatePen(PS_SOLID,2, RGB(15, 255, 5));
+	DataPen.CreatePen(PS_SOLID,2, RGB(15, 255, 235));
 
 
 	//Create compatibledc
@@ -266,10 +268,21 @@ void CDataLoggerGraph::DrawData(CPaintDC& dc)
 
 	memdc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &dc,   0,   0,   SRCCOPY);  	
 
-	memdc.MoveTo(0,0);
-	memdc.LineTo(100,100);
+	int xorg = m_LeftOffset;
+	int yorg = rect.Height()-m_BottomOffset;
 
-	dc.BitBlt(0,   0,  rect.Width(),   rect.Height(),   &memdc,   0,   0,   SRCCOPY);  	
+//	xorg = 20;
+//	yorg = 20;
+
+	TRACE("xorg = %d,yorg = %d\n",xorg,yorg);
+	
+	memdc.SetWindowOrg(xorg,yorg);
+
+	memdc.MoveTo(2*xorg,2*yorg);
+	memdc.LineTo(2*xorg +100,2*yorg -100);
+
+
+	dc.BitBlt(0,0,  rect.Width(),   rect.Height(),   &memdc,   xorg,   yorg,   SRCCOPY);  	
 	memdc.SelectObject(pOldBMP);
 	memdc.SelectObject(pOldPen);
 	memdc.DeleteDC();
