@@ -189,7 +189,7 @@ void CDataLoggerDlg::OnButtonSave()
 	CString csFileName;
 
 	CBitmap bitmapGraph;
-	SaveWindowToBitmap((CWnd*)&m_Graph, bitmapGraph);
+	SaveWindowToBitmap((CWnd*)this, bitmapGraph);
 
 	if(IDOK == dlg.DoModal())
 	{
