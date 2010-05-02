@@ -8,13 +8,13 @@
 //
 
 /////////////////////////////////////////////////////////////////////////////
-// CGraph window
+// CGraphStatic window
 
-class CGraph : public CStatic
+class CGraphStatic : public CStatic
 {
 // Construction
 public:
-	CGraph();
+	CGraphStatic();
 
 // Attributes
 public:
@@ -24,18 +24,18 @@ public:
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CGraph)
+	//{{AFX_VIRTUAL(CGraphStatic)
 	//}}AFX_VIRTUAL
 
 // Implementation
 public:
 
 	void SetDays(int day);
-	virtual ~CGraph();
+	virtual ~CGraphStatic();
 
 	// Generated message map functions
 protected:
-	//{{AFX_MSG(CGraph)
+	//{{AFX_MSG(CGraphStatic)
 	afx_msg void OnPaint();
 	//}}AFX_MSG
 private:

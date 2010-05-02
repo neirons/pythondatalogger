@@ -12,7 +12,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CGraph
+// CGraphStatic
 
 char XAXIS[][21][20]=
 {
@@ -26,7 +26,7 @@ char XAXIS[][21][20]=
 	{"","10","20","30","40","50","60","70","80",""}
 };
 
-CGraph::CGraph()
+CGraphStatic::CGraphStatic()
 {
 
 	m_LeftOffset = m_RightOffset = m_TopOffset = m_BottomOffset  = 50;
@@ -36,21 +36,21 @@ CGraph::CGraph()
 
 }
 
-CGraph::~CGraph()
+CGraphStatic::~CGraphStatic()
 {
 }
 
 
-BEGIN_MESSAGE_MAP(CGraph, CStatic)
-	//{{AFX_MSG_MAP(CGraph)
+BEGIN_MESSAGE_MAP(CGraphStatic, CStatic)
+	//{{AFX_MSG_MAP(CGraphStatic)
 	ON_WM_PAINT()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// CGraph message handlers
+// CGraphStatic message handlers
 
-void CGraph::OnPaint() 
+void CGraphStatic::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting
 
@@ -63,7 +63,7 @@ void CGraph::OnPaint()
 }
 
 
-int CGraph::GetXAxisCharsIndex()
+int CGraphStatic::GetXAxisCharsIndex()
 {
 
 	int ret = 0; 
@@ -101,7 +101,7 @@ int CGraph::GetXAxisCharsIndex()
 	return ret;
 	
 }
-void CGraph::SetDays(int days)
+void CGraphStatic::SetDays(int days)
 {
 	m_Days = days;
 	switch(m_Days)
@@ -133,7 +133,7 @@ void CGraph::SetDays(int days)
 
 }
 
-void CGraph::DrawGridAndText(CPaintDC& dc)
+void CGraphStatic::DrawGridAndText(CPaintDC& dc)
 {
 	CDC memdc;
 	//Double buffer bitmap
@@ -243,7 +243,7 @@ void CGraph::DrawGridAndText(CPaintDC& dc)
 
 }
 
-void CGraph::DrawData(CPaintDC& dc)
+void CGraphStatic::DrawData(CPaintDC& dc)
 {
 	CRect rect;
 	CDC memdc;
@@ -289,7 +289,7 @@ void CGraph::DrawData(CPaintDC& dc)
 
 }
 
-void CGraph::DrawPixcel(CDC& memdc,int x, double y)
+void CGraphStatic::DrawPixcel(CDC& memdc,int x, double y)
 {
 	 double MultiplyOnX = m_xpixel/1440.0;	
 
