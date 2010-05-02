@@ -11,7 +11,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // CDataLoggerDlg dialog
 #include "GraphStatic.h"
-#include "BatteryLabel.h"
+#include "BatteryStatic.h"
 
 class CDataLoggerDlg : public CDialog
 {
