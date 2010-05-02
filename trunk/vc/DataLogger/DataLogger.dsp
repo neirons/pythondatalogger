@@ -90,7 +90,7 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\BatteryLabel.cpp
+SOURCE=.\BatteryStatic.cpp
 # End Source File
 # Begin Source File
 
@@ -106,7 +106,7 @@ SOURCE=.\DataLoggerDlg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Graph.cpp
+SOURCE=.\GraphStatic.cpp
 # End Source File
 # Begin Source File
 
@@ -123,7 +123,7 @@ SOURCE=.\StdAfx.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\BatteryLabel.h
+SOURCE=.\BatteryStatic.h
 # End Source File
 # Begin Source File
 
@@ -135,7 +135,7 @@ SOURCE=.\DataLoggerDlg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Graph.h
+SOURCE=.\GraphStatic.h
 # End Source File
 # Begin Source File
 

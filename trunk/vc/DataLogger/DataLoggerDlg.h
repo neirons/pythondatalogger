@@ -52,7 +52,7 @@ private:
 
 	int  GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  ;
 	void SaveBitmapToFile(CBitmap& bitmapGraph,int ifiletype,CString csFileName);
-	void SaveWindowToBitmap(CWnd *pWnd, CBitmap& bitmapGraph);
+	void SaveWindowToBitmap(CWnd *pWnd, int left, int top,CBitmap& bitmapGraph);
 
 
 };
