@@ -5,10 +5,10 @@
 #include "DataLogger.h"
 #include "DataLoggerDlg.h"
 #include <fstream.h>
-
 #include <iostream.h>
-
 #include <conio.h>
+#include "SaveDialog.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -184,42 +184,21 @@ void CDataLoggerDlg::OnButtonSave()
 {
 	// TODO: Add your control notification handler code here
 	
-	CString sFName;
-	
-	CFileDialog fd( FALSE,        // true for open, false for save  
-		
-		_T("BMP"),       // default extention  
-		
-		NULL,        // initial filename in box);  
-		
-		OFN_HIDEREADONLY & // flags for detailed behaviour  
-		
-		OFN_OVERWRITEPROMPT,  
-		
-		NULL,        // file-filter pairs  
-		
-		NULL);       // pointer to parent window  
-	
-	fd.m_ofn.lpstrTitle    = _T("Enter file name...");  
-	
-	fd.m_ofn.lpstrInitialDir = NULL;  
-	
-	fd.m_ofn.lpstrFilter   = _T("BMP files (*.bmp)\000*.BMP\000");  
-	
-	HANDLE hDIB = 0;
-	hDIB = GetWindowDIB((CWnd*)&m_Graph);
-	
-	if(fd.DoModal() == IDOK)  
-		
-		sFName = fd.GetPathName();  
-	
-	else  
-		
-		return;  
-	
-	 WriteDIB((LPSTR)(LPCSTR)sFName,hDIB);
+	CSaveDialog dlg;
 
-     GlobalFree(hDIB);
+	if(IDOK == dlg.DoModal())
+	{
+
+	}
+
+	
+//	HANDLE hDIB = 0;
+//	hDIB = GetWindowDIB((CWnd*)&m_Graph);
+	
+	
+//	 WriteDIB((LPSTR)(LPCSTR)sFName,hDIB);
+
+//     GlobalFree(hDIB);
 
 }
 HANDLE CDataLoggerDlg::GetWindowDIB(CWnd *pWnd)

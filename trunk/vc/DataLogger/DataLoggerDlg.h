@@ -12,8 +12,6 @@
 // CDataLoggerDlg dialog
 #include "DataLoggerGraph.h"
 #include "BatteryLabel.h"
-#define DEFAULT_BITMAP_FILE_EXTENSION						_T("bmp")
-#define DEFAULT_BITMAP_FILE_NAME							_T("My Drawing")
 
 class CDataLoggerDlg : public CDialog
 {

@@ -8,6 +8,14 @@
 #define IDD_DATALOGGER_DIALOG           102
 #define IDS_WINDOWS_BITMAP_FILES        102
 #define IDS_FILE_CREATE_ERROR_MESSAGE   103
+#define IDS_WINDOWS_JPEG_FILES          104
+#define DEFAULT_BITMAP_FILE_EXTENSION   105
+#define DEFAULT_JPEG_FILE_EXTENSION     106
+#define IDS_WINDOWS_PDF_FILES           107
+#define IDS_WINDOWS_TXT_FILES           108
+#define DEFAULT_PDF_FILE_EXTENSION      109
+#define DEFAULT_TXT_FILE_EXTENSION      110
+#define DEFAULT_FILE_NAME               111
 #define IDR_MAINFRAME                   128
 #define IDD_SAVE_DIALOG                 129
 #define IDC_STATIC_GRAPH                1000
