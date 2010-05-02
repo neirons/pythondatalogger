@@ -54,7 +54,7 @@ private:
 	HANDLE CDataLoggerDlg::GetWindowDIB(CWnd *pWnd);
 	BOOL WriteDIB( LPTSTR szFile, HANDLE hDIB)  ;
 	int  GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  ;
-	void SaveBitmapToFile(CBitmap& bitmapGraph,CString csFileName);
+	void SaveBitmapToFile(CBitmap& bitmapGraph,int ifiletype,CString csFileName);
 	void SaveWindowToBitmap(CWnd *pWnd, CBitmap& bitmapGraph);
 
 

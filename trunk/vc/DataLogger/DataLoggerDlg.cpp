@@ -188,26 +188,18 @@ void CDataLoggerDlg::OnButtonSave()
 	int iFileType;
 	CString csFileName;
 
-	HANDLE hDIB = 0;
-	hDIB = GetWindowDIB((CWnd*)&m_Graph);
 	CBitmap bitmapGraph;
-
 	SaveWindowToBitmap((CWnd*)&m_Graph, bitmapGraph);
 
 	if(IDOK == dlg.DoModal())
 	{
 		iFileType = dlg.m_iFileType;
 		csFileName = dlg.m_csFileName;
-
 		switch(iFileType)
 		{
 		case 0:
-			//BMP file
-			WriteDIB((LPSTR)(LPCSTR)csFileName,hDIB);
-			break;
 		case 1:
-			//JPEG file
-			SaveBitmapToFile(bitmapGraph,csFileName);
+			SaveBitmapToFile(bitmapGraph,iFileType,csFileName);
 			break;
 		case 2:
 			//PDF file
@@ -220,9 +212,6 @@ void CDataLoggerDlg::OnButtonSave()
 		}
 
 	}
-
-     GlobalFree(hDIB);
-
 }
 HANDLE CDataLoggerDlg::GetWindowDIB(CWnd *pWnd)
 {
@@ -549,20 +538,32 @@ void CDataLoggerDlg::SaveWindowToBitmap(CWnd *pWnd, CBitmap& bitmapGraph)
     m_dcGraph.BitBlt(0,0,rect.Width(),rect.Height(),&dc,0,0,SRCCOPY);	
 }
 
-void CDataLoggerDlg::SaveBitmapToFile(CBitmap& bitmapGraph,CString csFileName)
+void CDataLoggerDlg::SaveBitmapToFile(CBitmap& bitmapGraph,int ifiletype,CString csFileName)
 {
 	HBITMAP   hBitmap;
     hBitmap=(HBITMAP)bitmapGraph.GetSafeHandle();
 	
 	CLSID encoderClsid;
 	Bitmap bitmap(hBitmap,NULL);
-	GetEncoderClsid(L"image/jpeg",&encoderClsid);
+	
+	switch(ifiletype)
+	{
+	case 0:
+	     GetEncoderClsid(L"image/bmp", &encoderClsid);
+		break;
+	case 1:
+		GetEncoderClsid(L"image/jpeg", &encoderClsid);
+		break;
+
+
+	}
+
 	EncoderParameters encoderPara;
 	encoderPara.Count=1;
 	encoderPara.Parameter[0].Guid=EncoderQuality;
 	encoderPara.Parameter[0].Type=EncoderParameterValueTypeLong;
 	encoderPara.Parameter[0].NumberOfValues=1;
-	ULONG quality=50;
+	ULONG quality=100;
 	encoderPara.Parameter[0].Value=&quality;
 	
 	bitmap.Save(csFileName.AllocSysString(),&encoderClsid,&encoderPara);
