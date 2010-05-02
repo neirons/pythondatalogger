@@ -10,7 +10,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // CDataLoggerDlg dialog
-#include "DataLoggerGraph.h"
+#include "Graph.h"
 #include "BatteryLabel.h"
 
 class CDataLoggerDlg : public CDialog

@@ -106,7 +106,7 @@ SOURCE=.\DataLoggerDlg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DataLoggerGraph.cpp
+SOURCE=.\Graph.cpp
 # End Source File
 # Begin Source File
 
@@ -135,7 +135,7 @@ SOURCE=.\DataLoggerDlg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\DataLoggerGraph.h
+SOURCE=.\Graph.h
 # End Source File
 # Begin Source File
 
