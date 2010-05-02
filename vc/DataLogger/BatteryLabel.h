@@ -8,13 +8,13 @@
 //
 
 /////////////////////////////////////////////////////////////////////////////
-// CBatteryLabel window
+// CBatteryStatic window
 
-class CBatteryLabel : public CStatic
+class CBatteryStatic : public CStatic
 {
 // Construction
 public:
-	CBatteryLabel();
+	CBatteryStatic();
 
 // Attributes
 public:
@@ -24,17 +24,17 @@ public:
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CBatteryLabel)
+	//{{AFX_VIRTUAL(CBatteryStatic)
 	//}}AFX_VIRTUAL
 
 // Implementation
 public:
 	void SetBatteryLevel(int maxlevel,int batterylevel);
-	virtual ~CBatteryLabel();
+	virtual ~CBatteryStatic();
 
 	// Generated message map functions
 protected:
-	//{{AFX_MSG(CBatteryLabel)
+	//{{AFX_MSG(CBatteryStatic)
 	afx_msg void OnPaint();
 	//}}AFX_MSG
 

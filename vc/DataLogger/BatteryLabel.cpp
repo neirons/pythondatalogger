@@ -12,28 +12,28 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CBatteryLabel
+// CBatteryStatic
 
-CBatteryLabel::CBatteryLabel()
+CBatteryStatic::CBatteryStatic()
 {
 	
 }
 
-CBatteryLabel::~CBatteryLabel()
+CBatteryStatic::~CBatteryStatic()
 {
 }
 
 
-BEGIN_MESSAGE_MAP(CBatteryLabel, CStatic)
-	//{{AFX_MSG_MAP(CBatteryLabel)
+BEGIN_MESSAGE_MAP(CBatteryStatic, CStatic)
+	//{{AFX_MSG_MAP(CBatteryStatic)
 	ON_WM_PAINT()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// CBatteryLabel message handlers
+// CBatteryStatic message handlers
 
-void CBatteryLabel::OnPaint() 
+void CBatteryStatic::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting
 	
@@ -88,7 +88,7 @@ void CBatteryLabel::OnPaint()
 
 }
 
-void CBatteryLabel::SetBatteryLevel(int maxlevel,int batterylevel)
+void CBatteryStatic::SetBatteryLevel(int maxlevel,int batterylevel)
 {
 	m_MaxLevel = maxlevel;
 	m_BatteryLevel=batterylevel;

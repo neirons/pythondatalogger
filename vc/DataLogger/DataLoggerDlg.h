@@ -10,7 +10,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // CDataLoggerDlg dialog
-#include "Graph.h"
+#include "GraphStatic.h"
 #include "BatteryLabel.h"
 
 class CDataLoggerDlg : public CDialog
@@ -22,7 +22,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDataLoggerDlg)
 	enum { IDD = IDD_DATALOGGER_DIALOG };
-	CBatteryLabel	m_Battery;
+	CBatteryStatic	m_Battery;
 	CGraphStatic	m_Graph;
 	//}}AFX_DATA
 
