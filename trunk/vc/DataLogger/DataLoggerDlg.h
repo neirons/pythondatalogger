@@ -49,10 +49,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 
-	HANDLE DDBToDIB(CBitmap &bitmap, DWORD dwCompression, CPalette *pPal);
 
-	HANDLE CDataLoggerDlg::GetWindowDIB(CWnd *pWnd);
-	BOOL WriteDIB( LPTSTR szFile, HANDLE hDIB)  ;
 	int  GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  ;
 	void SaveBitmapToFile(CBitmap& bitmapGraph,int ifiletype,CString csFileName);
 	void SaveWindowToBitmap(CWnd *pWnd, CBitmap& bitmapGraph);
