@@ -12,7 +12,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CDataLoggerGraph
+// CGraph
 
 char XAXIS[][21][20]=
 {
@@ -26,7 +26,7 @@ char XAXIS[][21][20]=
 	{"","10","20","30","40","50","60","70","80",""}
 };
 
-CDataLoggerGraph::CDataLoggerGraph()
+CGraph::CGraph()
 {
 
 	m_LeftOffset = m_RightOffset = m_TopOffset = m_BottomOffset  = 50;
@@ -36,21 +36,21 @@ CDataLoggerGraph::CDataLoggerGraph()
 
 }
 
-CDataLoggerGraph::~CDataLoggerGraph()
+CGraph::~CGraph()
 {
 }
 
 
-BEGIN_MESSAGE_MAP(CDataLoggerGraph, CStatic)
-	//{{AFX_MSG_MAP(CDataLoggerGraph)
+BEGIN_MESSAGE_MAP(CGraph, CStatic)
+	//{{AFX_MSG_MAP(CGraph)
 	ON_WM_PAINT()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// CDataLoggerGraph message handlers
+// CGraph message handlers
 
-void CDataLoggerGraph::OnPaint() 
+void CGraph::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting
 
@@ -63,7 +63,7 @@ void CDataLoggerGraph::OnPaint()
 }
 
 
-int CDataLoggerGraph::GetXAxisCharsIndex()
+int CGraph::GetXAxisCharsIndex()
 {
 
 	int ret = 0; 
@@ -101,7 +101,7 @@ int CDataLoggerGraph::GetXAxisCharsIndex()
 	return ret;
 	
 }
-void CDataLoggerGraph::SetDays(int days)
+void CGraph::SetDays(int days)
 {
 	m_Days = days;
 	switch(m_Days)
@@ -133,7 +133,7 @@ void CDataLoggerGraph::SetDays(int days)
 
 }
 
-void CDataLoggerGraph::DrawGridAndText(CPaintDC& dc)
+void CGraph::DrawGridAndText(CPaintDC& dc)
 {
 	CDC memdc;
 	//Double buffer bitmap
@@ -243,7 +243,7 @@ void CDataLoggerGraph::DrawGridAndText(CPaintDC& dc)
 
 }
 
-void CDataLoggerGraph::DrawData(CPaintDC& dc)
+void CGraph::DrawData(CPaintDC& dc)
 {
 	CRect rect;
 	CDC memdc;
@@ -289,7 +289,7 @@ void CDataLoggerGraph::DrawData(CPaintDC& dc)
 
 }
 
-void CDataLoggerGraph::DrawPixcel(CDC& memdc,int x, double y)
+void CGraph::DrawPixcel(CDC& memdc,int x, double y)
 {
 	 double MultiplyOnX = m_xpixel/1440.0;	
 
