@@ -8,13 +8,13 @@
 //
 
 /////////////////////////////////////////////////////////////////////////////
-// CDataLoggerGraph window
+// CGraph window
 
-class CDataLoggerGraph : public CStatic
+class CGraph : public CStatic
 {
 // Construction
 public:
-	CDataLoggerGraph();
+	CGraph();
 
 // Attributes
 public:
@@ -24,18 +24,18 @@ public:
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CDataLoggerGraph)
+	//{{AFX_VIRTUAL(CGraph)
 	//}}AFX_VIRTUAL
 
 // Implementation
 public:
 
 	void SetDays(int day);
-	virtual ~CDataLoggerGraph();
+	virtual ~CGraph();
 
 	// Generated message map functions
 protected:
-	//{{AFX_MSG(CDataLoggerGraph)
+	//{{AFX_MSG(CGraph)
 	afx_msg void OnPaint();
 	//}}AFX_MSG
 private:
