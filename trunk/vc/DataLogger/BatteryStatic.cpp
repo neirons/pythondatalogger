@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "DataLogger.h"
-#include "BatteryLabel.h"
+#include "BatteryStatic.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
