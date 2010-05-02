@@ -188,8 +188,16 @@ void CDataLoggerDlg::OnButtonSave()
 	int iFileType;
 	CString csFileName;
 
+	CRect rect_report;
+
+	//Get the report position
+	GetDlgItem(IDC_STATIC_REPORT)->GetWindowRect(&rect_report);  
+	ScreenToClient(&rect_report);
+	
+
 	CBitmap bitmapGraph;
-	SaveWindowToBitmap((CWnd*)this, bitmapGraph);
+	SaveWindowToBitmap((CWnd*)this, 0,rect_report.top - 5,bitmapGraph);
+	
 
 	if(IDOK == dlg.DoModal())
 	{
@@ -265,7 +273,7 @@ void CDataLoggerDlg::OnButtonClear()
 }
 
 
-void CDataLoggerDlg::SaveWindowToBitmap(CWnd *pWnd, CBitmap& bitmapGraph)
+void CDataLoggerDlg::SaveWindowToBitmap(CWnd *pWnd, int left, int top,CBitmap& bitmapGraph)
 {
 
     CClientDC dc(pWnd);
@@ -275,9 +283,9 @@ void CDataLoggerDlg::SaveWindowToBitmap(CWnd *pWnd, CBitmap& bitmapGraph)
     m_dcGraph.CreateCompatibleDC(&dc);
 	CRect rect;
 	pWnd->GetClientRect(&rect);
-    bitmapGraph.CreateCompatibleBitmap(&dc,rect.Width(),rect.Height());
+    bitmapGraph.CreateCompatibleBitmap(&dc,rect.Width() - left,rect.Height() - top);
     m_dcGraph.SelectObject(&bitmapGraph);
-    m_dcGraph.BitBlt(0,0,rect.Width(),rect.Height(),&dc,0,0,SRCCOPY);	
+    m_dcGraph.BitBlt(0,0,rect.Width() - left,rect.Height() - top,&dc,left,top,SRCCOPY);	
 }
 
 void CDataLoggerDlg::SaveBitmapToFile(CBitmap& bitmapGraph,int ifiletype,CString csFileName)
