@@ -39,6 +39,7 @@ protected:
 	afx_msg void OnPaint();
 	//}}AFX_MSG
 private:
+	int round(double   f);
 	void DrawGridAndText(CPaintDC& dc);
 	void DrawData(CPaintDC& dc);
 	void DrawPixcel(CDC& memdc,int x, double y);

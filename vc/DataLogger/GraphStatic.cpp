@@ -297,5 +297,17 @@ void CGraphStatic::DrawPixcel(CDC& memdc,int x, double y)
 
 	 double r_y = -((y-30)*MultiplyOnY);
 	 double r_x = x * MultiplyOnX;
-	 memdc.SetPixel(r_x,r_y,RGB(0,0,255));
+	 
+	 memdc.SetPixel(round(r_x),round(r_y),RGB(0,0,255));
+}
+
+int CGraphStatic::round(double f)
+{
+    if   ((int)f+0.5>f)  
+		
+		return   (int)f;  
+	
+	else  
+		
+		return   (int)f   +   1;   
 }
