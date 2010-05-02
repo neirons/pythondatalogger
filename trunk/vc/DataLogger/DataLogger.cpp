@@ -54,6 +54,9 @@ BOOL CDataLoggerApp::InitInstance()
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
 
+
+	GdiplusStartup(&m_pGdiToken,&m_gdiplusStartupInput,NULL);
+
 	CDataLoggerDlg dlg;
 	m_pMainWnd = &dlg;
 	int nResponse = dlg.DoModal();
@@ -71,4 +74,11 @@ BOOL CDataLoggerApp::InitInstance()
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
 	return FALSE;
+}
+
+int CDataLoggerApp::ExitInstance() 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	GdiplusShutdown(m_pGdiToken);
+	return CWinApp::ExitInstance();
 }

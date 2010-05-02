@@ -110,6 +110,10 @@ SOURCE=.\DataLoggerGraph.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SaveDialog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
 # End Source File
@@ -136,6 +140,10 @@ SOURCE=.\DataLoggerGraph.h
 # Begin Source File
 
 SOURCE=.\Resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SaveDialog.h
 # End Source File
 # Begin Source File
 

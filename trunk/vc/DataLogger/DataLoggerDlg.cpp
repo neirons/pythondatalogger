@@ -9,7 +9,6 @@
 #include <iostream.h>
 
 #include <conio.h>
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -89,6 +88,8 @@ BEGIN_MESSAGE_MAP(CDataLoggerDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_SAVE, OnButtonSave)
+	ON_BN_CLICKED(IDC_BUTTON_PRINT, OnButtonPrint)
+	ON_BN_CLICKED(IDC_BUTTON_CLEAR, OnButtonClear)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -124,6 +125,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	
 	m_Battery.SetBatteryLevel(16,1);
 	m_Graph.SetDays(20);
+
 //	m_Battery.MoveWindow(rect.left,rect.top,rect.Width(),rect.Height());
 	// TODO: Add extra initialization here
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -486,4 +488,82 @@ BOOL CDataLoggerDlg::WriteDIB(LPTSTR szFile, HANDLE hDIB)
 
  
 
+}
+
+void CDataLoggerDlg::OnButtonPrint() 
+{
+	// TODO: Add your control notification handler code here
+}
+
+void CDataLoggerDlg::SaveWindowToJPG(CWnd *pWnd, CString cFileName)
+{
+
+    CClientDC dc(pWnd);
+
+    CDC  m_dcGraph;
+
+    m_dcGraph.CreateCompatibleDC(&dc);
+	CRect rect;
+	pWnd->GetClientRect(&rect);
+
+    CBitmap   bitmapGraph;
+
+    bitmapGraph.CreateCompatibleBitmap(&dc,rect.Width(),rect.Height());
+    m_dcGraph.SelectObject(&bitmapGraph);
+    m_dcGraph.BitBlt(0,0,rect.Width(),rect.Height(),&dc,0,0,SRCCOPY);
+
+
+   HBITMAP   hBitmap;
+   hBitmap=(HBITMAP)bitmapGraph.GetSafeHandle();
+
+
+   CLSID encoderClsid;
+   Bitmap bitmap(hBitmap,NULL);
+   GetEncoderClsid(L"image/jpeg",&encoderClsid);
+   EncoderParameters encoderPara;
+   encoderPara.Count=1;
+   encoderPara.Parameter[0].Guid=EncoderQuality;
+   encoderPara.Parameter[0].Type=EncoderParameterValueTypeLong;
+   encoderPara.Parameter[0].NumberOfValues=1;
+   ULONG quality=50;
+   encoderPara.Parameter[0].Value=&quality;
+
+   bitmap.Save(cFileName.AllocSysString(),&encoderClsid,&encoderPara);
+	
+}
+int   CDataLoggerDlg::GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  
+  {  
+        UINT     num   =   0;                     //   number   of   image   encoders  
+        UINT     size   =   0;                   //   size   of   the   image   encoder   array   in   bytes  
+   
+        ImageCodecInfo*   pImageCodecInfo   =   NULL;  
+   
+        GetImageEncodersSize(&num,   &size);  
+        if(size   ==   0)  
+              return   -1;     //   Failure  
+   
+        pImageCodecInfo   =   (ImageCodecInfo*)(malloc(size));  
+        if(pImageCodecInfo   ==   NULL)  
+              return   -1;     //   Failure  
+   
+        GetImageEncoders(num,   size,   pImageCodecInfo);  
+   
+        for(UINT   j   =   0;   j   <   num;   ++j)  
+        {  
+              if(   wcscmp(pImageCodecInfo[j].MimeType,   format)   ==   0   )  
+              {  
+                    *pClsid   =   pImageCodecInfo[j].Clsid;  
+                    free(pImageCodecInfo);  
+                    return   j;     //   Success  
+              }          
+        }  
+   
+        free(pImageCodecInfo);  
+        return   -1;     //   Failure  
+  }   
+
+void CDataLoggerDlg::OnButtonClear() 
+{
+	// TODO: Add your control notification handler code here
+	this->SaveWindowToJPG((CWnd*)this,"c:\\2.jpg");
 }
