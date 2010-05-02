@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "DataLogger.h"
-#include "DataLoggerGraph.h"
+#include "Graph.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
