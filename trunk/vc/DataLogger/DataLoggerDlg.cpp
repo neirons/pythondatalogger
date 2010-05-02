@@ -190,6 +190,9 @@ void CDataLoggerDlg::OnButtonSave()
 
 	HANDLE hDIB = 0;
 	hDIB = GetWindowDIB((CWnd*)&m_Graph);
+	CBitmap bitmapGraph;
+
+	SaveWindowToBitmap((CWnd*)&m_Graph, bitmapGraph);
 
 	if(IDOK == dlg.DoModal())
 	{
@@ -204,7 +207,7 @@ void CDataLoggerDlg::OnButtonSave()
 			break;
 		case 1:
 			//JPEG file
-			SaveWindowToJPG((CWnd*)&m_Graph,csFileName);
+			SaveBitmapToFile(bitmapGraph,csFileName);
 			break;
 		case 2:
 			//PDF file
@@ -275,13 +278,13 @@ HANDLE CDataLoggerDlg::GetWindowDIB(CWnd *pWnd)
 
 
 }
-BOOL CDataLoggerDlg::WriteWindowToDIB(LPTSTR szFile, CWnd *pWnd)
-{
-
-return FALSE;
- 
-
-}
+//DEL BOOL CDataLoggerDlg::WriteWindowToDIB(LPTSTR szFile, CWnd *pWnd)
+//DEL {
+//DEL 
+//DEL return FALSE;
+//DEL  
+//DEL 
+//DEL }
 
  
 
@@ -494,42 +497,7 @@ void CDataLoggerDlg::OnButtonPrint()
 	// TODO: Add your control notification handler code here
 }
 
-void CDataLoggerDlg::SaveWindowToJPG(CWnd *pWnd, CString cFileName)
-{
 
-    CClientDC dc(pWnd);
-
-    CDC  m_dcGraph;
-
-    m_dcGraph.CreateCompatibleDC(&dc);
-	CRect rect;
-	pWnd->GetClientRect(&rect);
-
-    CBitmap   bitmapGraph;
-
-    bitmapGraph.CreateCompatibleBitmap(&dc,rect.Width(),rect.Height());
-    m_dcGraph.SelectObject(&bitmapGraph);
-    m_dcGraph.BitBlt(0,0,rect.Width(),rect.Height(),&dc,0,0,SRCCOPY);
-
-
-   HBITMAP   hBitmap;
-   hBitmap=(HBITMAP)bitmapGraph.GetSafeHandle();
-
-
-   CLSID encoderClsid;
-   Bitmap bitmap(hBitmap,NULL);
-   GetEncoderClsid(L"image/jpeg",&encoderClsid);
-   EncoderParameters encoderPara;
-   encoderPara.Count=1;
-   encoderPara.Parameter[0].Guid=EncoderQuality;
-   encoderPara.Parameter[0].Type=EncoderParameterValueTypeLong;
-   encoderPara.Parameter[0].NumberOfValues=1;
-   ULONG quality=50;
-   encoderPara.Parameter[0].Value=&quality;
-
-   bitmap.Save(cFileName.AllocSysString(),&encoderClsid,&encoderPara);
-	
-}
 int   CDataLoggerDlg::GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  
   {  
         UINT     num   =   0;                     //   number   of   image   encoders  
@@ -563,6 +531,40 @@ int   CDataLoggerDlg::GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid
 
 void CDataLoggerDlg::OnButtonClear() 
 {
-	// TODO: Add your control notification handler code here
-	this->SaveWindowToJPG((CWnd*)this,"c:\\2.jpg");
+}
+
+
+void CDataLoggerDlg::SaveWindowToBitmap(CWnd *pWnd, CBitmap& bitmapGraph)
+{
+
+    CClientDC dc(pWnd);
+
+    CDC  m_dcGraph;
+
+    m_dcGraph.CreateCompatibleDC(&dc);
+	CRect rect;
+	pWnd->GetClientRect(&rect);
+    bitmapGraph.CreateCompatibleBitmap(&dc,rect.Width(),rect.Height());
+    m_dcGraph.SelectObject(&bitmapGraph);
+    m_dcGraph.BitBlt(0,0,rect.Width(),rect.Height(),&dc,0,0,SRCCOPY);	
+}
+
+void CDataLoggerDlg::SaveBitmapToFile(CBitmap& bitmapGraph,CString csFileName)
+{
+	HBITMAP   hBitmap;
+    hBitmap=(HBITMAP)bitmapGraph.GetSafeHandle();
+	
+	CLSID encoderClsid;
+	Bitmap bitmap(hBitmap,NULL);
+	GetEncoderClsid(L"image/jpeg",&encoderClsid);
+	EncoderParameters encoderPara;
+	encoderPara.Count=1;
+	encoderPara.Parameter[0].Guid=EncoderQuality;
+	encoderPara.Parameter[0].Type=EncoderParameterValueTypeLong;
+	encoderPara.Parameter[0].NumberOfValues=1;
+	ULONG quality=50;
+	encoderPara.Parameter[0].Value=&quality;
+	
+	bitmap.Save(csFileName.AllocSysString(),&encoderClsid,&encoderPara);
+	
 }

@@ -17,7 +17,6 @@ class CDataLoggerDlg : public CDialog
 {
 // Construction
 public:
-	void SaveWindowToJPG(CWnd *pWnd,CString cFileName);
 	CDataLoggerDlg(CWnd* pParent = NULL);	// standard constructor
 
 // Dialog Data
@@ -49,13 +48,16 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 private:
-	BOOL WriteWindowToDIB(LPTSTR szFile, CWnd *pWnd);
 
 	HANDLE DDBToDIB(CBitmap &bitmap, DWORD dwCompression, CPalette *pPal);
 
 	HANDLE CDataLoggerDlg::GetWindowDIB(CWnd *pWnd);
 	BOOL WriteDIB( LPTSTR szFile, HANDLE hDIB)  ;
-	int   CDataLoggerDlg::GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  ;
+	int  GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  ;
+	void SaveBitmapToFile(CBitmap& bitmapGraph,CString csFileName);
+	void SaveWindowToBitmap(CWnd *pWnd, CBitmap& bitmapGraph);
+
+
 };
 
 //{{AFX_INSERT_LOCATION}}
