@@ -19,7 +19,8 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CSaveDialog)
 	enum { IDD = IDD_SAVE_DIALOG };
-		// NOTE: the ClassWizard will add data members here
+	int		m_iFileType;
+	CString	m_csFileName;
 	//}}AFX_DATA
 
 
@@ -35,6 +36,9 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSaveDialog)
+	virtual void OnOK();
+	virtual void OnCancel();
+	afx_msg void OnButtonBrowse();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
