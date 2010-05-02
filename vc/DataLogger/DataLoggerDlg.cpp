@@ -185,20 +185,40 @@ void CDataLoggerDlg::OnButtonSave()
 	// TODO: Add your control notification handler code here
 	
 	CSaveDialog dlg;
+	int iFileType;
+	CString csFileName;
+
+	HANDLE hDIB = 0;
+	hDIB = GetWindowDIB((CWnd*)&m_Graph);
 
 	if(IDOK == dlg.DoModal())
 	{
+		iFileType = dlg.m_iFileType;
+		csFileName = dlg.m_csFileName;
+
+		switch(iFileType)
+		{
+		case 0:
+			//BMP file
+			WriteDIB((LPSTR)(LPCSTR)csFileName,hDIB);
+			break;
+		case 1:
+			//JPEG file
+			SaveWindowToJPG((CWnd*)&m_Graph,csFileName);
+			break;
+		case 2:
+			//PDF file
+			break;
+		case 3:
+			//Txt file
+			break;
+		default:
+			TRACE("unknow error");
+		}
 
 	}
 
-	
-//	HANDLE hDIB = 0;
-//	hDIB = GetWindowDIB((CWnd*)&m_Graph);
-	
-	
-//	 WriteDIB((LPSTR)(LPCSTR)sFName,hDIB);
-
-//     GlobalFree(hDIB);
+     GlobalFree(hDIB);
 
 }
 HANDLE CDataLoggerDlg::GetWindowDIB(CWnd *pWnd)
