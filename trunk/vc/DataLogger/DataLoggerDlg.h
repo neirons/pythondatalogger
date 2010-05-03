@@ -32,6 +32,13 @@ public:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	//}}AFX_VIRTUAL
 
+	UINT m_cxWidth;
+	UINT m_cxOffset;
+	UINT m_nLinesPerPage;
+	UINT m_cyPrinter;
+	CFont		m_ListFont;
+	CFont		m_fontPrinter;
+
 // Implementation
 protected:
 	HICON m_hIcon;
@@ -43,9 +50,14 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg void OnButtonSave();
-	afx_msg void OnButtonPrint();
 	afx_msg void OnButtonClear();
+	afx_msg void OnPrint();
+	afx_msg void OnPrintPreview();
 	//}}AFX_MSG
+	LRESULT OnBeginPrinting(WPARAM wParam,LPARAM lParam);
+	LRESULT OnEndPrinting(WPARAM wParam,LPARAM lParam);
+	LRESULT OnMyPrint(WPARAM wParam,LPARAM lParam);
+
 	DECLARE_MESSAGE_MAP()
 private:
 
@@ -54,6 +66,7 @@ private:
 	void SaveBitmapToFile(CBitmap& bitmapGraph,int ifiletype,CString csFileName);
 	void SaveWindowToBitmap(CWnd *pWnd, int left, int top,CBitmap& bitmapGraph);
 
+	CBitmap m_SaveGraph;
 
 };
 
