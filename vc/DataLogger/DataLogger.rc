@@ -79,7 +79,7 @@ CAPTION "About DataLogger"
 FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "DataLogger Version 1.0",IDC_STATIC,40,10,119,8,
+    LTEXT           "DataLogger Version 0.9.1.0",IDC_STATIC,40,10,119,8,
                     SS_NOPREFIX
     LTEXT           "Copyright (C) 2010",IDC_STATIC,40,25,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
@@ -89,7 +89,7 @@ IDD_DATALOGGER_DIALOG DIALOGEX 0, 0, 447, 328
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "DataLogger"
-FONT 10, "System"
+FONT 10, "System", 0, 0, 0x1
 BEGIN
     LTEXT           "ͼƬ",IDC_STATIC_GRAPH,7,55,434,212,SS_SUNKEN
     PUSHBUTTON      "Save",IDC_BUTTON_SAVE,4,11,50,14
@@ -132,8 +132,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 0,9,1,0
+ PRODUCTVERSION 0,9,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -146,17 +146,20 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040904B0"
+        BLOCK "040904b0"
         BEGIN
+            VALUE "Comments", "\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "DataLogger MFC Application\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "FileVersion", "0, 9, 1, 0\0"
             VALUE "InternalName", "DataLogger\0"
             VALUE "LegalCopyright", "Copyright (C) 2010\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "DataLogger.EXE\0"
+            VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DataLogger Application\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "ProductVersion", "0, 9, 1, 0\0"
+            VALUE "SpecialBuild", "\0"
         END
     END
     BLOCK "VarFileInfo"
