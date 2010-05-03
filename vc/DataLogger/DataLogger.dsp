@@ -110,6 +110,14 @@ SOURCE=.\GraphStatic.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PrintFrame.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PrintView.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SaveDialog.cpp
 # End Source File
 # Begin Source File
@@ -136,6 +144,14 @@ SOURCE=.\DataLoggerDlg.h
 # Begin Source File
 
 SOURCE=.\GraphStatic.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PrintFrame.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PrintView.h
 # End Source File
 # Begin Source File
 

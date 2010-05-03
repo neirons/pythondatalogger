@@ -9,6 +9,10 @@
 #include <conio.h>
 #include "SaveDialog.h"
 
+#include "PrintFrame.h"
+#include "PrintView.h"
+
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -88,9 +92,14 @@ BEGIN_MESSAGE_MAP(CDataLoggerDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_SAVE, OnButtonSave)
-	ON_BN_CLICKED(IDC_BUTTON_PRINT, OnButtonPrint)
 	ON_BN_CLICKED(IDC_BUTTON_CLEAR, OnButtonClear)
+	ON_BN_CLICKED(IDC_PRINT, OnPrint)
+	ON_BN_CLICKED(IDC_PRINT_PREVIEW, OnPrintPreview)
 	//}}AFX_MSG_MAP
+	ON_MESSAGE(WM_BEGIN_PRINTING,OnBeginPrinting)
+	ON_MESSAGE(WM_END_PRINTING,OnEndPrinting)
+	ON_MESSAGE(WM_MY_PRINT,OnMyPrint)
+
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -193,10 +202,8 @@ void CDataLoggerDlg::OnButtonSave()
 	//Get the report position
 	GetDlgItem(IDC_STATIC_REPORT)->GetWindowRect(&rect_report);  
 	ScreenToClient(&rect_report);
-	
 
-	CBitmap bitmapGraph;
-	SaveWindowToBitmap((CWnd*)this, 0,rect_report.top - 5,bitmapGraph);
+	SaveWindowToBitmap((CWnd*)this, 0,rect_report.top - 5,m_SaveGraph);
 	
 
 	if(IDOK == dlg.DoModal())
@@ -207,7 +214,7 @@ void CDataLoggerDlg::OnButtonSave()
 		{
 		case 0:
 		case 1:
-			SaveBitmapToFile(bitmapGraph,iFileType,csFileName);
+			SaveBitmapToFile(m_SaveGraph,iFileType,csFileName);
 			break;
 		case 2:
 			//PDF file
@@ -220,22 +227,9 @@ void CDataLoggerDlg::OnButtonSave()
 		}
 
 	}
+	m_SaveGraph.Detach();  
+	m_SaveGraph.DeleteObject(); 
 }
-
-
- 
-
-
-
- 
-
-
-
-void CDataLoggerDlg::OnButtonPrint() 
-{
-	// TODO: Add your control notification handler code here
-}
-
 
 int   CDataLoggerDlg::GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  
   {  
@@ -319,4 +313,124 @@ void CDataLoggerDlg::SaveBitmapToFile(CBitmap& bitmapGraph,int ifiletype,CString
 	
 	bitmap.Save(csFileName.AllocSysString(),&encoderClsid,&encoderPara);
 	
+}
+
+void CDataLoggerDlg::OnPrint() 
+{
+	// TODO: Add your control notification handler code here
+	CRect rect_report;
+
+	//Get the report position
+	GetDlgItem(IDC_STATIC_REPORT)->GetWindowRect(&rect_report);  
+	ScreenToClient(&rect_report);
+	SaveWindowToBitmap((CWnd*)this, 0,rect_report.top - 5,m_SaveGraph);
+
+	CPrintFrame *pFrame = new CPrintFrame;
+	pFrame->m_pCallerDlg = this;
+	pFrame->Create(NULL,"Curve Print",WS_OVERLAPPEDWINDOW,CRect(0,0,0,0));
+	pFrame->m_pView->OnMyPrint();
+
+	m_SaveGraph.Detach();  
+	m_SaveGraph.DeleteObject(); 
+
+}
+
+void CDataLoggerDlg::OnPrintPreview() 
+{
+	// TODO: Add your control notification handler code here
+	CRect rect_report;
+
+	//Get the report position
+	GetDlgItem(IDC_STATIC_REPORT)->GetWindowRect(&rect_report);  
+	ScreenToClient(&rect_report);
+
+	SaveWindowToBitmap((CWnd*)this, 0,rect_report.top - 5,m_SaveGraph);
+
+	CPrintFrame *pFrame = new CPrintFrame;
+	pFrame->m_pCallerDlg = this;
+	pFrame->Create(NULL,"Curve Print Preview",WS_OVERLAPPEDWINDOW,CRect(0,0,0,0));
+	pFrame->m_pView->OnMyPrintPreview();
+
+	m_SaveGraph.Detach();  
+	m_SaveGraph.DeleteObject(); 
+
+}
+
+
+
+LRESULT CDataLoggerDlg::OnBeginPrinting(WPARAM wParam,LPARAM lParam)
+{
+
+	CDC* pDC			= (CDC*)wParam;
+	CPrintInfo* pInfo	= (CPrintInfo *)lParam;
+	if(m_fontPrinter.m_hObject==NULL)
+		m_fontPrinter.CreatePointFont(120,"FixedSys",pDC);
+    TEXTMETRIC tm;
+    CFont* pOldFont = pDC->SelectObject (&m_fontPrinter);
+    pDC->GetTextMetrics (&tm);
+    m_cyPrinter = tm.tmHeight + tm.tmExternalLeading;
+    CSize size = pDC->GetTextExtent (_T ("---------1---------2---------" \
+        "3---------4---------5---------6---------7---------8---"), 81);
+    pDC->SelectObject (pOldFont);
+    m_cxWidth = size.cx;
+
+    m_nLinesPerPage = (pDC->GetDeviceCaps (VERTRES) -
+        (m_cyPrinter * (3 + (2 * PRINTMARGIN)))) / m_cyPrinter;
+	pInfo->SetMaxPage (1);
+
+    m_cxOffset = (pDC->GetDeviceCaps (HORZRES) - size.cx) / 2;
+	return TRUE;
+}
+LRESULT CDataLoggerDlg::OnEndPrinting(WPARAM wParam,LPARAM lParam)
+{
+	if(m_fontPrinter.m_hObject!=NULL)
+		m_fontPrinter.DeleteObject ();
+	return TRUE;
+}
+LRESULT CDataLoggerDlg::OnMyPrint(WPARAM wParam,LPARAM lParam)
+{
+
+	UINT gl_uNumOfPoints = 52;
+	CDC* pDC			= (CDC*)wParam;
+	CPrintInfo* pInfo	= (CPrintInfo *)lParam;
+	int nPageNumber = pInfo->m_nCurPage;
+	int i,j;
+
+
+	if(nPageNumber==1)
+	{
+
+		CRect rect_report;
+		//Get the report position
+		GetDlgItem(IDC_STATIC_REPORT)->GetWindowRect(&rect_report);  
+		ScreenToClient(&rect_report);
+		CRect rect;
+		GetClientRect(&rect);
+
+
+		int pix_x = rect.Width();
+		int pix_y = (rect.Height() - rect_report.top);
+
+
+		double dScale=(double)m_cxWidth/pix_x;
+		int nScaledWidth=m_cxWidth;
+		int nScaledHeight=(int)(pix_y*dScale);
+
+
+		
+		CDC memdc;
+		memdc.CreateCompatibleDC(pDC);
+		CBitmap   *pOldBMP   =  memdc.SelectObject(&m_SaveGraph);   
+
+		
+		int nVertCenterPos = pDC->GetDeviceCaps (VERTRES) / 2;
+		pDC->StretchBlt(m_cxOffset,(4 + PRINTMARGIN)*m_cyPrinter,nScaledWidth,nScaledHeight,&memdc,0,0,pix_x,pix_y,SRCCOPY);
+		
+		memdc.SelectObject(pOldBMP);
+
+
+		memdc.DeleteDC();
+
+	}
+	return TRUE;
 }

@@ -20,9 +20,10 @@
 #define IDD_SAVE_DIALOG                 129
 #define IDC_STATIC_GRAPH                1000
 #define IDC_BUTTON_SAVE                 1001
-#define IDC_BUTTON_PRINT                1002
+#define IDC_PRINT                       1002
 #define IDC_BATTERY                     1003
 #define IDC_BUTTON_CLEAR                1004
+#define IDC_PRINT_PREVIEW               1005
 #define IDC_COMBO_TYPE                  1006
 #define IDC_EDIT_FILENAME               1007
 #define IDC_BUTTON_BROWSE               1008
