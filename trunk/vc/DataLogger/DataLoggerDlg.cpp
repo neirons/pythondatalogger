@@ -286,6 +286,7 @@ void CDataLoggerDlg::SaveWindowToBitmap(CWnd *pWnd, int left, int top,CBitmap& b
     bitmapGraph.CreateCompatibleBitmap(&dc,rect.Width() - left,rect.Height() - top);
     m_dcGraph.SelectObject(&bitmapGraph);
     m_dcGraph.BitBlt(0,0,rect.Width() - left,rect.Height() - top,&dc,left,top,SRCCOPY);	
+	m_dcGraph.DeleteDC();
 }
 
 void CDataLoggerDlg::SaveBitmapToFile(CBitmap& bitmapGraph,int ifiletype,CString csFileName)
