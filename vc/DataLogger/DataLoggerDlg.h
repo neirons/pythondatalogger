@@ -13,6 +13,9 @@
 #include "GraphStatic.h"
 #include "BatteryStatic.h"
 
+
+#pragma comment(lib, ".\\PDFLib\\PDFLib.lib")
+
 class CDataLoggerDlg : public CDialog
 {
 // Construction
@@ -60,13 +63,15 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 private:
+	int  SaveToPDFFile(CString pdfillename,CString cstempjpgfile);
+
 
 
 	int  GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  ;
 	void SaveBitmapToFile(CBitmap& bitmapGraph,int ifiletype,CString csFileName);
 	void SaveWindowToBitmap(CWnd *pWnd, int left, int top,CBitmap& bitmapGraph);
-
 	CBitmap m_SaveGraph;
+
 
 };
 

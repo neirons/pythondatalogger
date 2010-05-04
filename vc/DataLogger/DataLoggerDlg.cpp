@@ -13,6 +13,13 @@
 #include "PrintView.h"
 
 
+#include <stdio.h>
+
+#include <iostream>
+
+#include ".\PDFLib\PDFLib.hpp"
+
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -196,7 +203,7 @@ void CDataLoggerDlg::OnButtonSave()
 	CSaveDialog dlg;
 	int iFileType;
 	CString csFileName;
-
+	CString csTempFileName;
 	CRect rect_report;
 
 	//Get the report position
@@ -205,6 +212,8 @@ void CDataLoggerDlg::OnButtonSave()
 
 	SaveWindowToBitmap((CWnd*)this, 0,rect_report.top - 5,m_SaveGraph);
 	
+	CBitmap PdfGraph;
+	SaveWindowToBitmap((CWnd*)&m_Graph, 0,0,PdfGraph);
 
 	if(IDOK == dlg.DoModal())
 	{
@@ -217,6 +226,12 @@ void CDataLoggerDlg::OnButtonSave()
 			SaveBitmapToFile(m_SaveGraph,iFileType,csFileName);
 			break;
 		case 2:
+//First save the  temp jpge file
+			csTempFileName = csFileName + ".jpg";
+			SaveBitmapToFile(PdfGraph,1,csTempFileName);
+			SaveToPDFFile(csFileName,csTempFileName);
+			//Remove the tempfile??
+
 			//PDF file
 			break;
 		case 3:
@@ -227,8 +242,13 @@ void CDataLoggerDlg::OnButtonSave()
 		}
 
 	}
+
 	m_SaveGraph.Detach();  
 	m_SaveGraph.DeleteObject(); 
+
+	PdfGraph.Detach();  
+	PdfGraph.DeleteObject(); 
+
 }
 
 int   CDataLoggerDlg::GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid)  
@@ -394,7 +414,6 @@ LRESULT CDataLoggerDlg::OnMyPrint(WPARAM wParam,LPARAM lParam)
 	CDC* pDC			= (CDC*)wParam;
 	CPrintInfo* pInfo	= (CPrintInfo *)lParam;
 	int nPageNumber = pInfo->m_nCurPage;
-	int i,j;
 
 
 	if(nPageNumber==1)
@@ -433,4 +452,81 @@ LRESULT CDataLoggerDlg::OnMyPrint(WPARAM wParam,LPARAM lParam)
 
 	}
 	return TRUE;
+}
+
+int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
+{
+
+	try
+	{
+		PDFlib pdf;
+
+		//Set the  parameter 
+		pdf.set_parameter("compatibility", "1.4");	
+
+
+		// Open the file 
+		if(pdf.open((LPCSTR)pdfillename) == -1)
+			throw("Open pdf file name error");
+
+		// setup the document info
+		pdf.set_info("Creator", "PDF Creator");
+		pdf.set_info("Author", "WangJun");
+		pdf.set_info("Title", "Convert to PDF");
+		pdf.set_info("Subject", "PDF Creator");
+		pdf.set_info("Keywords", "vckbase.com");
+
+		// using the A4 page
+		pdf.begin_page(a4_width, a4_height);
+
+		// Set the font 
+		int font_song = pdf.findfont("STSong-Light", "GB-EUC-H", 0);
+		pdf.setfont(font_song, 12);
+
+		// Set the start point 
+		pdf.set_text_pos(50, a4_height - 50);
+
+		// Set the font color to blue
+		pdf.setcolor("fill", "rgb", 0, 0, 1, 0);
+/*
+
+		// out put the text
+		CString cs1;
+		CWnd *pWnd = this->GetDlgItem(IDC_STATIC_REPORT);
+		pWnd->GetWindowText(cs1);
+		pdf.show((LPCSTR)cs1);
+
+		pWnd = this->GetDlgItem(IDC_REPORT_CONTENT);
+		pWnd->GetWindowText(cs1);
+		pdf.continue_text((LPCSTR)cs1);
+*/
+
+		int img = pdf.open_image_file("jpeg", (LPCSTR)cstempjpgfile, "", 0);
+		pdf.place_image(img, 1, 1, 0.7);
+		pdf.close_image(img);
+
+		pdf.end_page();
+
+		pdf.close();
+
+
+	}
+	catch(PDFlib::Exception &ex)
+	{
+		TRACE("%s",ex.get_message());
+		return -1;
+	}
+	catch(char *pStrErr)
+	{
+		TRACE(pStrErr);
+		return -1;
+	}
+	catch(...)
+	{
+		TRACE("Unknown error");
+		return -1;
+	}
+
+	return 0;
+
 }

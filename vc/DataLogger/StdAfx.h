@@ -22,6 +22,7 @@
 
 
 
+
 #ifndef ULONG_PTR
 
 #define ULONG_PTR unsigned long*
@@ -33,6 +34,7 @@
 using namespace Gdiplus;
 
 #pragma comment(lib, "gdiplus.lib")
+
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

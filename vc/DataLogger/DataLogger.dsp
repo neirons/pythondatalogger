@@ -106,7 +106,15 @@ SOURCE=.\DataLoggerDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PDFLib\except.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\GraphStatic.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PDFLib\pdflib.cpp
 # End Source File
 # Begin Source File
 
