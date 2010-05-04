@@ -277,9 +277,9 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 	TRACE("xorg = %d,yorg = %d\n",xorg,yorg);
 	memdc.SetViewportOrg(xorg,yorg);
 
-	for(int i = 0;i<1440;i++)
+	for(int i = 0;i<m_TotalPoint;i++)
 	{
-		this->DrawPixcel(memdc,i,30 + i * 0.015);
+		this->DrawPixcel(memdc,i,m_pData[i]);
 	}
 	
 
