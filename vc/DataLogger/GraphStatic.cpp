@@ -291,12 +291,12 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 	x0 = 0;
 	y0 = average;
 	GetPoint(x0,y0);
-	memdc.MoveTo(x0,y0);
+	memdc.MoveTo(round(x0),round(y0));
 
 	x0 = m_TotalPoint;
 	y0 = average;
 	GetPoint(x0,y0);
-	memdc.LineTo(x0,y0);
+	memdc.LineTo(round(x0),round(y0));
 
 	dc.BitBlt(0,0,  rect.Width(),   rect.Height(),   &memdc,   -xorg,   -yorg,   SRCCOPY);  	
 

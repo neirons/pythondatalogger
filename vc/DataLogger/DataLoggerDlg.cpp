@@ -234,7 +234,7 @@ void CDataLoggerDlg::OnButtonSave()
 			SaveBitmapToFile(PdfGraph,1,csTempFileName);
 			SaveToPDFFile(csFileName,csTempFileName);
 			//Remove the tempfile??
-
+			DeleteFile(csTempFileName);
 			//PDF file
 			break;
 		case 3:
@@ -466,18 +466,16 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 
 		//Set the  parameter 
 		pdf.set_parameter("compatibility", "1.4");	
-
-
 		// Open the file 
 		if(pdf.open((LPCSTR)pdfillename) == -1)
 			throw("Open pdf file name error");
 
 		// setup the document info
-		pdf.set_info("Creator", "PDF Creator");
-		pdf.set_info("Author", "WangJun");
+		pdf.set_info("Creator", "Dickson");
+		pdf.set_info("Author", "Dickson");
 		pdf.set_info("Title", "Convert to PDF");
-		pdf.set_info("Subject", "PDF Creator");
-		pdf.set_info("Keywords", "vckbase.com");
+		pdf.set_info("Subject", "DataLogger");
+		pdf.set_info("Keywords", "datalogger");
 
 		// using the A4 page
 		pdf.begin_page(a4_width, a4_height);
@@ -487,10 +485,10 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 		pdf.setfont(font_song, 12);
 
 		// Set the start point 
-		pdf.set_text_pos(50, a4_height - 50);
+//		pdf.set_text_pos(50, a4_height - 50);
 
 		// Set the font color to blue
-		pdf.setcolor("fill", "rgb", 0, 0, 1, 0);
+//		pdf.setcolor("fill", "rgb", 0, 0, 1, 0);
 /*
 
 		// out put the text
@@ -505,7 +503,7 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 */
 
 		int img = pdf.open_image_file("jpeg", (LPCSTR)cstempjpgfile, "", 0);
-		pdf.place_image(img, 1, 1, 0.7);
+		pdf.place_image(img, 15, 450, 0.65);
 		pdf.close_image(img);
 
 		pdf.end_page();
