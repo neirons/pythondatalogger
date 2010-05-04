@@ -41,6 +41,7 @@ public:
 	UINT m_cyPrinter;
 	CFont		m_ListFont;
 	CFont		m_fontPrinter;
+	double m_Data[2000];
 
 // Implementation
 protected:
