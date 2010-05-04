@@ -48,7 +48,12 @@ END_MESSAGE_MAP()
 void CSaveDialog::OnOK() 
 {
 	// TODO: Add extra validation here
-	
+	UpdateData(TRUE);
+	if(m_csFileName.IsEmpty())
+	{
+		AfxMessageBox("Please input your save file");
+		return;
+	}
 	CDialog::OnOK();
 }
 
