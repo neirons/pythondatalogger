@@ -481,26 +481,30 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 		pdf.begin_page(a4_width, a4_height);
 
 		// Set the font 
-		int font_song = pdf.findfont("STSong-Light", "GB-EUC-H", 0);
-		pdf.setfont(font_song, 12);
+//		int font_song = pdf.findfont("STSong-Light", "GB-EUC-H", 0);
+		int font_song = pdf.findfont("Arial", "winansi", 1);
+//		int font_song = pdf.findfont("Fixedsys", "winansi", 1);
+		pdf.setfont(font_song, 8);
 
 		// Set the start point 
-//		pdf.set_text_pos(50, a4_height - 50);
+		pdf.set_text_pos(50, a4_height - 50);
 
 		// Set the font color to blue
-//		pdf.setcolor("fill", "rgb", 0, 0, 1, 0);
-/*
+		pdf.setcolor("fill", "rgb", 0, 0, 0, 0);
 
 		// out put the text
-		CString cs1;
-		CWnd *pWnd = this->GetDlgItem(IDC_STATIC_REPORT);
+		CString cs1,cs2;
+		CWnd *pWnd = this->GetDlgItem(IDC_STATIC_REPORT);		
 		pWnd->GetWindowText(cs1);
-		pdf.show((LPCSTR)cs1);
 
 		pWnd = this->GetDlgItem(IDC_REPORT_CONTENT);
-		pWnd->GetWindowText(cs1);
-		pdf.continue_text((LPCSTR)cs1);
-*/
+		pWnd->GetWindowText(cs2);
+
+		cs1 = cs1 + " ";
+		cs1 +=cs2;
+
+		pdf.show((LPCSTR)cs1);
+
 
 		int img = pdf.open_image_file("jpeg", (LPCSTR)cstempjpgfile, "", 0);
 		pdf.place_image(img, 15, 450, 0.65);
