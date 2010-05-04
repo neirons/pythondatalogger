@@ -143,7 +143,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 		m_Data[i] = 30+i*0.0123;
 
 	m_Battery.SetBatteryLevel(16,1);
-	m_Graph.SetData(20,m_Data);
+	m_Graph.SetData(10,m_Data);
 
 //	m_Battery.MoveWindow(rect.left,rect.top,rect.Width(),rect.Height());
 	// TODO: Add extra initialization here
