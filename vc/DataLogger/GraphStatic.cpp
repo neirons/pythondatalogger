@@ -277,11 +277,26 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 	TRACE("xorg = %d,yorg = %d\n",xorg,yorg);
 	memdc.SetViewportOrg(xorg,yorg);
 
+	double sum=0;
+	double average = 0;
 	for(int i = 0;i<m_TotalPoint;i++)
 	{
-		this->DrawPixcel(memdc,i,m_pData[i]);
+		sum += m_pData[i];
+		this->DrawPixcel(memdc,i,m_pData[i]);	
 	}
-	
+
+	average = sum/m_TotalPoint;
+//Draw the average line
+	double x0,y0;
+	x0 = 0;
+	y0 = average;
+	GetPoint(x0,y0);
+	memdc.MoveTo(x0,y0);
+
+	x0 = m_TotalPoint;
+	y0 = average;
+	GetPoint(x0,y0);
+	memdc.LineTo(x0,y0);
 
 	dc.BitBlt(0,0,  rect.Width(),   rect.Height(),   &memdc,   -xorg,   -yorg,   SRCCOPY);  	
 
