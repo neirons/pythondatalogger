@@ -30,7 +30,7 @@ public:
 // Implementation
 public:
 
-	void SetDays(int day);
+	void SetData(int day,double* pData);
 	virtual ~CGraphStatic();
 
 	// Generated message map functions
@@ -59,7 +59,9 @@ private:
 
 	int m_Days;
 
-	
+	double* m_pData;
+	int m_TotalPoint;
+
 	DECLARE_MESSAGE_MAP()
 };
 

@@ -101,9 +101,11 @@ int CGraphStatic::GetXAxisCharsIndex()
 	return ret;
 	
 }
-void CGraphStatic::SetDays(int days)
+void CGraphStatic::SetData(int days,double* pData)
 {
 	m_Days = days;
+	m_pData = pData;
+	m_TotalPoint = 1440;
 	switch(m_Days)
 	{
 	case 1:
