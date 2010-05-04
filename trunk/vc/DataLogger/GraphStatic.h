@@ -39,10 +39,11 @@ protected:
 	afx_msg void OnPaint();
 	//}}AFX_MSG
 private:
+	void GetPoint(double &x,double &y);
 	int round(double   f);
 	void DrawGridAndText(CPaintDC& dc);
 	void DrawData(CPaintDC& dc);
-	void DrawPixcel(CDC& memdc,int x, double y);
+	void DrawPixcel(CDC& memdc,double x, double y);
 	
 	int GetXAxisCharsIndex();
 
