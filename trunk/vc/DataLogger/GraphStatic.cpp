@@ -293,16 +293,18 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 
 void CGraphStatic::DrawPixcel(CDC& memdc,double x, double y)
 {
-#if 1
+#if 0
 	 double MultiplyOnX = m_xpixel/1440.0;	
 
 	 double MultiplyOnY = m_ypixel/30.0;
 
 	 double r_y = -((y-30)*MultiplyOnY);
 	 double r_x = x * MultiplyOnX;
+	 TRACE("r_x = %f,r_y=%f\n",r_x,r_y);
 	 memdc.SetPixel(round(r_x),round(r_y),RGB(0,0,255));
 #else
 	 GetPoint(x,y);
+	 TRACE("r_x = %f,r_y=%f\n",x,y);
 	 memdc.SetPixel(round(x),round(y),RGB(0,0,255));
 #endif	 
 }
@@ -320,7 +322,7 @@ int CGraphStatic::round(double f)
 
 void CGraphStatic::GetPoint(double &x, double &y)
 {
-	 double MultiplyOnX = m_xpixel/m_TotalPoint;	
+	 double MultiplyOnX = ((double)m_xpixel)/((double)m_TotalPoint);	
 
 	 double MultiplyOnY = m_ypixel/30.0;
 
