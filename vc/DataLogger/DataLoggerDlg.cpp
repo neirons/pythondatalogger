@@ -463,8 +463,9 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 	try
 	{
 		PDFlib pdf;
-		int left_offset = 40;
-		int text_offset_y = 90;
+		int left_offset = 20;
+		int text_offset_y = 100;
+		int text_line_height = 25;
 		//Set the  parameter 
 		pdf.set_parameter("compatibility", "1.4");	
 
@@ -486,13 +487,13 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 
 		// Set the font 
 		int font_song = pdf.findfont("Arial", "winansi", 1);
-		pdf.setfont(font_song, 14);
+		pdf.setfont(font_song, 18);
 
 		// Set the start point 
 //		pdf.set_text_pos(18, iheight - 40);
 
 		// Set the font color to blue
-		pdf.setcolor("fill", "rgb", 0, 0, 0, 0);
+		pdf.setcolor("fill", "rgb", 0, 0, 1, 0);
 
 		// out put the text
 		CString cs1,cs2;
@@ -500,11 +501,14 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 		GetDlgItemText(IDC_STATIC_DATA_REPORT,cs1);
 		GetDlgItemText(IDC_DATA_REPORT,cs2);
 		cs1 =cs1 + " " + cs2;
-		pdf.show_xy((LPCSTR)cs1, left_offset, iheight - 40);
+		pdf.show_xy((LPCSTR)cs1, left_offset + 200, iheight - 40);
 
 		int img = pdf.open_image_file("jpeg", (LPCSTR)cstempjpgfile, "", 0);
-		pdf.place_image(img, left_offset, 120, 1);
+		pdf.place_image(img, left_offset, 130, 0.93);
 		pdf.close_image(img);
+
+		pdf.setfont(font_song, 14);
+		pdf.setcolor("fill", "rgb", 0, 0, 0, 0);
 
 		GetDlgItemText(IDC_STATIC_START_TIME,cs1);
 		GetDlgItemText(IDC_START_TIME,cs2);
@@ -514,13 +518,13 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 		GetDlgItemText(IDC_SERIAL,cs2);
 		cs1 =cs1 + " " + cs2;				
 		pdf.show_xy((LPCSTR)cs1, left_offset+400, text_offset_y);
-		text_offset_y -= 20;
+		text_offset_y -= text_line_height;
 
 		GetDlgItemText(IDC_STATIC_HOURS,cs1);
 		GetDlgItemText(IDC_HOURS,cs2);
 		cs1 =cs1 + " " + cs2;				
 		pdf.show_xy((LPCSTR)cs1, left_offset, text_offset_y);
-		text_offset_y -= 20;
+		text_offset_y -= text_line_height;
 
 		GetDlgItemText(IDC_STATIC_PRINTED_BY,cs1);
 		GetDlgItemText(IDC_PRINTED_BY,cs2);
@@ -531,7 +535,7 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 		GetDlgItemText(IDC_DATE_TIME,cs2);
 		cs1 =cs1 + " " + cs2;				
 		pdf.show_xy((LPCSTR)cs1, left_offset+400, text_offset_y);
-		text_offset_y -= 20;
+		text_offset_y -= text_line_height;
 
 
 		GetDlgItemText(IDC_STATIC_SHIP_NOTE,cs1);
