@@ -463,9 +463,11 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 	try
 	{
 		PDFlib pdf;
-
+		int left_offset = 40;
+		int text_offset_y = 90;
 		//Set the  parameter 
 		pdf.set_parameter("compatibility", "1.4");	
+
 		// Open the file 
 		if(pdf.open((LPCSTR)pdfillename) == -1)
 			throw("Open pdf file name error");
@@ -473,91 +475,87 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 		// setup the document info
 		pdf.set_info("Creator", "Dickson");
 		pdf.set_info("Author", "Dickson");
-		pdf.set_info("Title", "Convert to PDF");
+		pdf.set_info("Title", "Dickson Datalogger");
 		pdf.set_info("Subject", "DataLogger");
-		pdf.set_info("Keywords", "datalogger");
+		pdf.set_info("Keywords", "datalogger,dickson");
 
 		// using the A4 page
-//		pdf.begin_page(a4_width, a4_height);
 		double iwidth = a4_height;
 		double iheight = a4_width;
 		pdf.begin_page(iwidth, iheight);
 
 		// Set the font 
-//		int font_song = pdf.findfont("STSong-Light", "GB-EUC-H", 0);
 		int font_song = pdf.findfont("Arial", "winansi", 1);
-//		int font_song = pdf.findfont("Fixedsys", "winansi", 1);
 		pdf.setfont(font_song, 14);
 
 		// Set the start point 
-		pdf.set_text_pos(18, a4_width - 50);
+//		pdf.set_text_pos(18, iheight - 40);
 
 		// Set the font color to blue
 		pdf.setcolor("fill", "rgb", 0, 0, 0, 0);
 
 		// out put the text
 		CString cs1,cs2;
-		CWnd *pWnd = this->GetDlgItem(IDC_STATIC_DATA_REPORT);		
-		pWnd->GetWindowText(cs1);
 
-		pWnd = this->GetDlgItem(IDC_DATA_REPORT);
-		pWnd->GetWindowText(cs2);
-		cs1 = cs1 + " ";
-		cs1 +=cs2;
-		pdf.show((LPCSTR)cs1);
-
+		GetDlgItemText(IDC_STATIC_DATA_REPORT,cs1);
+		GetDlgItemText(IDC_DATA_REPORT,cs2);
+		cs1 =cs1 + " " + cs2;
+		pdf.show_xy((LPCSTR)cs1, left_offset, iheight - 40);
 
 		int img = pdf.open_image_file("jpeg", (LPCSTR)cstempjpgfile, "", 0);
-		pdf.place_image(img, 12, 120, 0.94);
+		pdf.place_image(img, left_offset, 120, 1);
 		pdf.close_image(img);
 
-		// Set the start point 
-		pWnd = this->GetDlgItem(IDC_STATIC_START_TIME);		
-		pWnd->GetWindowText(cs1);
+		GetDlgItemText(IDC_STATIC_START_TIME,cs1);
+		GetDlgItemText(IDC_START_TIME,cs2);
+		cs1 =cs1 + " " + cs2;		
+		pdf.show_xy((LPCSTR)cs1, left_offset, text_offset_y);
+		GetDlgItemText(IDC_STATIC_SERIAL,cs1);
+		GetDlgItemText(IDC_SERIAL,cs2);
+		cs1 =cs1 + " " + cs2;				
+		pdf.show_xy((LPCSTR)cs1, left_offset+400, text_offset_y);
+		text_offset_y -= 20;
 
-		pWnd = this->GetDlgItem(IDC_START_TIME);
-		pWnd->GetWindowText(cs2);
-		cs1 = cs1 + " ";
-		cs1 +=cs2;
-		pdf.show_xy((LPCSTR)cs1, 15, 100);
+		GetDlgItemText(IDC_STATIC_HOURS,cs1);
+		GetDlgItemText(IDC_HOURS,cs2);
+		cs1 =cs1 + " " + cs2;				
+		pdf.show_xy((LPCSTR)cs1, left_offset, text_offset_y);
+		text_offset_y -= 20;
 
+		GetDlgItemText(IDC_STATIC_PRINTED_BY,cs1);
+		GetDlgItemText(IDC_PRINTED_BY,cs2);
+		cs1 =cs1 + " " + cs2;		
+		pdf.show_xy((LPCSTR)cs1, left_offset, text_offset_y);
+
+		GetDlgItemText(IDC_STATIC_DATE_TIME,cs1);
+		GetDlgItemText(IDC_DATE_TIME,cs2);
+		cs1 =cs1 + " " + cs2;				
+		pdf.show_xy((LPCSTR)cs1, left_offset+400, text_offset_y);
+		text_offset_y -= 20;
+
+
+		GetDlgItemText(IDC_STATIC_SHIP_NOTE,cs1);
+		GetDlgItemText(IDC_SHIP_NOTE,cs2);
+		cs1 =cs1 + " " + cs2;				
+		pdf.show_xy((LPCSTR)cs1, left_offset, text_offset_y);
 		
-
-		pWnd = this->GetDlgItem(IDC_STATIC_SERIAL);		
-		pWnd->GetWindowText(cs1);
-
-		pWnd = this->GetDlgItem(IDC_SERIAL);
-		pWnd->GetWindowText(cs2);
-		cs1 = cs1 + " ";
-		cs1 +=cs2;
-		pdf.show_xy((LPCSTR)cs1, 15+400, 100);
-
-
-
-		pWnd = this->GetDlgItem(IDC_STATIC_HOURS);		
-		pWnd->GetWindowText(cs1);
-
-		pWnd = this->GetDlgItem(IDC_HOURS);
-		pWnd->GetWindowText(cs2);
-		cs1 = cs1 + " ";
-		cs1 +=cs2;
-		pdf.show_xy((LPCSTR)cs1, 15 , 80);
-
 
 
 		pdf.end_page();
 
 		pdf.close();
-
-
 	}
+
 	catch(PDFlib::Exception &ex)
 	{
+		AfxMessageBox("Please make sure the pdf file is not opened!");
 		TRACE("%s",ex.get_message());
 		return -1;
 	}
 	catch(char *pStrErr)
 	{
+		AfxMessageBox("Save Error! Please make sure the pdf file is not opened by other application!");
+
 		TRACE(pStrErr);
 		return -1;
 	}
@@ -570,3 +568,5 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 	return 0;
 
 }
+
+
