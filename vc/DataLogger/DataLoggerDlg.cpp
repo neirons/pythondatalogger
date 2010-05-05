@@ -478,37 +478,72 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 		pdf.set_info("Keywords", "datalogger");
 
 		// using the A4 page
-		pdf.begin_page(a4_width, a4_height);
+//		pdf.begin_page(a4_width, a4_height);
+		double iwidth = a4_height;
+		double iheight = a4_width;
+		pdf.begin_page(iwidth, iheight);
 
 		// Set the font 
 //		int font_song = pdf.findfont("STSong-Light", "GB-EUC-H", 0);
 		int font_song = pdf.findfont("Arial", "winansi", 1);
 //		int font_song = pdf.findfont("Fixedsys", "winansi", 1);
-		pdf.setfont(font_song, 8);
+		pdf.setfont(font_song, 14);
 
 		// Set the start point 
-		pdf.set_text_pos(50, a4_height - 50);
+		pdf.set_text_pos(18, a4_width - 50);
 
 		// Set the font color to blue
 		pdf.setcolor("fill", "rgb", 0, 0, 0, 0);
 
 		// out put the text
 		CString cs1,cs2;
-		CWnd *pWnd = this->GetDlgItem(IDC_STATIC_REPORT);		
+		CWnd *pWnd = this->GetDlgItem(IDC_STATIC_DATA_REPORT);		
 		pWnd->GetWindowText(cs1);
 
-		pWnd = this->GetDlgItem(IDC_REPORT_CONTENT);
+		pWnd = this->GetDlgItem(IDC_DATA_REPORT);
 		pWnd->GetWindowText(cs2);
-
 		cs1 = cs1 + " ";
 		cs1 +=cs2;
-
 		pdf.show((LPCSTR)cs1);
 
 
 		int img = pdf.open_image_file("jpeg", (LPCSTR)cstempjpgfile, "", 0);
-		pdf.place_image(img, 15, 450, 0.65);
+		pdf.place_image(img, 12, 120, 0.94);
 		pdf.close_image(img);
+
+		// Set the start point 
+		pWnd = this->GetDlgItem(IDC_STATIC_START_TIME);		
+		pWnd->GetWindowText(cs1);
+
+		pWnd = this->GetDlgItem(IDC_START_TIME);
+		pWnd->GetWindowText(cs2);
+		cs1 = cs1 + " ";
+		cs1 +=cs2;
+		pdf.show_xy((LPCSTR)cs1, 15, 100);
+
+		
+
+		pWnd = this->GetDlgItem(IDC_STATIC_SERIAL);		
+		pWnd->GetWindowText(cs1);
+
+		pWnd = this->GetDlgItem(IDC_SERIAL);
+		pWnd->GetWindowText(cs2);
+		cs1 = cs1 + " ";
+		cs1 +=cs2;
+		pdf.show_xy((LPCSTR)cs1, 15+400, 100);
+
+
+
+		pWnd = this->GetDlgItem(IDC_STATIC_HOURS);		
+		pWnd->GetWindowText(cs1);
+
+		pWnd = this->GetDlgItem(IDC_HOURS);
+		pWnd->GetWindowText(cs2);
+		cs1 = cs1 + " ";
+		cs1 +=cs2;
+		pdf.show_xy((LPCSTR)cs1, 15 , 80);
+
+
 
 		pdf.end_page();
 

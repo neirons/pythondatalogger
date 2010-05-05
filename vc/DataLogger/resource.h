@@ -28,7 +28,21 @@
 #define IDC_EDIT_FILENAME               1007
 #define IDC_BUTTON_BROWSE               1008
 #define IDC_STATIC_REPORT               1009
+#define IDC_STATIC_DATA_REPORT          1009
 #define IDC_REPORT_CONTENT              1010
+#define IDC_DATA_REPORT                 1010
+#define IDC_STATIC_START_TIME           1011
+#define IDC_STATIC_SERIAL               1012
+#define IDC_STATIC_PRINTED_BY           1013
+#define IDC_STATIC_DATE_TIME            1014
+#define IDC_STATIC_SHIP_NOTE            1015
+#define IDC_START_TIME                  1016
+#define IDC_SERIAL                      1017
+#define IDC_HOURS                       1018
+#define IDC_PRINTED_BY                  1019
+#define IDC_DATE_TIME                   1020
+#define IDC_SHIP_NOTE                   1021
+#define IDC_STATIC_HOURS                1022
 
 // Next default values for new objects
 // 
@@ -36,7 +50,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1011
+#define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
