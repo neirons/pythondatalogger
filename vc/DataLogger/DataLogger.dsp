@@ -114,6 +114,10 @@ SOURCE=.\GraphStatic.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\LogFile.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\PDFLib\pdflib.cpp
 # End Source File
 # Begin Source File
@@ -152,6 +156,10 @@ SOURCE=.\DataLoggerDlg.h
 # Begin Source File
 
 SOURCE=.\GraphStatic.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LogFile.h
 # End Source File
 # Begin Source File
 
