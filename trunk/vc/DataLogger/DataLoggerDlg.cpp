@@ -19,6 +19,7 @@
 
 #include ".\PDFLib\PDFLib.hpp"
 
+#include "LogFile.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -168,6 +169,12 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	csHour.Format("%d",Days*24);
 	GetDlgItem(IDC_HOURS)->SetWindowText(csHour);
 
+	CLogFile log;
+	CString csLog;
+	csLog.Format("Day  is %d ,Hour is %s",Days,csHour);
+
+	log.WriteLog(csLog);
+
 //	m_Battery.MoveWindow(rect.left,rect.top,rect.Width(),rect.Height());
 	// TODO: Add extra initialization here
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -231,6 +238,8 @@ void CDataLoggerDlg::OnButtonSave()
 	CString csFileName;
 	CString csTempFileName;
 	CRect rect_report;
+	CLogFile logfile;
+	CString cslog;
 
 	//Get the report position
 	GetDlgItem(IDC_STATIC_REPORT)->GetWindowRect(&rect_report);  
@@ -245,6 +254,8 @@ void CDataLoggerDlg::OnButtonSave()
 	{
 		iFileType = dlg.m_iFileType;
 		csFileName = dlg.m_csFileName;
+		cslog.Format("save file %s",csFileName);
+		logfile.WriteLog(cslog);
 		switch(iFileType)
 		{
 		case 0:
