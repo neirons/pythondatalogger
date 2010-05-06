@@ -11,7 +11,7 @@
 
 #include "PrintFrame.h"
 #include "PrintView.h"
-
+#include <IO.h>
 
 #include <stdio.h>
 
@@ -142,9 +142,27 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	for(int i =0;i<2000;i++)
 		m_Data[i] = 33.5+i*0.0123;
 
+
+	
+	CString strFilePath;
+	char strBuff[256];
+	strFilePath=GetCurrentDirectory(256,strBuff); //Get current path
+	strFilePath.Format("%s\\config.ini",strBuff);
+
+
+	int Days = 10;
+	if (_access ((LPCSTR)strFilePath, 0) != 0) 
+	{
+			// File exists! (-1 if not)
+		Days = 10;
+	}
+	else
+	{
+		GetPrivateProfileString("DataLogger","Day",NULL,strBuff,80,strFilePath);
+		Days = atoi(strBuff);
+	}
 	m_Battery.SetBatteryLevel(16,1);
-	int Days = 20;
-	m_Graph.SetData(20,m_Data);
+	m_Graph.SetData(Days,m_Data);
 
 	CString csHour;
 	csHour.Format("%d",Days*24);
