@@ -30,7 +30,8 @@ CGraphStatic::CGraphStatic()
 {
 
 	m_LeftOffset = m_RightOffset = m_TopOffset = m_BottomOffset  = 50;
-
+	m_LeftOffset = 80;
+	
 	m_XGrid = 12;
 	m_YGrid = 6;
 
@@ -286,12 +287,21 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 	}
 
 	average = sum/m_TotalPoint;
+
 //Draw the average line
 	double x0,y0;
 	x0 = 0;
 	y0 = average;
 	GetPoint(x0,y0);
 	memdc.MoveTo(round(x0),round(y0));
+
+//	int old_mode = memdc.SetBkMode(TRANSPARENT);
+	COLORREF old_bkcolor = memdc.SetBkColor(RGB(255,255,0));
+	COLORREF old_color = memdc.SetTextColor(RGB(255,0,255));
+	memdc.TextOut(round(x0 - (m_LeftOffset - 10)) ,round(y0 - 12),"Ave.Temp");
+//	memdc.SetBkMode(old_mode);
+	memdc.SetTextColor(old_color);
+	memdc.SetBkColor(old_bkcolor);
 
 	x0 = m_TotalPoint;
 	y0 = average;

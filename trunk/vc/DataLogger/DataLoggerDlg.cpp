@@ -140,10 +140,15 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
 	for(int i =0;i<2000;i++)
-		m_Data[i] = 30+i*0.0123;
+		m_Data[i] = 33.5+i*0.0123;
 
 	m_Battery.SetBatteryLevel(16,1);
-	m_Graph.SetData(10,m_Data);
+	int Days = 20;
+	m_Graph.SetData(20,m_Data);
+
+	CString csHour;
+	csHour.Format("%d",Days*24);
+	GetDlgItem(IDC_HOURS)->SetWindowText(csHour);
 
 //	m_Battery.MoveWindow(rect.left,rect.top,rect.Width(),rect.Height());
 	// TODO: Add extra initialization here
@@ -504,7 +509,7 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 		pdf.show_xy((LPCSTR)cs1, left_offset + 200, iheight - 40);
 
 		int img = pdf.open_image_file("jpeg", (LPCSTR)cstempjpgfile, "", 0);
-		pdf.place_image(img, left_offset, 130, 0.93);
+		pdf.place_image(img, left_offset, 130, (float)0.93);
 		pdf.close_image(img);
 
 		pdf.setfont(font_song, 14);
@@ -514,16 +519,20 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 		GetDlgItemText(IDC_START_TIME,cs2);
 		cs1 =cs1 + " " + cs2;		
 		pdf.show_xy((LPCSTR)cs1, left_offset, text_offset_y);
-		GetDlgItemText(IDC_STATIC_SERIAL,cs1);
-		GetDlgItemText(IDC_SERIAL,cs2);
-		cs1 =cs1 + " " + cs2;				
-		pdf.show_xy((LPCSTR)cs1, left_offset+400, text_offset_y);
 		text_offset_y -= text_line_height;
+
+
+
 
 		GetDlgItemText(IDC_STATIC_HOURS,cs1);
 		GetDlgItemText(IDC_HOURS,cs2);
 		cs1 =cs1 + " " + cs2;				
 		pdf.show_xy((LPCSTR)cs1, left_offset, text_offset_y);
+
+		GetDlgItemText(IDC_STATIC_SERIAL,cs1);
+		GetDlgItemText(IDC_SERIAL,cs2);
+		cs1 =cs1 + " " + cs2;				
+		pdf.show_xy((LPCSTR)cs1, left_offset+400, text_offset_y);
 		text_offset_y -= text_line_height;
 
 		GetDlgItemText(IDC_STATIC_PRINTED_BY,cs1);
