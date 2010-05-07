@@ -57,6 +57,7 @@ protected:
 	afx_msg void OnButtonClear();
 	afx_msg void OnPrint();
 	afx_msg void OnPrintPreview();
+	virtual void OnCancel();
 	//}}AFX_MSG
 	LRESULT OnBeginPrinting(WPARAM wParam,LPARAM lParam);
 	LRESULT OnEndPrinting(WPARAM wParam,LPARAM lParam);
@@ -64,6 +65,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 private:
+	void SaveToTxtFile(CString txtfilename);
 	int  SaveToPDFFile(CString pdfillename,CString cstempjpgfile);
 
 
