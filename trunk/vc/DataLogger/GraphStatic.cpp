@@ -102,11 +102,13 @@ int CGraphStatic::GetXAxisCharsIndex()
 	return ret;
 	
 }
-void CGraphStatic::SetData(int days,double* pData)
+void CGraphStatic::SetData(int days,double* pData,int totalpoint,double average)
 {
 	m_Days = days;
 	m_pData = pData;
-	m_TotalPoint = 1440;
+	m_TotalPoint = totalpoint;
+	m_Average = average;
+
 	switch(m_Days)
 	{
 	case 1:
@@ -278,20 +280,16 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 	TRACE("xorg = %d,yorg = %d\n",xorg,yorg);
 	memdc.SetViewportOrg(xorg,yorg);
 
-	double sum=0;
-	double average = 0;
 	for(int i = 0;i<m_TotalPoint;i++)
 	{
-		sum += m_pData[i];
 		this->DrawPixcel(memdc,i,m_pData[i]);	
 	}
 
-	average = sum/m_TotalPoint;
 
 //Draw the average line
 	double x0,y0;
 	x0 = 0;
-	y0 = average;
+	y0 = m_Average;
 	GetPoint(x0,y0);
 	memdc.MoveTo(round(x0),round(y0));
 
@@ -304,7 +302,7 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 	memdc.SetBkColor(old_bkcolor);
 
 	x0 = m_TotalPoint;
-	y0 = average;
+	y0 = m_Average;
 	GetPoint(x0,y0);
 	memdc.LineTo(round(x0),round(y0));
 
