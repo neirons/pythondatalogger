@@ -298,7 +298,7 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 //	int old_mode = memdc.SetBkMode(TRANSPARENT);
 	COLORREF old_bkcolor = memdc.SetBkColor(RGB(255,255,0));
 	COLORREF old_color = memdc.SetTextColor(RGB(255,0,255));
-	memdc.TextOut(round(x0 - (m_LeftOffset - 10)) ,round(y0 - 12),"Ave.Temp");
+	memdc.TextOut(round(x0 - (m_LeftOffset - 10)) ,round(y0 - 12),"Avg.Temp");
 //	memdc.SetBkMode(old_mode);
 	memdc.SetTextColor(old_color);
 	memdc.SetBkColor(old_bkcolor);

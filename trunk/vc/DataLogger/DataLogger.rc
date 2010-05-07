@@ -79,7 +79,7 @@ CAPTION "About DataLogger"
 FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "DataLogger Version 0.9.3.0",IDC_STATIC,40,10,119,8,
+    LTEXT           "DataLogger Version 0.9.4.0",IDC_STATIC,40,10,119,8,
                     SS_NOPREFIX
     LTEXT           "Copyright (C) 2010",IDC_STATIC,40,25,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
@@ -88,7 +88,7 @@ END
 IDD_DATALOGGER_DIALOG DIALOGEX 0, 0, 447, 328
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "DataLogger v0.9.3"
+CAPTION "DataLogger v0.9.4"
 FONT 10, "System"
 BEGIN
     LTEXT           "ͼƬ",IDC_STATIC_GRAPH,7,55,434,212,SS_SUNKEN
@@ -108,13 +108,13 @@ BEGIN
     LTEXT           "UTC Offset(in hours):",IDC_STATIC_HOURS,11,286,70,8
     LTEXT           "Date/Time:",IDC_STATIC_DATE_TIME,285,298,36,8
     LTEXT           "Printed By:",IDC_STATIC_PRINTED_BY,11,298,37,8
-    LTEXT           "Shipper Notes:",IDC_STATIC_SHIP_NOTE,11,310,49,8
+    LTEXT           "Notes:",IDC_STATIC_SHIP_NOTE,11,310,22,8
     LTEXT           "November 1,2010 21:22 :37",IDC_START_TIME,125,274,91,8
     LTEXT           "09003124",IDC_SERIAL,364,286,33,8
     LTEXT           "6",IDC_HOURS,85,286,70,8
     LTEXT           "Dickson Mike",IDC_PRINTED_BY,54,298,45,8
     LTEXT           "November 1,2009 ,21:22 :37",IDC_DATE_TIME,321,298,93,8
-    LTEXT           "This is my first shipper from USA",IDC_SHIP_NOTE,62,310,
+    LTEXT           "This is my first shipper from USA",IDC_SHIP_NOTE,38,310,
                     108,8
 END
 
@@ -132,6 +132,17 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,234,49,50,14
 END
 
+IDD_EXIT_DIALOG DIALOG DISCARDABLE  0, 0, 243, 53
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Exit Datalogger application?"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,41,34,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,152,34,50,14
+    LTEXT           "Pressing OK will Exit the graph without saving the graph or clearing the logger. The logger can not start logging until cleared.",
+                    IDC_STATIC,6,9,232,22
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -140,8 +151,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,9,3,0
- PRODUCTVERSION 0,9,3,0
+ FILEVERSION 0,9,4,0
+ PRODUCTVERSION 0,9,4,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -159,14 +170,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "DataLogger MFC Application\0"
-            VALUE "FileVersion", "0, 9, 3, 0\0"
+            VALUE "FileVersion", "0, 9, 4, 0\0"
             VALUE "InternalName", "DataLogger\0"
             VALUE "LegalCopyright", "Copyright (C) 2010\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "DataLogger.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DataLogger Application\0"
-            VALUE "ProductVersion", "0, 9, 3, 0\0"
+            VALUE "ProductVersion", "0, 9, 4, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -209,6 +220,14 @@ BEGIN
         RIGHTMARGIN, 294
         TOPMARGIN, 7
         BOTTOMMARGIN, 65
+    END
+
+    IDD_EXIT_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 46
     END
 END
 #endif    // APSTUDIO_INVOKED

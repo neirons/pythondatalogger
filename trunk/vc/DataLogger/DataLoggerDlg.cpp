@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #include <iostream>
-
+#include "ExitDialog.h"
 #include ".\PDFLib\PDFLib.hpp"
 
 #include "LogFile.h"
@@ -272,6 +272,7 @@ void CDataLoggerDlg::OnButtonSave()
 			//PDF file
 			break;
 		case 3:
+			SaveToTxtFile(csFileName);
 			//Txt file
 			break;
 		default:
@@ -321,6 +322,7 @@ int   CDataLoggerDlg::GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid
 
 void CDataLoggerDlg::OnButtonClear() 
 {
+
 }
 
 
@@ -612,3 +614,83 @@ int  CDataLoggerDlg::SaveToPDFFile(CString pdfillename,CString cstempjpgfile)
 }
 
 
+
+void CDataLoggerDlg::OnCancel() 
+{
+	// TODO: Add extra cleanup here
+	CExitDialog dlg;
+	if(dlg.DoModal() == IDOK)
+	{
+		CDialog::OnCancel();
+	}
+	else
+	{
+		TRACE("Do nothing without exit the dialog");
+	}
+
+}
+
+void CDataLoggerDlg::SaveToTxtFile(CString txtfilename)
+{
+	
+	CFile cFile(txtfilename,CFile::modeCreate|CFile::modeWrite);
+	
+	CString cs1,cs2;
+	GetDlgItemText(IDC_STATIC_DATA_REPORT,cs1);
+	GetDlgItemText(IDC_DATA_REPORT,cs2);
+	cs1 =cs1 + " " + cs2 + "\r\n";	
+	cFile.Write(cs1,cs1.GetLength());
+
+	cs1.Format("==============================DATA START==============================\r\n");
+	cFile.Write(cs1,cs1.GetLength());
+
+	cs1.Empty();
+	for (int i = 0;i< 1440;i+=10)
+	{
+		for(int j = 0;j < 10;j++)
+		{
+			cs2.Format("%.8f,",m_Data[i +j]);
+			cs1 += cs2;
+		}
+		cs1 += "\r\n";
+		cFile.Write(cs1,cs1.GetLength());
+	}
+	cs1.Format("==============================DATA   END==============================\r\n");
+	cFile.Write(cs1,cs1.GetLength());
+	
+	GetDlgItemText(IDC_STATIC_START_TIME,cs1);
+	GetDlgItemText(IDC_START_TIME,cs2);
+	cs1 =cs1 + " " + cs2 + "\r\n";	
+	cFile.Write(cs1,cs1.GetLength());
+
+	GetDlgItemText(IDC_STATIC_HOURS,cs1);
+	GetDlgItemText(IDC_HOURS,cs2);
+	cs1 =cs1 + " " + cs2 + "\r\n";	
+	cFile.Write(cs1,cs1.GetLength());
+
+	GetDlgItemText(IDC_STATIC_SERIAL,cs1);
+	GetDlgItemText(IDC_SERIAL,cs2);
+	cs1 =cs1 + " " + cs2 + "\r\n";	
+	cFile.Write(cs1,cs1.GetLength());
+	
+
+	GetDlgItemText(IDC_STATIC_PRINTED_BY,cs1);
+	GetDlgItemText(IDC_PRINTED_BY,cs2);
+	cs1 =cs1 + " " + cs2 + "\r\n";	
+	cFile.Write(cs1,cs1.GetLength());
+
+	GetDlgItemText(IDC_STATIC_DATE_TIME,cs1);
+	GetDlgItemText(IDC_DATE_TIME,cs2);
+	cs1 =cs1 + " " + cs2 + "\r\n";	
+	cFile.Write(cs1,cs1.GetLength());
+	
+
+	GetDlgItemText(IDC_STATIC_SHIP_NOTE,cs1);
+	GetDlgItemText(IDC_SHIP_NOTE,cs2);
+	cs1 =cs1 + " " + cs2 + "\r\n";	
+	cFile.Write(cs1,cs1.GetLength());
+
+		
+	cFile.Close();
+	
+}

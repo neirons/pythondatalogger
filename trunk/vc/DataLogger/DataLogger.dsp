@@ -110,6 +110,10 @@ SOURCE=.\PDFLib\except.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ExitDialog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\GraphStatic.cpp
 # End Source File
 # Begin Source File
@@ -152,6 +156,10 @@ SOURCE=.\DataLogger.h
 # Begin Source File
 
 SOURCE=.\DataLoggerDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ExitDialog.h
 # End Source File
 # Begin Source File
 
