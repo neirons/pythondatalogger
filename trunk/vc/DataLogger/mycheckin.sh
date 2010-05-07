@@ -21,6 +21,7 @@ then
 	echo $re_str
 	sed -e $re_str DataLogger.rc > DataLogger.rc.back
 	mv DataLogger.rc.back DataLogger.rc
-	echo "$1"
 	svn ci -m "$1"
+else
+	echo "Nothing to check in!!!"
 fi
