@@ -7,7 +7,7 @@ then
     exit -1
 fi
 output=`svn st|grep -v ^?`
-
+echo $output
 if [[ $output != "" ]];
 then
 	output=`svn up`
