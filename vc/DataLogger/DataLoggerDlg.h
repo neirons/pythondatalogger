@@ -12,7 +12,7 @@
 // CDataLoggerDlg dialog
 #include "GraphStatic.h"
 #include "BatteryStatic.h"
-
+#define MAX_POINT 20000
 
 #pragma comment(lib, ".\\PDFLib\\PDFLib.lib")
 
@@ -41,7 +41,9 @@ public:
 	UINT m_cyPrinter;
 	CFont		m_ListFont;
 	CFont		m_fontPrinter;
-	double m_Data[2000];
+	double m_Data[MAX_POINT];
+	int m_TotalPoint;
+	double m_Average;
 
 // Implementation
 protected:

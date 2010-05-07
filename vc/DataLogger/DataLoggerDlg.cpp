@@ -14,7 +14,7 @@
 #include <IO.h>
 
 #include <stdio.h>
-
+#include <math.h>
 #include <iostream>
 #include "ExitDialog.h"
 #include ".\PDFLib\PDFLib.hpp"
@@ -140,18 +140,14 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
-	for(int i =0;i<2000;i++)
-		m_Data[i] = 33.5+i*0.0123;
 
-
-	
 	CString strFilePath;
 	char strBuff[256];
 	strFilePath=GetCurrentDirectory(256,strBuff); //Get current path
 	strFilePath.Format("%s\\config.ini",strBuff);
-
-
 	int Days = 10;
+	double sum = 0;
+
 	if (_access ((LPCSTR)strFilePath, 0) != 0) 
 	{
 			// File exists! (-1 if not)
@@ -162,8 +158,57 @@ BOOL CDataLoggerDlg::OnInitDialog()
 		GetPrivateProfileString("DataLogger","Day",NULL,strBuff,80,strFilePath);
 		Days = atoi(strBuff);
 	}
+
+	switch(Days)
+	{
+	case 1:
+		m_TotalPoint = 1440;
+		break;
+	case 3:
+		m_TotalPoint = 4320;
+		break;
+	case 7:
+		m_TotalPoint = 10080;
+		break;
+	case 10:
+	case 20:
+	case 40:
+	case 90:
+		m_TotalPoint = 14400;
+		break;
+	case 75:
+		m_TotalPoint = 15428;
+		break;
+	}
+
+
+
+#define PI 3.1415926535897931
+	if (_access ("data.bin", 0) != 0) 
+	{
+		for(int i =0;i<m_TotalPoint;i++)
+		{
+			m_Data[i] = 42.0+10*cos(2*PI/m_TotalPoint * i);
+			sum += m_Data[i];
+		}
+	}
+	else
+	{
+		CFile cfile;
+		cfile.Open("data.bin",CFile::modeRead|CFile::typeBinary);
+
+		for(int i =0;i<m_TotalPoint;i++)
+		{
+
+			cfile.Read(&m_Data[i],sizeof(double));
+			sum += m_Data[i];
+		}
+	}
+
+	m_Average=sum/m_TotalPoint;
+	
 	m_Battery.SetBatteryLevel(16,1);
-	m_Graph.SetData(Days,m_Data);
+	m_Graph.SetData(Days,m_Data,m_TotalPoint,m_Average);
 
 	CString csHour;
 	csHour.Format("%d",Days*24);
@@ -657,6 +702,10 @@ void CDataLoggerDlg::SaveToTxtFile(CString txtfilename)
 	}
 	cs1.Format("==============================DATA   END==============================\r\n");
 	cFile.Write(cs1,cs1.GetLength());
+
+	cs1.Format("The average values : %.8f\r\n",m_Average);
+	cFile.Write(cs1,cs1.GetLength());
+
 	
 	GetDlgItemText(IDC_STATIC_START_TIME,cs1);
 	GetDlgItemText(IDC_START_TIME,cs2);
