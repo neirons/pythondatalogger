@@ -19,6 +19,8 @@
 #define IDR_MAINFRAME                   128
 #define IDD_SAVE_DIALOG                 129
 #define IDD_EXIT_DIALOG                 131
+#define IDD_CLEAR_DIALOG                132
+#define IDD_WARNING_DIALOG              133
 #define IDC_STATIC_GRAPH                1000
 #define IDC_BUTTON_SAVE                 1001
 #define IDC_PRINT                       1002
@@ -50,7 +52,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           101

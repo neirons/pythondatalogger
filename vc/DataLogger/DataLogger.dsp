@@ -94,6 +94,10 @@ SOURCE=.\BatteryStatic.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ClearDialog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DataLogger.cpp
 # End Source File
 # Begin Source File
@@ -141,6 +145,10 @@ SOURCE=.\SaveDialog.cpp
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
 # End Source File
+# Begin Source File
+
+SOURCE=.\WarningDialog.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -148,6 +156,10 @@ SOURCE=.\StdAfx.cpp
 # Begin Source File
 
 SOURCE=.\BatteryStatic.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ClearDialog.h
 # End Source File
 # Begin Source File
 
@@ -188,6 +200,10 @@ SOURCE=.\SaveDialog.h
 # Begin Source File
 
 SOURCE=.\StdAfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\WarningDialog.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
