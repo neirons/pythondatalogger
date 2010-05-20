@@ -44,6 +44,7 @@ public:
 	double m_Data[MAX_POINT];
 	int m_TotalPoint;
 	double m_Average;
+	int m_Days;
 
 // Implementation
 protected:
@@ -67,6 +68,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 private:
+	void ClearData();
 	void SaveToTxtFile(CString txtfilename);
 	int  SaveToPDFFile(CString pdfillename,CString cstempjpgfile);
 

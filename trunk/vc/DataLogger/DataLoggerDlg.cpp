@@ -17,6 +17,7 @@
 #include <math.h>
 #include <iostream>
 #include "ExitDialog.h"
+#include "ClearDialog.h"
 #include ".\PDFLib\PDFLib.hpp"
 
 #include "LogFile.h"
@@ -151,15 +152,15 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	if (_access ((LPCSTR)strFilePath, 0) != 0) 
 	{
 			// File exists! (-1 if not)
-		Days = 10;
+		m_Days = 10;
 	}
 	else
 	{
 		GetPrivateProfileString("DataLogger","Day",NULL,strBuff,80,strFilePath);
-		Days = atoi(strBuff);
+		m_Days = atoi(strBuff);
 	}
 
-	switch(Days)
+	switch(m_Days)
 	{
 	case 1:
 		m_TotalPoint = 1440;
@@ -207,8 +208,8 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 	m_Average=sum/m_TotalPoint;
 	
-	m_Battery.SetBatteryLevel(16,1);
-	m_Graph.SetData(Days,m_Data,m_TotalPoint,m_Average);
+	m_Battery.SetBatteryLevel(16,12);
+	m_Graph.SetData(m_Days,m_Data,m_TotalPoint,m_Average);
 
 	CString csHour;
 	csHour.Format("%d",Days*24);
@@ -367,6 +368,18 @@ int   CDataLoggerDlg::GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid
 
 void CDataLoggerDlg::OnButtonClear() 
 {
+	CClearDialog dlg;
+	if(dlg.DoModal() == IDOK)
+	{
+		ClearData();
+		CDialog::OnCancel();
+		AfxMessageBox("The Report Logger has been successfully cleared.\nUnplug the Logger from the USB, and replace the\ncap. Press the Start button when you are ready to \nbegin logging",MB_OK|MB_ICONINFORMATION);
+
+	}
+	else
+	{
+		TRACE("Do nothing without exit the dialog");
+	}
 
 }
 
@@ -667,6 +680,8 @@ void CDataLoggerDlg::OnCancel()
 	if(dlg.DoModal() == IDOK)
 	{
 		CDialog::OnCancel();
+		AfxMessageBox("OK to unplug logger from PC",MB_OK|MB_ICONINFORMATION);
+		TRACE("EXIT..... new reached...");
 	}
 	else
 	{
@@ -690,7 +705,7 @@ void CDataLoggerDlg::SaveToTxtFile(CString txtfilename)
 	cFile.Write(cs1,cs1.GetLength());
 
 	cs1.Empty();
-	for (int i = 0;i< 1440;i+=10)
+	for (int i = 0;i< m_TotalPoint;i+=10)
 	{
 		for(int j = 0;j < 10;j++)
 		{
@@ -742,4 +757,22 @@ void CDataLoggerDlg::SaveToTxtFile(CString txtfilename)
 		
 	cFile.Close();
 	
+}
+
+void CDataLoggerDlg::ClearData()
+{
+	m_TotalPoint = 0;
+	CString str;
+	str.Empty();
+	SetDlgItemText(IDC_DATA_REPORT,str);
+	SetDlgItemText(IDC_START_TIME,str);
+	SetDlgItemText(IDC_HOURS,str);
+	SetDlgItemText(IDC_SERIAL,str);
+	SetDlgItemText(IDC_PRINTED_BY,str);
+	SetDlgItemText(IDC_DATE_TIME,str);
+	SetDlgItemText(IDC_SHIP_NOTE,str);
+	m_Graph.SetData(m_Days,m_Data,m_TotalPoint,0);
+
+	m_Graph.Invalidate();
+
 }

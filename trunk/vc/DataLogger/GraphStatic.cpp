@@ -256,6 +256,9 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 	CBitmap *pOldBMP;
 	CPen DataPen,*pOldPen;
 
+	if(m_TotalPoint ==0)
+		return;
+
 	this->GetClientRect(&rect);
 	bmp.CreateCompatibleBitmap(&dc, rect.Width(),rect.Height());   	
 
