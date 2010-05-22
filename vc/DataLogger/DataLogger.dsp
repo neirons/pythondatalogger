@@ -138,6 +138,10 @@ SOURCE=.\PrintView.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ResetDialog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SaveDialog.cpp
 # End Source File
 # Begin Source File
@@ -188,6 +192,10 @@ SOURCE=.\PrintFrame.h
 # Begin Source File
 
 SOURCE=.\PrintView.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ResetDialog.h
 # End Source File
 # Begin Source File
 
