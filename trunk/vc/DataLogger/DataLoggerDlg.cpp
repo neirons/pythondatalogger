@@ -19,7 +19,7 @@
 #include "ExitDialog.h"
 #include "ClearDialog.h"
 #include ".\PDFLib\PDFLib.hpp"
-
+#include "ResetDialog.h"
 #include "LogFile.h"
 
 #ifdef _DEBUG
@@ -371,8 +371,11 @@ void CDataLoggerDlg::OnButtonClear()
 	CClearDialog dlg;
 	if(dlg.DoModal() == IDOK)
 	{
-		ClearData();
+//		ClearData();
 		CDialog::OnCancel();
+		CResetDialog dlg;
+		dlg.DoModal();
+
 		AfxMessageBox("The Report Logger has been successfully cleared.\nUnplug the Logger from the USB, and replace the\ncap. Press the Start button when you are ready to \nbegin logging",MB_OK|MB_ICONINFORMATION);
 
 	}
