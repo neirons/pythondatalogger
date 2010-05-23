@@ -83,7 +83,7 @@ BEGIN
                     SS_NOPREFIX
     LTEXT           "Copyright (C) 2010",IDC_STATIC,40,25,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
-    LTEXT           "svnr:67",IDC_STATIC,135,10,32,8
+    LTEXT           "svnr:68",IDC_STATIC,135,10,32,8
 END
 
 IDD_DATALOGGER_DIALOG DIALOGEX 0, 0, 447, 328
@@ -166,19 +166,23 @@ BEGIN
     LTEXT           "WARNING",IDC_STATIC,104,6,34,8
 END
 
-IDD_RESET_DIALOG DIALOG DISCARDABLE  0, 0, 234, 84
+IDD_RESET_DIALOG DIALOG DISCARDABLE  0, 0, 234, 102
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "Reset the Start Date and UTC Offset"
 FONT 10, "System"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,37,65,50,14
+    DEFPUSHBUTTON   "OK",IDOK,36,79,50,14
     LTEXT           "Start Date/Time Stamp/Time Zone:",IDC_STATIC_START_TIME,
                     8,17,112,8
     LTEXT           "UTC Offset(in hours):",IDC_STATIC_HOURS,10,41,70,8
     CONTROL         "DateTimePicker1",IDC_DATETIMEPICKER,"SysDateTimePick32",
                     DTS_RIGHTALIGN | WS_TABSTOP,125,15,100,15
     EDITTEXT        IDC_EDIT_UTC,125,40,100,12,ES_AUTOHSCROLL | ES_NUMBER
-    PUSHBUTTON      "Cancel",IDCANCEL,147,65,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,145,79,50,14
+    LTEXT           "Sample Rate(in minute):",IDC_STATIC_SAMPLE_RATE,10,60,
+                    79,8
+    EDITTEXT        IDC_EDIT_MINIUTE,125,59,100,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
 END
 
 
@@ -189,8 +193,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,9,6,0
- PRODUCTVERSION 0,9,6,0
+ FILEVERSION 0,9,7,0
+ PRODUCTVERSION 0,9,7,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -208,14 +212,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "DataLogger MFC Application\0"
-            VALUE "FileVersion", "0, 9, 6, 0\0"
+            VALUE "FileVersion", "0, 9, 7, 0\0"
             VALUE "InternalName", "DataLogger\0"
             VALUE "LegalCopyright", "Copyright (C) 2010\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "DataLogger.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DataLogger Application\0"
-            VALUE "ProductVersion", "0, 9, 6, 0\0"
+            VALUE "ProductVersion", "0, 9, 7, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -289,7 +293,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 227
         TOPMARGIN, 7
-        BOTTOMMARGIN, 77
+        BOTTOMMARGIN, 95
     END
 END
 #endif    // APSTUDIO_INVOKED

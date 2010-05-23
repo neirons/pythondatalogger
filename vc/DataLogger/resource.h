@@ -48,8 +48,10 @@
 #define IDC_SHIP_NOTE                   1021
 #define IDC_STATIC_HOURS                1022
 #define IDC_STATIC_REVERSION            1023
+#define IDC_STATIC_SAMPLE_RATE          1023
 #define IDC_DATETIMEPICKER              1026
 #define IDC_EDIT_UTC                    1027
+#define IDC_EDIT_MINIUTE                1028
 
 // Next default values for new objects
 // 
