@@ -178,6 +178,10 @@ void Demo_Init(void)
 
   NAND_FAT();
   
+  Thermometer_Temperature();
+  Mass_Storage_Start();
+  while(1);
+  
   /* Initialize the Menu */
   Menu_Init();
 

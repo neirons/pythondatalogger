@@ -718,7 +718,7 @@ void Thermometer_Temperature(void)
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
   LCD_Clear(White);
   /* Display menu */
-  DisplayMenu();
+//  DisplayMenu();
   /* Enable the JoyStick interrupt */
   IntExtOnOffConfig(ENABLE);   
 }
