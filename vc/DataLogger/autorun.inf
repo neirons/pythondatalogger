@@ -1,4 +1,0 @@
-[autorun]
-OPEN=DataLogger.exe
-ICON=DataLogger.exe,0
-label=Discon DataLogger
