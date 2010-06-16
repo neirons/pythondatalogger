@@ -47,6 +47,7 @@ void LedShow(FunctionalState NewState);
 uint32_t Get_LedShowStatus(void);
 void CheckBitmapFilesStatus(void);
 ErrorStatus Get_HSEStartUpStatus(void);
+void CreateDataLoggerFile();
 
 #endif /* __MAIN_H */
 

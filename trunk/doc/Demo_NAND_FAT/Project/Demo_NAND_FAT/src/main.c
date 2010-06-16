@@ -178,6 +178,7 @@ void Demo_Init(void)
 
   NAND_FAT();
   
+  CreateDataLoggerFile();
   Thermometer_Temperature();
   Mass_Storage_Start();
   while(1);
@@ -603,4 +604,20 @@ void assert_failed(uint8_t* file, uint32_t line)
 }
 #endif
 
+void CreateDataLoggerFile()
+{
+    FIL  fdst;       /* file objects */
+
+    FRESULT res;          /* FatFs function common result code */
+    UINT br, bw;          /* File R/W count */
+
+  /* Create destination file on the drive 0 */
+    res = f_open(&fdst, "0:datalogger.bin", FA_CREATE_ALWAYS | FA_WRITE);
+    if (res) die(res);
+
+
+    
+    f_close(&fdst);
+
+}
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
