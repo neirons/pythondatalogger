@@ -149,9 +149,6 @@ struct sMenuItem LowPowerMenuItems[] = {{"        STOP        ", IdleFunc, IdleF
 struct sMenu LowPowerMenu = {"    Low Power Mode  ", LowPowerMenuItems, countof(LowPowerMenuItems)};
 
 
-struct sMenuItem WavePlayerMenuItems[] = {{"    Wave Player     ", WavePlayer_StartSpeaker, IdleFunc},
-                                          {"       Return       ", ReturnFunc, IdleFunc}};
-struct sMenu WavePlayerMenu = {"    Wave Player     ", WavePlayerMenuItems, countof(WavePlayerMenuItems)};
 
 struct sMenuItem AnimMenuItems[] = {{"    STM32 Banner    ", STM32BannerFunc, IdleFunc},
                                     {" STM32 Display Speed", STM32BannerSpeedFunc, IdleFunc},
@@ -179,7 +176,6 @@ struct sMenuItem MainMenuItems[] = {
   {"Product Presentation", IdleFunc, IdleFunc, &ProdPresMenu},
   {"       Calendar     ", IdleFunc, IdleFunc, &CalendarMenu},
   {"      Animation     ", IdleFunc, IdleFunc, &AnimMenu},
-  {"    Wave Player     ", IdleFunc, IdleFunc, &WavePlayerMenu},
   {"  USB Mass Storage  ", IdleFunc, IdleFunc, &USBMassMenu},
   {"  Low Power Modes   ", IdleFunc, IdleFunc, &LowPowerMenu},
 #ifndef SDCARD  
