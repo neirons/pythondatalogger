@@ -24,6 +24,7 @@ static __IO uint32_t TimingDelay = 0;
 static __IO uint32_t LedShowStatus = 0;
 static __IO ErrorStatus HSEStartUpStatus = SUCCESS;
 static __IO uint32_t SELStatus = 0;
+FIL  g_file_datalogger;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -180,6 +181,8 @@ void Demo_Init(void)
   
   CreateDataLoggerFile();
   Thermometer_Temperature();
+    f_close(&g_file_datalogger);
+
   Mass_Storage_Start();
   while(1);
   
@@ -606,18 +609,24 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 void CreateDataLoggerFile()
 {
-    FIL  fdst;       /* file objects */
-
     FRESULT res;          /* FatFs function common result code */
     UINT br, bw;          /* File R/W count */
+    BYTE buffer[] = {'D','a','t','a','L','o','g','g','e','r'};
 
+    
   /* Create destination file on the drive 0 */
-    res = f_open(&fdst, "0:datalogger.bin", FA_CREATE_ALWAYS | FA_WRITE);
+    res = f_open(&g_file_datalogger, "0:datalogger.bin", FA_CREATE_ALWAYS | FA_WRITE);
     if (res) die(res);
+
+    WriteDataLogger(120);
+
+  res = f_write(&g_file_datalogger, buffer, 8, &bw);
 
 
     
-    f_close(&fdst);
+// will close the file???
+    
+//    f_close(&fdst);
 
 }
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
