@@ -355,8 +355,11 @@ void SCSI_Format_Cmd(uint8_t lun)
   }
   else
   {
+#ifndef  SDCARD
+    
     NAND_Format();
     Set_CSW (CSW_CMD_PASSED, SEND_CSW_ENABLE);
+#endif    
   }
 }
 /*******************************************************************************

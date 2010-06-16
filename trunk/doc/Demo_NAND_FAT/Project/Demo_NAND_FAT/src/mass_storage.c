@@ -171,11 +171,14 @@ void Mass_Storage_Recovery (void)
   LCD_DisplayStringLine(Line4, " Erase NAND Content ");
   LCD_DisplayStringLine(Line5, "Please wait...      ");
  
+#ifndef  SDCARD
+
   /* FSMC Initialization */
   FSMC_NAND_Init();
 
   NAND_Format();
-
+#endif
+  
   /* Display the "To stop Press SEL" message */
   LCD_DisplayStringLine(Line4, "     NAND Erased    ");
   LCD_DisplayStringLine(Line5, "  To exit Press SEL ");
