@@ -138,7 +138,7 @@ void Mass_Storage_Start (void)
   PowerOff();
   
   LCD_Clear(White);
-  DisplayMenu();
+//  DisplayMenu();
   IntExtOnOffConfig(ENABLE);
 }
 
