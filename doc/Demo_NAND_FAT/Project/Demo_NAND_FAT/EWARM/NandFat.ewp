@@ -1679,7 +1679,13 @@
       <name>$PROJ_DIR$\..\src\diskio.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\src\draw_bmp.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\src\ff.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\src\fsmc_nand.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\fsmc_nor.c</name>
@@ -1712,10 +1718,16 @@
       <name>$PROJ_DIR$\..\src\NAND_FAT.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\src\nand_if.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\src\scsi_data.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\sdcard.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\src\smartcard.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\stm3210e_lcd.c</name>

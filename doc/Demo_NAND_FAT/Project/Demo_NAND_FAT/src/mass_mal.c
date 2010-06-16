@@ -53,9 +53,7 @@ uint16_t MAL_Init(uint8_t lun)
       Status = SD_SetDeviceMode(SD_DMA_MODE);
       break;
     case 1:
-#ifndef  SDCARD
       status = NAND_Init();
-#endif      
       break;
     default:
       return MAL_FAIL;
@@ -83,10 +81,7 @@ uint16_t MAL_Write(uint8_t lun, uint32_t Memory_Offset, uint32_t *Writebuff, uin
       break;
 
     case 1:
-#ifndef  SDCARD
-      
       NAND_Write(Memory_Offset, Writebuff, Transfer_Length);
-#endif
       break;
 
     default:
@@ -116,9 +111,7 @@ uint16_t MAL_Read(uint8_t lun, uint32_t Memory_Offset, uint32_t *Readbuff, uint1
       break;
 
     case 1:
-#ifndef  SDCARD
       NAND_Read(Memory_Offset, Readbuff, Transfer_Length);
-#endif      
       break;
 
     default:
@@ -136,10 +129,7 @@ uint16_t MAL_Read(uint8_t lun, uint32_t Memory_Offset, uint32_t *Readbuff, uint1
 *******************************************************************************/
 uint16_t MAL_GetStatus (uint8_t lun)
 {
-#ifndef  SDCARD
-  
   NAND_IDTypeDef NAND_ID;
-#endif  
   uint32_t DeviceSizeMul = 0, NumberOfBlocks = 0;
 
 
@@ -181,8 +171,6 @@ uint16_t MAL_GetStatus (uint8_t lun)
   }
   else
   {
-#ifndef  SDCARD
-    
     FSMC_NAND_ReadID(&NAND_ID);
     if (NAND_ID.Device_ID != 0 )
     {
@@ -192,7 +180,6 @@ uint16_t MAL_GetStatus (uint8_t lun)
       Mass_Memory_Size[1] = (Mass_Block_Count[1] * Mass_Block_Size[1]);
       return MAL_OK;
     }
-#endif    
   }
   GPIO_ResetBits(USB_LED_PORT, GPIO_Pin_7);
   return MAL_FAIL;

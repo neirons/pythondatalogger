@@ -139,6 +139,11 @@ void Demo_Init(void)
   /* Initialize the Low Power application */
   LowPower_Init();
 
+  /* Initialize the LCD */
+  STM3210E_LCD_Init();
+
+  /* Clear the LCD */ 
+  LCD_Clear(White);
   
   /* If HSE is not detected at program startup */
   if(HSEStartUpStatus == ERROR)
@@ -147,13 +152,37 @@ void Demo_Init(void)
     SCB->ICSR |= SCB_ICSR_NMIPENDSET;
   }  
    
+  /* Checks the availability of the bitmap files */
+  CheckBitmapFilesStatus();
+  
+  /* Display the STM32 introduction */
+  STM32Intro();
+
+  /* Clear the LCD */ 
+  LCD_Clear(White);
+
+  /* Initialize the Calendar */
+  Calendar_Init();
+
+  /* Enable Leds toggling */
+  LedShow(ENABLE);
+  
   /* Initialize the Low Power application*/ 
   LowPower_Init();
 
+  /* Set the LCD Back Color */
+  LCD_SetBackColor(Blue);
+
+  /* Set the LCD Text Color */
+  LCD_SetTextColor(White);
+
   NAND_FAT();
   
-  Mass_Storage_Start();
+  /* Initialize the Menu */
+  Menu_Init();
 
+  /* Display the main menu icons */
+  ShowMenuIcons();
 }
 
 /*******************************************************************************
