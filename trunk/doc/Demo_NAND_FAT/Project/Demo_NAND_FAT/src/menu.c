@@ -135,6 +135,10 @@ struct sMenuItem TempSensorMenuItems[] = {{"    Temperature     ", Thermometer_T
 struct sMenu TempSensorMenu = {"    Thermometer     ", TempSensorMenuItems, countof(TempSensorMenuItems)};
 
 
+struct sMenuItem SmartCardMenuItems[] = {{"     Smart Card     ", SmartCard_Start, IdleFunc},
+                                         {"       Return       ", ReturnFunc, IdleFunc}};
+struct sMenu SmartCardMenu = {"Smart Card Interface", SmartCardMenuItems, countof(SmartCardMenuItems)};
+
 
 struct sMenuItem LowPowerMenuItems[] = {{"        STOP        ", IdleFunc, IdleFunc, &STOPMenu},
                                         {"       STANDBY      ", IdleFunc, IdleFunc, &STANDBYMenu},
@@ -142,6 +146,9 @@ struct sMenuItem LowPowerMenuItems[] = {{"        STOP        ", IdleFunc, IdleF
 struct sMenu LowPowerMenu = {"    Low Power Mode  ", LowPowerMenuItems, countof(LowPowerMenuItems)};
 
 
+struct sMenuItem WavePlayerMenuItems[] = {{"    Wave Player     ", WavePlayer_StartSpeaker, IdleFunc},
+                                          {"       Return       ", ReturnFunc, IdleFunc}};
+struct sMenu WavePlayerMenu = {"    Wave Player     ", WavePlayerMenuItems, countof(WavePlayerMenuItems)};
 
 struct sMenuItem AnimMenuItems[] = {{"    STM32 Banner    ", STM32BannerFunc, IdleFunc},
                                     {" STM32 Display Speed", STM32BannerSpeedFunc, IdleFunc},
@@ -169,11 +176,10 @@ struct sMenuItem MainMenuItems[] = {
   {"Product Presentation", IdleFunc, IdleFunc, &ProdPresMenu},
   {"       Calendar     ", IdleFunc, IdleFunc, &CalendarMenu},
   {"      Animation     ", IdleFunc, IdleFunc, &AnimMenu},
+  {"    Wave Player     ", IdleFunc, IdleFunc, &WavePlayerMenu},
   {"  USB Mass Storage  ", IdleFunc, IdleFunc, &USBMassMenu},
   {"  Low Power Modes   ", IdleFunc, IdleFunc, &LowPowerMenu},
-#ifndef SDCARD  
   {"Smart Card Interface", IdleFunc, IdleFunc, &SmartCardMenu},
-#endif   
   {"    Thermometer     ", IdleFunc, IdleFunc, &TempSensorMenu},
   {"         Help       ", IdleFunc, IdleFunc, &HelpMenu},
   {"        About       ", IdleFunc, IdleFunc, &AboutMenu}};
@@ -877,7 +883,7 @@ void LCD_NORDisplay(uint32_t address)
 
   FSMC_NOR_ReturnToReadMode();
 
-  /* Slide n? index */
+  /* Slide n›: index */
   LCD_WriteBMP(address);
 
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, DISABLE);
@@ -892,7 +898,345 @@ void LCD_NORDisplay(uint32_t address)
   GPIOG->CRH = GPIOG_CRH;
 }
 
+/*******************************************************************************
+* Function Name  : SmartCard_Start
+* Description    : Runs the Smart Card application.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SmartCard_Start(void)
+{ 
+  NVIC_InitTypeDef NVIC_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
+  /* APDU Transport Structures */
+  SC_ADPU_Commands SC_ADPU;
+  SC_ADPU_Responce SC_Responce;
+  uint8_t TxBuffer[20], TxBuffer1[100], pressedkey = 0;
+  uint32_t index = 0;
+
+  SC_State SCState = SC_POWER_OFF;  
+
+  LCD_Clear(White);
+
+  IntExtOnOffConfig(DISABLE);
+
+  while(ReadKey() != NOKEY)
+  {
+  }
+
+  for(index = 0; index < 100; index++)
+  {
+    TxBuffer1[index] = 0;
+  }
+
+  for(index = 0; index < 20; index++)
+  {
+    TxBuffer[index] = 0;
+  }
+  SPI2->I2SCFGR &= 0xF7FF;
+  SPI2->CR1 &= 0xFFFB;
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, DISABLE);
+
+  /* Enable GPIO_LED, GPIO SC OFF and AFIO clocks */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIO_LED | RCC_APB2Periph_OFF |
+                         RCC_APB2Periph_AFIO, ENABLE);
+
+  /* Configure Smartcard CMDVCC */
+  GPIO_InitStructure.GPIO_Pin = SC_CMDVCC;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIO_CMDVCC, &GPIO_InitStructure);
+  GPIO_SetBits(GPIO_CMDVCC, SC_CMDVCC);
+
+  /* Configure Smartcard OFF  */
+  GPIO_InitStructure.GPIO_Pin = SC_OFF;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIO_OFF, &GPIO_InitStructure);
+
+  /* Configure Smartcard CMDVCC */
+  GPIO_InitStructure.GPIO_Pin = SC_CMDVCC;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIO_CMDVCC, &GPIO_InitStructure);
+
+
+  /* Clear the SC_EXTI_IRQ Pending Bit */
+  NVIC_ClearPendingIRQ(SC_EXTI_IRQ);
+
+  NVIC_InitStructure.NVIC_IRQChannel = SC_EXTI_IRQ;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /* Enable the USART3 Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /* Smartcard OFF Pin */
+  GPIO_EXTILineConfig(SC_PortSource, SC_PinSource);
+
+  /* Clear SC EXTI Line Pending Bit */
+  EXTI_ClearITPendingBit(SC_EXTI);
+  
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+  EXTI_InitStructure.EXTI_Line = SC_EXTI;
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_Init(&EXTI_InitStructure);
+  SmartCardStatus = 1;
+
+  /* Set the LCD Back Color */
+  LCD_SetBackColor(Blue);
+  /* Set the LCD Text Color */
+  LCD_SetTextColor(White);
+
+  LCD_DisplayStringLine(Line1, " Please Insert Card ");
+  LCD_DisplayStringLine(Line2, "Press SEL to exit.  ");
+
+  pressedkey = ReadKey();
+
+  /* Loop while no Smartcard is detected */  
+  while((CardInserted == 0)&& (pressedkey != SEL))
+  {
+    pressedkey = ReadKey();
+  }
+  
+  if(pressedkey == SEL)
+  {
+    LCD_ClearLine(Line2);
+    LCD_DisplayStringLine(Line1, " Card non inserted  ");
+    LCD_DisplayStringLine(Line4, "Push JoyStick to    ");
+    LCD_DisplayStringLine(Line5, "exit.               ");
+
+    while(ReadKey() == NOKEY)
+    {
+    }
+    /* Deinitializes the USART3 */
+    USART_DeInit(USART3);
+    /* Disable USART3 clock */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, DISABLE);
+
+    /* Enable the USART3 Interrupt */
+    NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* SEL Button */
+    GPIO_EXTILineConfig(GPIO_PortSourceGPIOG, GPIO_PinSource7);
+  
+    CardInserted = 0;
+    SmartCardStatus = 0;
+
+    SPI2->I2SCFGR |= 0x0800;
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+    LCD_Clear(White);
+    DisplayMenu();
+    IntExtOnOffConfig(ENABLE);
+    return;
+  }
+  LCD_DisplayStringLine(Line1, "   Card Inserted    ");
+  LCD_DisplayStringLine(Line2, "   Decoding ATR...  ");
+  
+  /* Start SC Demo ---------------------------------------------------------*/
+    
+  /* Wait A2R --------------------------------------------------------------*/
+  SCState = SC_POWER_ON;
+
+  SC_ADPU.Header.CLA = 0x00;
+  SC_ADPU.Header.INS = SC_GET_A2R;
+  SC_ADPU.Header.P1 = 0x00;
+  SC_ADPU.Header.P2 = 0x00;
+  SC_ADPU.Body.LC = 0x00;
+  index = 0xFF;
  
+  while((SCState != SC_ACTIVE_ON_T0) && (index > 0))
+  {
+    SC_Handler(&SCState, &SC_ADPU, &SC_Responce);
+    index--;
+  }
+  
+  if(index == 0)
+  {
+    LCD_DisplayStringLine(Line1, "Non supported Card  ");
+    LCD_DisplayStringLine(Line2, "Only ISO7816-3 T = 0");
+    LCD_DisplayStringLine(Line3, "cards are supported.");
+    LCD_DisplayStringLine(Line4, "Push JoyStick to    ");
+    LCD_DisplayStringLine(Line5, "exit.               ");
+
+    while(ReadKey() == NOKEY)
+    {
+    }
+    /* Deinitializes the USART3 */
+    USART_DeInit(USART3);
+    /* Disable USART3 clock */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, DISABLE);
+
+    /* Enable the USART3 Interrupt */
+    NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* SEL Button */
+    GPIO_EXTILineConfig(GPIO_PortSourceGPIOG, GPIO_PinSource7);
+  
+    CardInserted = 0;
+    SmartCardStatus = 0;
+
+    SPI2->I2SCFGR |= 0x0800;
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+    LCD_Clear(White);
+    DisplayMenu();
+    IntExtOnOffConfig(ENABLE);
+    return;
+  }
+  else
+  {
+    LCD_DisplayStringLine(Line1, "Smart card ISO7816-3");
+    LCD_DisplayStringLine(Line2, "compatible.         ");
+    LCD_DisplayStringLine(Line3, "Protocol T = 0      ");
+
+    LCD_DisplayStringLine(Line5, "Push JoyStick to    ");
+    LCD_DisplayStringLine(Line6, "continue.           ");
+
+    while(ReadKey() == NOKEY)
+    {
+    }
+  }
+
+  LCD_Clear(White);
+  /* Set the LCD Back Color */
+  LCD_SetBackColor(Blue);
+  /* Set the LCD Text Color */
+  LCD_SetTextColor(White);
+
+  LCD_DisplayStringLine(Line0, "    Decoded ATR     ");
+
+
+  /* Set the LCD Back Color */
+  LCD_SetBackColor(White);
+  /* Set the LCD Text Color */
+  LCD_SetTextColor(Red);
+
+  LCD_ClearLine(Line2);
+
+  sprintf((char*)TxBuffer,"TS = 0x%x, T0 = 0x%x", SC_A2R.TS, SC_A2R.T0); 
+  LCD_DisplayStringLine(Line1, TxBuffer);
+
+  sprintf((char*)TxBuffer,"Setup Characters :  "); 
+  LCD_DisplayStringLine(Line2, TxBuffer);
+
+  /* Set the LCD Back Color */
+  LCD_SetBackColor(White);
+  /* Set the LCD Text Color */
+  LCD_SetTextColor(Blue);
+
+  for(index = 0; index < (3 * SC_A2R.Tlength); index += 3)
+  {
+    TxBuffer1[index] = HexToAsciiHigh(SC_A2R.T[index/3]);
+    TxBuffer1[index + 1] = HexToAsciiLow(SC_A2R.T[index/3]);
+    TxBuffer1[index + 2] = ' ';   
+  }
+
+  LCD_DisplayStringLine(Line3, TxBuffer1);
+
+  if(SC_A2R.Tlength > 7)
+  {
+    for(index = 21; index < (3 * SC_A2R.Tlength); index += 3)
+    {
+      TxBuffer1[index] = HexToAsciiHigh(SC_A2R.T[index/3]);
+      TxBuffer1[index + 1] = HexToAsciiLow(SC_A2R.T[index/3]);
+      TxBuffer1[index + 2] = ' ';   
+    }
+    LCD_DisplayStringLine(Line4, (TxBuffer1 + 21));
+  }
+  if(SC_A2R.Tlength > 14)
+  {
+    for(index = 42; index < (3 * SC_A2R.Tlength); index += 3)
+    {
+      TxBuffer1[index] = HexToAsciiHigh(SC_A2R.T[index/3]);
+      TxBuffer1[index + 1] = HexToAsciiLow(SC_A2R.T[index/3]);
+      TxBuffer1[index + 2] = ' ';   
+    }
+    LCD_DisplayStringLine(Line5, (TxBuffer1 + 42));
+  }
+  /* Set the LCD Back Color */
+  LCD_SetBackColor(White);
+  /* Set the LCD Text Color */
+  LCD_SetTextColor(Red);
+
+  sprintf((char*)TxBuffer,"Historical Characters"); 
+  LCD_DisplayStringLine(Line6, TxBuffer);
+
+  /* Set the LCD Back Color */
+  LCD_SetBackColor(White);
+  /* Set the LCD Text Color */
+  LCD_SetTextColor(Blue);
+
+  for(index = 0; index < (3 * SC_A2R.Hlength); index += 3)
+  {
+    TxBuffer1[index] = HexToAsciiHigh(SC_A2R.H[index/3]);
+    TxBuffer1[index + 1] = HexToAsciiLow(SC_A2R.H[index/3]);
+    TxBuffer1[index + 2] = ' ';   
+  } 
+  LCD_DisplayStringLine(Line7, TxBuffer1);
+
+  if(SC_A2R.Hlength > 7)
+  {
+    for(index = 21; index < (3 * SC_A2R.Hlength); index += 3)
+    {
+      TxBuffer1[index] = HexToAsciiHigh(SC_A2R.H[index/3]);
+      TxBuffer1[index + 1] = HexToAsciiLow(SC_A2R.H[index/3]);
+      TxBuffer1[index + 2] = ' ';   
+    }
+    LCD_DisplayStringLine(Line8, (TxBuffer1 + 21));
+  }
+  if(SC_A2R.Hlength > 14)
+  {
+    for(index = 42; index < (3 * SC_A2R.Hlength); index += 3)
+    {
+      TxBuffer1[index] = HexToAsciiHigh(SC_A2R.H[index/3]);
+      TxBuffer1[index + 1] = HexToAsciiLow(SC_A2R.H[index/3]);
+      TxBuffer1[index + 2] = ' ';   
+    }
+    LCD_DisplayStringLine(Line9, (TxBuffer1 + 42));
+  }
+
+  while(ReadKey() == NOKEY)
+  {
+  }
+  /* Deinitializes the USART3 */
+  USART_DeInit(USART3);
+  /* Disable USART3 clock */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, DISABLE);
+
+  /* Enable the USART3 Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /* SEL Button */
+  GPIO_EXTILineConfig(GPIO_PortSourceGPIOG, GPIO_PinSource7);
+  
+  /* Configure Smartcard CMDVCC */
+  GPIO_InitStructure.GPIO_Pin = SC_CMDVCC;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIO_CMDVCC, &GPIO_InitStructure);
+  GPIO_SetBits(GPIO_CMDVCC, SC_CMDVCC);
+
+  CardInserted = 0;
+  SmartCardStatus = 0;
+
+  SPI2->I2SCFGR |= 0x0800;
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+  LCD_Clear(White);
+  DisplayMenu();
+  IntExtOnOffConfig(ENABLE);
+}
+
 /*******************************************************************************
 * Function Name  : STM32BannerFunc
 * Description    : Display the STM32 Banner Animation.
@@ -1113,7 +1457,7 @@ void ProductPres(void)
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
   
     LCD_SetDisplayWindow(239, 0x13F, 240, 320);
-    /* Slide n? index */  
+    /* Slide n›: index */  
     LCD_NORDisplay(SlideAddr[index]);
 
     I2S_CODEC_Play(GetVar_AudioDataIndex()); 

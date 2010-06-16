@@ -53,6 +53,270 @@ static uint8_t previoustmp = 50;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
+/*******************************************************************************
+* Function Name  : WavePlayer_StartSpeaker
+* Description    : Starts the wave player application.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void WavePlayer_StartSpeaker(void)
+{
+  uint8_t MyKey = 0;
+  uint32_t err = 0, Counter = 0x0;
+
+  LCD_Clear(White);
+
+  /* Disable the JoyStick interrupts */
+  IntExtOnOffConfig(DISABLE);
+
+  while(ReadKey() != NOKEY)
+  {
+  }  
+
+  /* Display the welcome screen and the commands */
+  LCD_Update(ALL);
+
+  /* Choose number of repetitions: 0 => infinite repetitions */
+  I2S_CODEC_ReplayConfig(0);
+  I2S_CODEC_Init(OutputDevice_SPEAKER, AUDIO_FILE_ADDRESS);
+
+  /* Endless loop */
+  while(1)
+  {
+    /* Check which key is pressed */
+    MyKey = ReadKey();
+    
+    if(Counter == 0)
+    { 
+      /* Mask All Interrupts */
+      __disable_irq();
+      /* Update the displayed progression information */
+      LCD_Update(PROGRESS);
+      Counter = 0x5FFFF;
+      /* Disable mask of all interrupts */
+        __enable_irq();
+    }
+    Counter--;
+    /* If "UP" pushbutton is pressed */
+    if(MyKey == UP)
+    {
+      /* Mask All Interrupts */
+       __disable_irq();
+      /* Check if the Codec is PLAYING audio file */
+      if (GetVar_AudioPlayStatus() == AudioPlayStatus_PLAYING)
+      {
+        I2S_CODEC_ControlVolume(VolumeDirection_HIGH, VOLStep);
+
+        /* Update the display information */
+        LCD_Update(VOL);
+      }
+      /* UP bottomn pushed in PAUSE mode => Enable the Speaker device output ---*/
+      else
+      {
+        /* Update the display information */
+        LCD_Update(PLAY);
+
+        /* Configure the Speaker as output and reinitialize all devices */
+        err = I2S_CODEC_SpeakerHeadphoneSwap(OutputDevice_SPEAKER, AUDIO_FILE_ADDRESS);
+  
+        /* Error message display if failure */
+        if (err != 0)
+        {
+          LCD_DisplayError(err);
+
+          /* Enable the FSMC that share a pin w/ I2C1 (LBAR) */
+          RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
+
+          /* Clear the LCD */
+          LCD_Clear(White);
+
+          /* Display the previous menu */
+          DisplayMenu();
+
+          /* Disable mask of all interrupts */
+          __enable_irq();
+          /* Enable the JoyStick interrupts */
+          IntExtOnOffConfig(ENABLE); 
+          return; 
+        }      
+      } 
+      /* Disable mask of all interrupts */
+      __enable_irq();
+    }
+
+    /* If "DOWN" pushbutton is pressed */
+    if(MyKey == DOWN)
+    {
+      /* Mask All Interrupts */
+     __disable_irq();
+      /* If the Codec is PLAYING => Decrease Volume*/
+      if (GetVar_AudioPlayStatus() == AudioPlayStatus_PLAYING)
+      {
+        /* Increase the audio codec digital volume */
+        I2S_CODEC_ControlVolume(VolumeDirection_LOW, VOLStep);
+
+        /* Update the LCD display */ 
+        LCD_Update(VOL); 
+      }
+      else /* If the Codec is PAUSED => Headphone Enable */
+      {
+        /* Update the LCD display */ 
+        LCD_Update(PLAY);
+      
+        /* Enable the Headphone output and reinitialize all devices */ 
+        err = I2S_CODEC_SpeakerHeadphoneSwap(OutputDevice_HEADPHONE, AUDIO_FILE_ADDRESS);
+
+        /* Error message display if failure */
+        if (err != 0)
+        {
+          LCD_DisplayError(err);
+
+          /* Enable the FSMC that share a pin w/ I2C1 (LBAR) */
+          RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
+
+          /* Clear the LCD */
+          LCD_Clear(White);
+
+          /* Display the previous menu */
+          DisplayMenu();
+
+          /* Disable mask of all interrupts */
+          __enable_irq();
+          /* Enable the JoyStick interrupts */
+          IntExtOnOffConfig(ENABLE); 
+          return; 
+        }  
+      }
+      /* Disable mask of all interrupts */
+      __enable_irq();
+    }
+
+    /* If "RIGHT" pushbutton is pressed */
+    if(MyKey == RIGHT)
+    {
+      /* Mask All Interrupts */
+    __disable_irq();
+      /* Check if the Codec is PLAYING audio file */
+      if (GetVar_AudioPlayStatus() == AudioPlayStatus_PLAYING)
+      {
+        I2S_CODEC_ForwardPlay(STEP_FORWARD); 
+        /* Update the display information */
+        LCD_Update(FRWD); 
+      }
+      /* Disable mask of all interrupts */
+      __enable_irq();
+    }
+    /* If "LEFT" pushbutton is pressed */
+    if(MyKey == LEFT)
+    {
+      /* Mask All Interrupts */
+     __disable_irq();
+      /* Check if the Codec is PLAYING audio file */
+      if (GetVar_AudioPlayStatus() == AudioPlayStatus_PLAYING)
+      {
+        I2S_CODEC_RewindPlay(STEP_BACK);
+        /* Update the display information */
+        LCD_Update(FRWD);  
+      } 
+      /* Disable mask of all interrupts */
+      __enable_irq();
+    }
+
+    /* If "SEL" pushbutton is pressed */
+    if(MyKey == SEL)
+    {
+      /* Mask All Interrupts */
+       __disable_irq();
+
+      /* Update the display information */
+      LCD_Update(STOP);
+
+      /* Command the Stop of the current audio stream */
+      SetVar_AudioPlayStatus(AudioPlayStatus_STOPPED);
+
+      /* Disable mask of all interrupts */
+      __enable_irq();
+
+      I2S_CODEC_Stop();
+      SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, DISABLE);
+
+      /* Enable the FSMC that share a pin w/ I2C1 (LBAR) */
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
+
+      /* Clear the LCD */
+      LCD_Clear(White);
+
+      /* Display the previous menu */
+      DisplayMenu();
+      /* Enable the JoyStick interrupts */
+      IntExtOnOffConfig(ENABLE); 
+      return;     
+    }
+    /* If "KEY" pushbutton is pressed */
+    if(MyKey == KEY)
+    {
+      /* Mask All Interrupts */
+       __disable_irq();
+
+      /* If the Codec is Playing => PAUSE */
+      if (GetVar_AudioPlayStatus() == AudioPlayStatus_PLAYING)
+      {
+        /* Update the display information */
+        LCD_Update(PAUSE);
+
+        /* Command the Pause of the current stream */
+        SetVar_AudioPlayStatus(AudioPlayStatus_PAUSED);
+      }
+
+      /* If the Codec is PAUSED => Resume PLAYING */
+      else if (GetVar_AudioPlayStatus() == AudioPlayStatus_PAUSED)
+      {
+        /* Update the LCD display */ 
+        LCD_Update(PLAY); 
+
+        /* Start playing from the last saved position */
+        I2S_CODEC_Play(GetVar_AudioDataIndex());
+      }
+      /* If the Codec is STOPPED => PLAY from the file start address */
+      else if (GetVar_AudioPlayStatus() == AudioPlayStatus_STOPPED)
+      {
+        /* Update the display information */
+        LCD_Update(PLAY);
+
+        /* Initialize all devices w/choosen parameters */
+        err = I2S_CODEC_Init(GetVar_CurrentOutputDevice(), AUDIO_FILE_ADDRESS);
+  
+        /* Error message display if failure */
+        if (err != 0)
+        {
+          LCD_DisplayError(err);
+
+          /* Enable the FSMC that share a pin w/ I2C1 (LBAR) */
+          RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
+
+          /* Clear the LCD */
+          LCD_Clear(White);
+
+          /* Display the previous menu */
+          DisplayMenu();
+
+          /* Disable mask of all interrupts */
+          __enable_irq();
+
+          /* Enable the JoyStick interrupts */
+          IntExtOnOffConfig(ENABLE); 
+          return; 
+        }  
+          
+        /* Enable Playing the audio file */
+        I2S_CODEC_Play(GetVar_DataStartAddr());
+      }
+      /* Disable mask of all interrupts */
+      __enable_irq();
+    }
+  }
+}
 
 /*******************************************************************************
 * Function Name  : LCD_Update

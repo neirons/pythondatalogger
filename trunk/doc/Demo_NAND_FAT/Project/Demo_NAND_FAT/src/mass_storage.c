@@ -57,6 +57,35 @@ void Mass_Storage_Start (void)
 {
   NVIC_InitTypeDef NVIC_InitStructure;
 
+  /* Disble the JoyStick interrupts */
+  IntExtOnOffConfig(DISABLE);
+
+
+  while(ReadKey() != NOKEY)
+  {
+  }
+
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
+  /* Clear the LCD screen */
+  LCD_Clear(White);
+
+  LCD_SetDisplayWindow(160, 223, 128, 128);
+ 
+  LCD_NORDisplay(USB_ICON);
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
+  /* Disable LCD Window mode */
+  LCD_WindowModeDisable();
+  
+  /* Set the Back Color */
+  LCD_SetBackColor(Blue);
+  /* Set the Text Color */
+  LCD_SetTextColor(White); 
+
+  
+  /* Display the "  Plug the USB   " message */
+  LCD_DisplayStringLine(Line8, " Plug the USB Cable ");
+  LCD_DisplayStringLine(Line9, "Exit:  Push JoyStick");
+    
   /* Enable and GPIOD clock */
   USB_Disconnect_Config();
   
@@ -87,7 +116,30 @@ void Mass_Storage_Start (void)
 
   while (bDeviceState != CONFIGURED)
   {
+    if(ReadKey() != NOKEY)
+    {
+      PowerOff();
+      LCD_Clear(White);
+      DisplayMenu();
+      IntExtOnOffConfig(ENABLE);
+      return;
+    }
   }
+
+  LCD_ClearLine(Line9);
+  /* Display the "To stop Press SEL" message */
+  LCD_DisplayStringLine(Line8, "  To stop Press SEL ");
+
+  /* Loop until SEL key pressed */
+  while(ReadKey() != SEL)
+  {
+  }
+
+  PowerOff();
+  
+  LCD_Clear(White);
+  DisplayMenu();
+  IntExtOnOffConfig(ENABLE);
 }
 
 /*******************************************************************************
@@ -119,14 +171,11 @@ void Mass_Storage_Recovery (void)
   LCD_DisplayStringLine(Line4, " Erase NAND Content ");
   LCD_DisplayStringLine(Line5, "Please wait...      ");
  
-#ifndef  SDCARD
-
   /* FSMC Initialization */
   FSMC_NAND_Init();
 
   NAND_Format();
-#endif
-  
+
   /* Display the "To stop Press SEL" message */
   LCD_DisplayStringLine(Line4, "     NAND Erased    ");
   LCD_DisplayStringLine(Line5, "  To exit Press SEL ");
