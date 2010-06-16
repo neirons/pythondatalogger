@@ -41,6 +41,7 @@ uint8_t I2C_LM75_ConfReg_Read(void);
 void I2C_LM75_ConfReg_Write(uint8_t RegValue);
 void I2C_LM75_ShutDown(FunctionalState NewState);
 void Thermometer_Temperature(void);
+void WriteDataLogger(uint32_t value);
 
 #endif /* __TSENSOR_H */
 

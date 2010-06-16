@@ -40,6 +40,7 @@
 static uint8_t TempCelsius_Display[] = "     +abc.def C     ";
 static uint8_t TempFahrenheit_Display[] = "     +abc.def F     ";
 static uint32_t Temp_Decimal = 0, TempCelsius_Value = 0, Temp_Value_Fahrenheit = 0;
+extern FIL  g_file_datalogger;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -675,6 +676,8 @@ void Thermometer_Temperature(void)
         TempCelsius_Value = 0x800 - TempCelsius_Value;
       }
 
+     WriteDataLogger(TempCelsius_Value);
+      
       /* Calculate temperature digits in °C */
       Temp_Decimal = ((TempCelsius_Value & 7) * 1000 / 8);
       TempCelsius_Display[10] = (Temp_Decimal / 100) + 0x30;
@@ -722,5 +725,27 @@ void Thermometer_Temperature(void)
   /* Enable the JoyStick interrupt */
   IntExtOnOffConfig(ENABLE);   
 }
+void WriteDataLogger(uint32_t value)
+{
 
+    UINT bw;          /* File R/W count */
+    FRESULT res;          /* FatFs function common result code */
+  
+#if 1
+  uint32_t temp1,temp2;
+  
+  temp1 = ((value & 7) * 1000 / 8);
+  temp2 = value >> 3;
+  
+  res = f_write(&g_file_datalogger, &temp1, sizeof(temp1), &bw);
+  res = f_write(&g_file_datalogger, &temp2, sizeof(temp2), &bw);
+#else
+  BYTE buffer[] = {'c','h','i','n','a','w','o','r','l','d'};
+  res = f_write(&g_file_datalogger, buffer, 8, &bw);
+    
+      
+
+#endif   
+  
+}
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
