@@ -148,6 +148,7 @@
           <name>CCDefines</name>
           <state>USE_STDPERIPH_DRIVER</state>
           <state>STM32F10X_HD</state>
+          <state>SDCARD</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
