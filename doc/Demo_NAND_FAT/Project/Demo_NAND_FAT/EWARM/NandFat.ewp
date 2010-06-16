@@ -1679,9 +1679,6 @@
       <name>$PROJ_DIR$\..\src\diskio.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\src\draw_bmp.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\src\ff.c</name>
     </file>
     <file>
@@ -1719,9 +1716,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\sdcard.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\src\smartcard.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\stm3210e_lcd.c</name>

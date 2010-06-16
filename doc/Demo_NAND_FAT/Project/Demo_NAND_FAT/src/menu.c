@@ -135,10 +135,13 @@ struct sMenuItem TempSensorMenuItems[] = {{"    Temperature     ", Thermometer_T
 struct sMenu TempSensorMenu = {"    Thermometer     ", TempSensorMenuItems, countof(TempSensorMenuItems)};
 
 
+#ifndef SDCARD
 struct sMenuItem SmartCardMenuItems[] = {{"     Smart Card     ", SmartCard_Start, IdleFunc},
                                          {"       Return       ", ReturnFunc, IdleFunc}};
-struct sMenu SmartCardMenu = {"Smart Card Interface", SmartCardMenuItems, countof(SmartCardMenuItems)};
 
+
+struct sMenu SmartCardMenu = {"Smart Card Interface", SmartCardMenuItems, countof(SmartCardMenuItems)};
+#endif 
 
 struct sMenuItem LowPowerMenuItems[] = {{"        STOP        ", IdleFunc, IdleFunc, &STOPMenu},
                                         {"       STANDBY      ", IdleFunc, IdleFunc, &STANDBYMenu},
@@ -179,7 +182,9 @@ struct sMenuItem MainMenuItems[] = {
   {"    Wave Player     ", IdleFunc, IdleFunc, &WavePlayerMenu},
   {"  USB Mass Storage  ", IdleFunc, IdleFunc, &USBMassMenu},
   {"  Low Power Modes   ", IdleFunc, IdleFunc, &LowPowerMenu},
+#ifndef SDCARD  
   {"Smart Card Interface", IdleFunc, IdleFunc, &SmartCardMenu},
+#endif   
   {"    Thermometer     ", IdleFunc, IdleFunc, &TempSensorMenu},
   {"         Help       ", IdleFunc, IdleFunc, &HelpMenu},
   {"        About       ", IdleFunc, IdleFunc, &AboutMenu}};
@@ -883,7 +888,7 @@ void LCD_NORDisplay(uint32_t address)
 
   FSMC_NOR_ReturnToReadMode();
 
-  /* Slide n›: index */
+  /* Slide n? index */
   LCD_WriteBMP(address);
 
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, DISABLE);
@@ -905,8 +910,10 @@ void LCD_NORDisplay(uint32_t address)
 * Output         : None
 * Return         : None
 *******************************************************************************/
+#ifndef SDCARD
 void SmartCard_Start(void)
 { 
+  
   NVIC_InitTypeDef NVIC_InitStructure;
   EXTI_InitTypeDef EXTI_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -1236,7 +1243,7 @@ void SmartCard_Start(void)
   DisplayMenu();
   IntExtOnOffConfig(ENABLE);
 }
-
+#endif 
 /*******************************************************************************
 * Function Name  : STM32BannerFunc
 * Description    : Display the STM32 Banner Animation.
@@ -1457,7 +1464,7 @@ void ProductPres(void)
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
   
     LCD_SetDisplayWindow(239, 0x13F, 240, 320);
-    /* Slide n›: index */  
+    /* Slide n? index */  
     LCD_NORDisplay(SlideAddr[index]);
 
     I2S_CODEC_Play(GetVar_AudioDataIndex()); 

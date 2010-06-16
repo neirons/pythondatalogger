@@ -323,7 +323,7 @@ void EXTI9_5_IRQHandler(void)
     {
       /* Clear SC EXTIT Line Pending Bit */
       EXTI_ClearITPendingBit(SC_EXTI);
-
+#ifndef SDCARD
       /* Smartcard detected */
       Set_CardInserted();
 
@@ -332,6 +332,7 @@ void EXTI9_5_IRQHandler(void)
 
       /* Reset the card */
       SC_Reset(Bit_RESET);
+#endif      
     }
   }
   if(EXTI_GetITStatus(EXTI_Line8) != RESET)
@@ -459,7 +460,9 @@ void USART3_IRQHandler(void)
     USART_ReceiveData(USART3);
 
     /* Resend the byte that failed to be received (by the Smartcard) correctly */
+#ifndef SDCARD
     SC_ParityErrorHandler();
+#endif     
   }
   
   /* If the USART3 detects a parity error */
