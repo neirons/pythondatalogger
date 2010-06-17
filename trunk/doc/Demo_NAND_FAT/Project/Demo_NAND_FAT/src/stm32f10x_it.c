@@ -353,77 +353,26 @@ void EXTI9_5_IRQHandler(void)
 void TIM1_UP_IRQHandler(void)
 {
   /* Clear the TIM1 Update pending bit */
-  TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+  
 
-  if(AlarmStatus == 1)
+  if(Index == 0)
   {
-    if((LedCounter & 0x01) == 0) 
-    {
-      GPIO_SetBits(GPIOF, GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9);
-    }
-    else if ((LedCounter & 0x01) == 0x01)
-    {
-      GPIO_ResetBits(GPIOF, GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9);
-    }
+          GPIO_SetBits(GPIOF, GPIO_Pin_6);
+          GPIO_ResetBits(GPIOF, GPIO_Pin_9);
+          
+          Index = 1;
 
-    LedCounter++;
-
-    if(LedCounter == 300)
-    {
-      AlarmStatus = 0;
-      LedCounter = 0;
-    }
   }
   else
   {
-    /* If LedShowStatus is TRUE: enable leds toggling */
-    if(Get_LedShowStatus() != 0)
-    {
-      switch(Index)
-      {
-        /* LD1 turned on, LD4 turned off */
-        case 0:
-        {
-          GPIO_ResetBits(GPIOF, GPIO_Pin_9);
-          GPIO_SetBits(GPIOF, GPIO_Pin_6);
-          Index++;
-          break;
-        }
-        /* LD2 turned on, LD1 turned off */
-        case 1:
-        {
           GPIO_ResetBits(GPIOF, GPIO_Pin_6);
-          GPIO_SetBits(GPIOF, GPIO_Pin_7);
-          Index++;
-          break;
-        }
-        /* LD3 turned on, LD2 turned off */
-        case 2:
-        {
-          GPIO_ResetBits(GPIOF, GPIO_Pin_7);
-          GPIO_SetBits(GPIOF, GPIO_Pin_8);
-          Index++;
-          break;
-        }
-        /* LD4 turned on, LD3 turned off */
-        case 3:
-        {
-          GPIO_ResetBits(GPIOF, GPIO_Pin_8);
           GPIO_SetBits(GPIOF, GPIO_Pin_9);
-          Index++;
-          break;
-        }
 
-        default:
-          break;
-      }
-      /* Reset Index to replay leds switch on sequence  */
-      if(Index == 4)
-      {
-        Index = 0;
-      }
-    }
+          Index = 0;
   }
+
+  TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+  
 }
 
 /*******************************************************************************

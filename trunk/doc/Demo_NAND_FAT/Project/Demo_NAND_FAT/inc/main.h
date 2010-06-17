@@ -48,6 +48,7 @@ uint32_t Get_LedShowStatus(void);
 void CheckBitmapFilesStatus(void);
 ErrorStatus Get_HSEStartUpStatus(void);
 void CreateDataLoggerFile();
+void Tim1_Init(void);
 
 #endif /* __MAIN_H */
 

@@ -140,11 +140,8 @@ void Demo_Init(void)
   /* Initialize the Low Power application */
   LowPower_Init();
 
-  /* Initialize the LCD */
-  STM3210E_LCD_Init();
+  Tim1_Init();
 
-  /* Clear the LCD */ 
-  LCD_Clear(White);
   
   /* If HSE is not detected at program startup */
   if(HSEStartUpStatus == ERROR)
@@ -152,39 +149,15 @@ void Demo_Init(void)
     /* Generate NMI exception */
     SCB->ICSR |= SCB_ICSR_NMIPENDSET;
   }  
-   
-  /* Checks the availability of the bitmap files */
-  CheckBitmapFilesStatus();
-  
-  /* Display the STM32 introduction */
-  STM32Intro();
 
-  /* Clear the LCD */ 
-  LCD_Clear(White);
-
-  /* Initialize the Calendar */
-  Calendar_Init();
-
-  /* Enable Leds toggling */
-  LedShow(ENABLE);
-  
-  /* Initialize the Low Power application*/ 
-  LowPower_Init();
-
-  /* Set the LCD Back Color */
-  LCD_SetBackColor(Blue);
-
-  /* Set the LCD Text Color */
-  LCD_SetTextColor(White);
-
-  NAND_FAT();
-  
+//  NAND_FAT();
+  while(1);  
   CreateDataLoggerFile();
   Thermometer_Temperature();
-    f_close(&g_file_datalogger);
+  f_close(&g_file_datalogger);
 
   Mass_Storage_Start();
-  while(1);
+
   
   /* Initialize the Menu */
   Menu_Init();
@@ -449,6 +422,44 @@ void Set_SELStatus(void)
   SELStatus = 1;
 }
 
+
+
+void Tim1_Init(void)
+{
+  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+  TIM_OCInitTypeDef  TIM_OCInitStructure;
+
+  TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+  TIM_OCStructInit(&TIM_OCInitStructure);
+
+
+  /* Time Base configuration */
+//  TIM_TimeBaseStructure.TIM_Prescaler = 719;
+  TIM_TimeBaseStructure.TIM_Prescaler = 35999;  
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+//  TIM_TimeBaseStructure.TIM_Period = 0x270F;
+  TIM_TimeBaseStructure.TIM_Period = 2000  * 5;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;
+  TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0;
+
+  TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+
+#if 0  
+  /* Channel 1 Configuration in Timing mode */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
+  TIM_OCInitStructure.TIM_Pulse = 0x0;
+  
+  TIM_OC1Init(TIM1, &TIM_OCInitStructure); 
+
+#endif
+  
+  TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
+ 
+  /* TIM1 counter enable */
+  TIM_Cmd(TIM1, ENABLE);
+}
 /*******************************************************************************
 * Function Name  : LedShow_Init
 * Description    : Configure the leds pins as output pushpull: LED1, LED2, LED3
@@ -460,34 +471,13 @@ void Set_SELStatus(void)
 void LedShow_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
-  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-  TIM_OCInitTypeDef  TIM_OCInitStructure;
-
-  TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-  TIM_OCStructInit(&TIM_OCInitStructure);
 
   /* PF.06, PF.07, PF.08 and PF.09 as output push-pull */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_Init(GPIOF, &GPIO_InitStructure);
-
-  /* Time Base configuration */
-  TIM_TimeBaseStructure.TIM_Prescaler = 719;
-  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-  TIM_TimeBaseStructure.TIM_Period = 0x270F;
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;
-  TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0;
-
-  TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
-
-  /* Channel 1 Configuration in Timing mode */
-  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
-  TIM_OCInitStructure.TIM_Pulse = 0x0;
+  GPIO_Init(GPIOF, &GPIO_InitStructure); 
   
-  TIM_OC1Init(TIM1, &TIM_OCInitStructure); 
 }
 
 /*******************************************************************************
@@ -499,24 +489,6 @@ void LedShow_Init(void)
 *******************************************************************************/
 void LedShow(FunctionalState NewState)
 {
-  /* Enable LEDs toggling */
-  if(NewState == ENABLE)
-  {
-    LedShowStatus = 1;
-    /* Enable the TIM1 Update Interrupt */
-    TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
-    /* TIM1 counter enable */
-    TIM_Cmd(TIM1, ENABLE);
-  }
-  /* Disable LEDs toggling */
-  else
-  {
-    LedShowStatus = 0;
-    /* Disable the TIM1 Update Interrupt */
-    TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE);
-    /* TIM1 counter disable */
-    TIM_Cmd(TIM1, DISABLE);
-  }
 }
 
 /*******************************************************************************
