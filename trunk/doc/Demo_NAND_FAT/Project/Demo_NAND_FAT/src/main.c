@@ -25,6 +25,7 @@ static __IO uint32_t LedShowStatus = 0;
 static __IO ErrorStatus HSEStartUpStatus = SUCCESS;
 static __IO uint32_t SELStatus = 0;
 FIL  g_file_datalogger;
+void RTC_Configuration_xp(void);
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -140,8 +141,16 @@ void Demo_Init(void)
   /* Initialize the Low Power application */
   LowPower_Init();
 
-  Tim1_Init();
 
+  
+    /* Enable WKUP pin */
+  PWR_WakeUpPinCmd(ENABLE);
+
+  /* Allow access to BKP Domain */
+  PWR_BackupAccessCmd(ENABLE);
+
+  
+  RTC_Configuration_xp();
   
   /* If HSE is not detected at program startup */
   if(HSEStartUpStatus == ERROR)
@@ -150,8 +159,35 @@ void Demo_Init(void)
     SCB->ICSR |= SCB_ICSR_NMIPENDSET;
   }  
 
+  GPIO_SetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
+    GPIO_ResetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);
+  
+
 //  NAND_FAT();
-  while(1);  
+  //while(1)
+  //{
+    
+    Delay(1000);
+    GPIO_ResetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
+    GPIO_SetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);    
+
+    /* Wait till RTC Second event occurs */
+   RTC_ClearFlag(RTC_FLAG_SEC);
+    while(RTC_GetFlagStatus(RTC_FLAG_SEC) == RESET);
+
+    /* Set the RTC Alarm after 3s */
+    RTC_SetAlarm(RTC_GetCounter()+ 3);
+    /* Wait until last write operation on RTC registers has finished */
+    RTC_WaitForLastTask();
+    
+    /* Request to enter STANDBY mode (Wake Up flag is cleared in PWR_EnterSTANDBYMode function) */
+    PWR_EnterSTANDBYMode();
+    
+    while(1);    
+    
+//    GPIO_ResetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_8);
+    
+  //}
   CreateDataLoggerFile();
   Thermometer_Temperature();
   f_close(&g_file_datalogger);
@@ -205,12 +241,6 @@ void InterruptConfig(void)
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
   
-  /* Enable the RTC Interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
 
  
   /* Enable the USB_LP_CAN_RX0 Interrupt */
@@ -224,13 +254,6 @@ void InterruptConfig(void)
   NVIC_InitStructure.NVIC_IRQChannel = USB_HP_CAN1_TX_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-
-  /* Enable the TIM1 UP Interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 
@@ -256,6 +279,7 @@ void InterruptConfig(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
+
 void SysTick_Configuration(void)
 {
   /* Setup SysTick Timer for 10 msec interrupts  */
@@ -268,6 +292,8 @@ void SysTick_Configuration(void)
  /* Configure the SysTick handler priority */
   NVIC_SetPriority(SysTick_IRQn, 0x0);
 }
+
+
 
 /*******************************************************************************
 * Function Name  : IntExtOnOffConfig
@@ -601,4 +627,52 @@ void CreateDataLoggerFile()
 //    f_close(&fdst);
 
 }
+
+void RTC_Configuration_xp(void)
+{
+  /* Check if the StandBy flag is set */
+  if(PWR_GetFlagStatus(PWR_FLAG_SB) != RESET)
+  {/* System resumed from STANDBY mode */
+
+
+    /* Clear StandBy flag */
+    PWR_ClearFlag(PWR_FLAG_SB);
+
+    /* Wait for RTC APB registers synchronisation */
+    RTC_WaitForSynchro();
+    /* No need to configure the RTC as the RTC configuration(clock source, enable,
+       prescaler,...) is kept after wake-up from STANDBY */
+  }
+  else
+  {/* StandBy flag is not set */
+
+    /* RTC clock source configuration ----------------------------------------*/
+    /* Reset Backup Domain */
+    BKP_DeInit();
+  
+    /* Enable LSE OSC */
+    RCC_LSEConfig(RCC_LSE_ON);
+    /* Wait till LSE is ready */
+    while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
+    {
+    }
+
+    /* Select the RTC Clock Source */
+    RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+
+    /* Enable the RTC Clock */
+    RCC_RTCCLKCmd(ENABLE);
+
+    /* RTC configuration -----------------------------------------------------*/
+    /* Wait for RTC APB registers synchronisation */
+    RTC_WaitForSynchro();
+
+    /* Set the RTC time base to 1s */
+    RTC_SetPrescaler(32767);  
+    /* Wait until last write operation on RTC registers has finished */
+    RTC_WaitForLastTask();
+  }
+}
+
+
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/

@@ -232,20 +232,7 @@ void SysTick_Handler(void)
 *******************************************************************************/
 void RTC_IRQHandler(void)
 {
-  /* If counter is equal to 86339: one day was elapsed */
-  if((RTC_GetCounter()/3600 == 23)&&(((RTC_GetCounter()%3600)/60) == 59)&&
-     (((RTC_GetCounter()%3600)%60) == 59)) /* 23*3600 + 59*60 + 59 = 86339 */
-  {
-    /* Wait until last write operation on RTC registers has finished */
-    RTC_WaitForLastTask();
-    /* Reset counter value */
-    RTC_SetCounter(0x0);
-    /* Wait until last write operation on RTC registers has finished */
-    RTC_WaitForLastTask();
 
-    /* Increment the date */
-    Date_Update();
-  }
   /* Clear the RTC Second Interrupt pending bit */  
   RTC_ClearITPendingBit(RTC_IT_SEC);
 }
@@ -343,39 +330,6 @@ void EXTI9_5_IRQHandler(void)
 
 
 /*******************************************************************************
-* Function Name  : TIM1_UP_IRQHandler
-* Description    : This function handles TIM1 overflow and update interrupt 
-*                  request.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void TIM1_UP_IRQHandler(void)
-{
-  /* Clear the TIM1 Update pending bit */
-  
-
-  if(Index == 0)
-  {
-          GPIO_SetBits(GPIOF, GPIO_Pin_6);
-          GPIO_ResetBits(GPIOF, GPIO_Pin_9);
-          
-          Index = 1;
-
-  }
-  else
-  {
-          GPIO_ResetBits(GPIOF, GPIO_Pin_6);
-          GPIO_SetBits(GPIOF, GPIO_Pin_9);
-
-          Index = 0;
-  }
-
-  TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
-  
-}
-
-/*******************************************************************************
 * Function Name  : SPI2_IRQHandler
 * Description    : This function handles SPI2 global interrupt request.
 * Input          : None
@@ -467,8 +421,8 @@ void RTCAlarm_IRQHandler(void)
   /* Clear the Alarm Pending Bit */
   RTC_ClearITPendingBit(RTC_IT_ALR);
   
-  AlarmStatus = 1;
-  Set_STOPModeStatus();
+//  AlarmStatus = 1;
+//  Set_STOPModeStatus();
 
   /* Clear the EXTI Line 17/ */  
   EXTI_ClearITPendingBit(EXTI_Line17);

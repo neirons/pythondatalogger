@@ -67,7 +67,7 @@ uint8_t MonthNames[12][20] =
 /* Private function prototypes -----------------------------------------------*/
 static uint8_t IsLeapYear(uint16_t nYear);
 static void WeekDayNum(uint32_t nyear, uint8_t nmonth, uint8_t nday);
-static void RTC_Configuration(void);
+ void RTC_Configuration(void);
 static void RegulateYear(void);
 static void RegulateMonth(void);
 static void RegulateDay(void);
