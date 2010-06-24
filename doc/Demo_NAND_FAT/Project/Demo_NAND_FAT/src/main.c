@@ -70,6 +70,9 @@ int main(void)
 *******************************************************************************/
 void Demo_Init(void)
 {
+  
+  uint32_t br2_index;
+  
   /* RCC system reset(for debug purpose) */
   RCC_DeInit();
 
@@ -152,6 +155,12 @@ void Demo_Init(void)
   
   RTC_Configuration_xp();
   
+  
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+    /* Allow access to BKP Domain */
+    PWR_BackupAccessCmd(ENABLE);
+  
+    
   /* If HSE is not detected at program startup */
   if(HSEStartUpStatus == ERROR)
   {
@@ -159,8 +168,46 @@ void Demo_Init(void)
     SCB->ICSR |= SCB_ICSR_NMIPENDSET;
   }  
 
+
+    FLASH_Unlock();
+
+    FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	
+
+#define BANK1_WRITE_START_ADDR  ((uint32_t)0x0801fc00)
+    
+    if(BKP_ReadBackupRegister(BKP_DR1) != 0xA5A5)
+    {
+         BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);
+         FLASH_ErasePage(BANK1_WRITE_START_ADDR);
+         BKP_WriteBackupRegister(BKP_DR2, 0x0000);          
+    }
+    else
+    {
+      br2_index =   BKP_ReadBackupRegister(BKP_DR2);          
+         
+
+
+         if(br2_index * 4 >= 0x0400)
+         {
+           //Full the page
+           BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);           
+           FLASH_ErasePage(BANK1_WRITE_START_ADDR);
+            BKP_WriteBackupRegister(BKP_DR2, 0x0000);          
+         }
+         else
+         {
+            FLASH_ErasePage(BANK1_WRITE_START_ADDR);           
+             br2_index = br2_index + 1;
+             BKP_WriteBackupRegister(BKP_DR2, br2_index);
+            
+         }
+      
+    }
+   FLASH_Lock();
+
+   
   GPIO_SetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
-    GPIO_ResetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);
+  GPIO_ResetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);
   
 
 //  NAND_FAT();
@@ -176,7 +223,7 @@ void Demo_Init(void)
     while(RTC_GetFlagStatus(RTC_FLAG_SEC) == RESET);
 
     /* Set the RTC Alarm after 3s */
-    RTC_SetAlarm(RTC_GetCounter()+ 3);
+    RTC_SetAlarm(RTC_GetCounter()+ 10);
     /* Wait until last write operation on RTC registers has finished */
     RTC_WaitForLastTask();
     
