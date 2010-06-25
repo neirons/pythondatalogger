@@ -42,23 +42,6 @@ int main(void)
  /* Initialize the Demo */
   Demo_Init();
 
-  while (1)
-  {
-    /* If SEL pushbutton is pressed */
-    if(SELStatus == 1)
-    {
-      /* External Interrupt Disable */
-      IntExtOnOffConfig(DISABLE);
-
-      /* Execute Sel Function */
-      SelFunc();
-
-      /* External Interrupt Enable */
-      IntExtOnOffConfig(ENABLE);
-      /* Reset SELStatus value */
-      SELStatus = 0;
-    } 
-  }
 }
 
 /*******************************************************************************
@@ -726,3 +709,26 @@ void RTC_Configuration_xp(void)
 
 
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
+void WriteDataLogger(uint32_t value)
+{
+
+    UINT bw;          /* File R/W count */
+    FRESULT res;          /* FatFs function common result code */
+  
+#if 1
+  uint32_t temp1,temp2;
+  
+  temp1 = ((value & 7) * 1000 / 8);
+  temp2 = value >> 3;
+  
+  res = f_write(&g_file_datalogger, &temp1, sizeof(temp1), &bw);
+  res = f_write(&g_file_datalogger, &temp2, sizeof(temp2), &bw);
+#else
+  BYTE buffer[] = {'c','h','i','n','a','w','o','r','l','d'};
+  res = f_write(&g_file_datalogger, buffer, 8, &bw);
+    
+      
+
+#endif   
+  
+}

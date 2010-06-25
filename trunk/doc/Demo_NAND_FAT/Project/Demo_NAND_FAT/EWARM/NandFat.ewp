@@ -507,7 +507,7 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
@@ -515,7 +515,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>NandFat.srec</state>
+          <state>NandFat.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -523,7 +523,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>0</state>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -1670,16 +1670,7 @@
   <group>
     <name>User</name>
     <file>
-      <name>$PROJ_DIR$\..\src\calendar.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\src\ccsbcs.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\src\diskio.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\src\draw_bmp.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\ff.c</name>
@@ -1688,13 +1679,7 @@
       <name>$PROJ_DIR$\..\src\fsmc_nand.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\src\fsmc_nor.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\src\hw_config.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\src\i2s_codec.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\lowpower.c</name>
@@ -1712,9 +1697,6 @@
       <name>$PROJ_DIR$\..\src\memory.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\src\menu.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\src\NAND_FAT.c</name>
     </file>
     <file>
@@ -1727,16 +1709,7 @@
       <name>$PROJ_DIR$\..\src\sdcard.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\src\smartcard.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\src\stm3210e_lcd.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\src\stm32f10x_it.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\src\tsensor.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\usb_bot.c</name>
@@ -1759,10 +1732,10 @@
     <file>
       <name>$PROJ_DIR$\..\src\usb_scsi.c</name>
     </file>
-    <file>
-      <name>$PROJ_DIR$\..\src\waveplayer.c</name>
-    </file>
   </group>
+  <file>
+    <name>$PROJ_DIR$\..\src\ccsbcs.c</name>
+  </file>
 </project>
 
 
