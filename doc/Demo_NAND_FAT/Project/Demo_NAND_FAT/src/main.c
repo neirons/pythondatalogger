@@ -210,9 +210,10 @@ void Demo_Init(void)
   GPIO_ResetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);
   
 
-//  NAND_FAT();
+  NAND_FAT();
   //while(1)
   //{
+  CreateDataLoggerFile();
     
     Delay(1000);
     GPIO_ResetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
@@ -235,7 +236,6 @@ void Demo_Init(void)
 //    GPIO_ResetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_8);
     
   //}
-  CreateDataLoggerFile();
   Thermometer_Temperature();
   f_close(&g_file_datalogger);
 
@@ -671,7 +671,7 @@ void CreateDataLoggerFile()
     
 // will close the file???
     
-//    f_close(&fdst);
+    f_close(&g_file_datalogger);
 
 }
 
