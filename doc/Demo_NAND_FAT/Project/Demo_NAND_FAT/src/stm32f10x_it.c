@@ -43,78 +43,9 @@ static __IO uint32_t LedCounter = 0;
 *******************************************************************************/
 void NMI_Handler(void)
 {
-uint32_t tmp = 318, index = 0;
 
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
-
-  /* Disable LCD Window mode */
-  LCD_WindowModeDisable(); 
-
-  /* If HSE is not detected at program startup or HSE clock failed during program execution */
-  if((Get_HSEStartUpStatus() == ERROR) || (RCC_GetITStatus(RCC_IT_CSS) != RESET))
-  { 
-    /* Clear the LCD */
-    LCD_Clear(White);
-    /* Set the LCD Back Color */
-    LCD_SetBackColor(Blue);
-
-    /* Set the LCD Text Color */
-    LCD_SetTextColor(White);
-
-    /* Display " No Clock Detected  " message */
-    LCD_DisplayStringLine(Line0, "No HSE Clock        ");
-    LCD_DisplayStringLine(Line1, "Detected. STANDBY   ");
-    LCD_DisplayStringLine(Line2, "mode in few seconds.");
-    
-    LCD_DisplayStringLine(Line5, "If HSE Clock         ");
-    LCD_DisplayStringLine(Line6, "recovers before the  ");
-    LCD_DisplayStringLine(Line7, "time out, a System   ");
-    LCD_DisplayStringLine(Line8, "Reset is generated.  ");
-    LCD_ClearLine(Line9);
-    /* Clear Clock Security System interrupt pending bit */
-    RCC_ClearITPendingBit(RCC_IT_CSS);
-
-    GPIO_SetBits(GPIOF, GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9);
-
-    /* Enable HSE */
-    RCC_HSEConfig(RCC_HSE_ON);
-    LCD_ClearLine(Line4);
-    /* Set the Back Color */
-    LCD_SetBackColor(White);
-    /* Set the Text Color */
-    LCD_SetTextColor(Red);
-    LCD_DrawRect(71, 319, 25, 320);
-    LCD_SetBackColor(Green); 
-    LCD_SetTextColor(White);
-
-    /* Wait till HSE is ready */
-    while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
-    {
-      if(index == 0x3FFFF)
-      {
-        LCD_DisplayChar(Line3, tmp, 0x20);
-        tmp -= 16;
-        index = 0;
-      }
-      index++;
-      /* Enters the system in STANDBY mode */
-      if(tmp < 16)
-      {
-        LCD_SetBackColor(Blue);
-        LCD_ClearLine(Line3);
-        LCD_ClearLine(Line4);
-        LCD_ClearLine(Line5);
-        LCD_ClearLine(Line6);
-        LCD_DisplayStringLine(Line7, " MCU in STANDBY Mode"); 
-        LCD_DisplayStringLine(Line8, "To exit press Wakeup");
-        /* Request to enter STANDBY mode */
-        PWR_EnterSTANDBYMode();
-      }
-    }
   
     /* Generate a system reset */  
-    NVIC_SystemReset();
-  }
 }
 
 /*******************************************************************************
@@ -248,7 +179,6 @@ void EXTI3_IRQHandler(void)
 {
   if(EXTI_GetITStatus(EXTI_Line3) != RESET)
   {
-    DownFunc();  
     /* Clear the EXTI Line 3 */
     EXTI_ClearITPendingBit(EXTI_Line3);
   }
@@ -289,43 +219,6 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
 *******************************************************************************/
 void EXTI9_5_IRQHandler(void)
 {
-  if(Get_SmartCardStatus() == 0)
-  { 
-    if(EXTI_GetITStatus(EXTI_Line8) != RESET)
-    {
-      /* Clear the EXTI Line 8 */  
-      EXTI_ClearITPendingBit(EXTI_Line8);
-    }
-    if(EXTI_GetITStatus(EXTI_Line7) != RESET)
-    {
-      /* SEL function */
-      Set_SELStatus();
-      /* Clear the EXTI Line 7 */  
-      EXTI_ClearITPendingBit(EXTI_Line7);
-    }
-  }
-  else if(Get_SmartCardStatus() == 1)
-  {
-    if(EXTI_GetITStatus(SC_EXTI) != RESET)
-    {
-      /* Clear SC EXTIT Line Pending Bit */
-      EXTI_ClearITPendingBit(SC_EXTI);
-
-      /* Smartcard detected */
-      Set_CardInserted();
-
-      /* Power ON the card */
-      SC_PowerCmd(ENABLE);
-
-      /* Reset the card */
-      SC_Reset(Bit_RESET);
-    }
-  }
-  if(EXTI_GetITStatus(EXTI_Line8) != RESET)
-  {
-    /* Clear the EXTI Line 8 */
-    EXTI_ClearITPendingBit(EXTI_Line8);
-  }
 }
 
 
@@ -341,7 +234,6 @@ void SPI2_IRQHandler(void)
   if ((SPI_I2S_GetITStatus(SPI2, SPI_I2S_IT_TXE) == SET))
   {
     /* Send data on the SPI2 and Check the current commands */
-    I2S_CODEC_DataTransfer();
   }
 }
 
@@ -361,8 +253,6 @@ void USART3_IRQHandler(void)
     USART_ClearITPendingBit(USART3, USART_IT_FE);
     USART_ReceiveData(USART3);
 
-    /* Resend the byte that failed to be received (by the Smartcard) correctly */
-    SC_ParityErrorHandler();
   }
   
   /* If the USART3 detects a parity error */
@@ -402,7 +292,7 @@ void EXTI15_10_IRQHandler(void)
 {
   if(EXTI_GetITStatus(EXTI_Line15) != RESET)
   {
-    UpFunc();
+
     /* Clear the EXTI Line 15 */  
     EXTI_ClearITPendingBit(EXTI_Line15);
   }
