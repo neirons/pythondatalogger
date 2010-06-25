@@ -154,6 +154,8 @@ void Demo_Init(void)
 
   
   RTC_Configuration_xp();
+
+
   
   
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
@@ -168,6 +170,13 @@ void Demo_Init(void)
     SCB->ICSR |= SCB_ICSR_NMIPENDSET;
   }  
 
+    NAND_FAT();
+  //while(1)
+  //{
+  CreateDataLoggerFile();
+
+  
+  
 
     FLASH_Unlock();
 
@@ -210,11 +219,8 @@ void Demo_Init(void)
   GPIO_ResetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);
   
 
-  NAND_FAT();
-  //while(1)
-  //{
-  CreateDataLoggerFile();
-    
+   Mass_Storage_Start ();
+
     Delay(1000);
     GPIO_ResetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
     GPIO_SetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);    
@@ -227,26 +233,23 @@ void Demo_Init(void)
     RTC_SetAlarm(RTC_GetCounter()+ 10);
     /* Wait until last write operation on RTC registers has finished */
     RTC_WaitForLastTask();
-    
-    /* Request to enter STANDBY mode (Wake Up flag is cleared in PWR_EnterSTANDBYMode function) */
-    PWR_EnterSTANDBYMode();
-    
-    while(1);    
-    
-//    GPIO_ResetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_8);
-    
-  //}
-  Thermometer_Temperature();
-  f_close(&g_file_datalogger);
 
-  Mass_Storage_Start();
+  if(bDeviceState == CONFIGURED)
+  {
+    while(bDeviceState == CONFIGURED)
+    {
+      
+    }
+  }
+  else
+  {
+    PowerOff();
+    /* Request to enter STANDBY mode (Wake Up flag is cleared in PWR_EnterSTANDBYMode function) */
+    PWR_EnterSTANDBYMode();    
+  }
 
   
-  /* Initialize the Menu */
-  Menu_Init();
 
-  /* Display the main menu icons */
-  ShowMenuIcons();
 }
 
 /*******************************************************************************
