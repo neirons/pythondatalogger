@@ -103,12 +103,8 @@ void Demo_Init(void)
   }
 
   /* Enable GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG and AFIO clocks */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |RCC_APB2Periph_GPIOC 
-         | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG 
-         | RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOF | RCC_APB2Periph_AFIO, ENABLE);
   
-  /* TIM1 Periph clock enable */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
  
 /*------------------- Resources Initialization -----------------------------*/
   /* GPIO Configuration */
@@ -153,14 +149,9 @@ void Demo_Init(void)
     SCB->ICSR |= SCB_ICSR_NMIPENDSET;
   }  
 
-    NAND_FAT();
-  //while(1)
-  //{
+  NAND_FAT();
   CreateDataLoggerFile();
-
   
-  
-
     FLASH_Unlock();
 
     FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	
@@ -483,42 +474,6 @@ void Set_SELStatus(void)
 
 
 
-void Tim1_Init(void)
-{
-  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-  TIM_OCInitTypeDef  TIM_OCInitStructure;
-
-  TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-  TIM_OCStructInit(&TIM_OCInitStructure);
-
-
-  /* Time Base configuration */
-//  TIM_TimeBaseStructure.TIM_Prescaler = 719;
-  TIM_TimeBaseStructure.TIM_Prescaler = 35999;  
-  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-//  TIM_TimeBaseStructure.TIM_Period = 0x270F;
-  TIM_TimeBaseStructure.TIM_Period = 2000  * 5;
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;
-  TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0;
-
-  TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
-
-#if 0  
-  /* Channel 1 Configuration in Timing mode */
-  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
-  TIM_OCInitStructure.TIM_Pulse = 0x0;
-  
-  TIM_OC1Init(TIM1, &TIM_OCInitStructure); 
-
-#endif
-  
-  TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
- 
-  /* TIM1 counter enable */
-  TIM_Cmd(TIM1, ENABLE);
-}
 /*******************************************************************************
 * Function Name  : LedShow_Init
 * Description    : Configure the leds pins as output pushpull: LED1, LED2, LED3
@@ -562,44 +517,6 @@ uint32_t Get_LedShowStatus(void)
   return LedShowStatus;
 }
 
-/*******************************************************************************
-* Function Name  : CheckBitmapFilesStatus
-* Description    : Checks the bitmap files availability and display a warning 
-*                  message if these files doesn't exit.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void CheckBitmapFilesStatus(void)
-{
-  /* Checks if the Bitmap files are loaded */
-  if(CheckBitmapFiles() != 0)
-  {
-    /* Set the LCD Back Color */
-    LCD_SetBackColor(Blue);
-
-    /* Set the LCD Text Color */
-    LCD_SetTextColor(White);    
-    LCD_DisplayStringLine(Line0, "      Warning       ");
-    LCD_DisplayStringLine(Line1, "No loaded Bitmap    ");
-    LCD_DisplayStringLine(Line2, "files. Demo can't be");
-    LCD_DisplayStringLine(Line3, "executed.           ");
-    LCD_DisplayStringLine(Line4, "Please be sure that ");
-    LCD_DisplayStringLine(Line5, "all files are       ");
-    LCD_DisplayStringLine(Line6, "correctly programmed");
-    LCD_DisplayStringLine(Line7, "in the NOR FLASH and");
-    LCD_DisplayStringLine(Line8, "restart the Demo.   ");
-    LCD_DisplayStringLine(Line9, "                    ");
-    
-    /* Deinitializes the RCC */
-    RCC_DeInit();
-    
-    /* Demo Can't Start */
-    while(1)
-    {
-    }
-  }
-}
 
 /*******************************************************************************
 * Function Name  : Get_HSEStartUpStatus

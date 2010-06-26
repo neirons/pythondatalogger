@@ -353,11 +353,6 @@ void SCSI_Format_Cmd(uint8_t lun)
     Bot_Abort(DIR_IN);
     return;
   }
-  else
-  {
-    NAND_Format();
-    Set_CSW (CSW_CMD_PASSED, SEND_CSW_ENABLE);
-  }
 }
 /*******************************************************************************
 * Function Name  : SCSI_Invalid_Cmd

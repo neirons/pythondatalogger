@@ -1682,9 +1682,6 @@
       <name>$PROJ_DIR$\..\src\ff.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\src\fsmc_nand.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\src\hw_config.c</name>
     </file>
     <file>
@@ -1704,9 +1701,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\NAND_FAT.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\src\nand_if.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\src\scsi_data.c</name>
