@@ -24,6 +24,9 @@ static __IO uint32_t TimingDelay = 0;
 static __IO uint32_t LedShowStatus = 0;
 static __IO ErrorStatus HSEStartUpStatus = SUCCESS;
 static __IO uint32_t SELStatus = 0;
+static __IO uint32_t USBStatus = 0;
+
+
 FIL  g_file_datalogger;
 void RTC_Configuration_xp(void);
 
@@ -55,6 +58,7 @@ void Demo_Init(void)
 {
   
   uint32_t br2_index;
+  uint32_t br3_rtc_count;
   
   /* RCC system reset(for debug purpose) */
   RCC_DeInit();
@@ -149,79 +153,93 @@ void Demo_Init(void)
     SCB->ICSR |= SCB_ICSR_NMIPENDSET;
   }  
 
-  NAND_FAT();
-  CreateDataLoggerFile();
   
+  /*
+  1.Flash the Led
+  2.Detect the usb
+  3.
+  */
+  //try to start the mass storage
+  Mass_Storage_Start ();  
+  USBStatus = 0;
+#define BANK1_WRITE_START_ADDR  ((uint32_t)0x0801fc00)
+
+  if(BKP_ReadBackupRegister(BKP_DR1) != 0xA5A5)
+  {
     FLASH_Unlock();
 
     FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	
-
-#define BANK1_WRITE_START_ADDR  ((uint32_t)0x0801fc00)
     
-    if(BKP_ReadBackupRegister(BKP_DR1) != 0xA5A5)
-    {
-         BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);
-         FLASH_ErasePage(BANK1_WRITE_START_ADDR);
-         BKP_WriteBackupRegister(BKP_DR2, 0x0000);          
-    }
-    else
-    {
-      br2_index =   BKP_ReadBackupRegister(BKP_DR2);          
-         
+    BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);
+    FLASH_ErasePage(BANK1_WRITE_START_ADDR);
+    BKP_WriteBackupRegister(BKP_DR2, 0x0000); 
+    BKP_WriteBackupRegister(BKP_DR3, 0x0000); 
+    FLASH_Lock();
+  }
 
-
-         if(br2_index * 4 >= 0x0400)
-         {
-           //Full the page
-           BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);           
-           FLASH_ErasePage(BANK1_WRITE_START_ADDR);
-            BKP_WriteBackupRegister(BKP_DR2, 0x0000);          
-         }
-         else
-         {
-            FLASH_ErasePage(BANK1_WRITE_START_ADDR);           
-             br2_index = br2_index + 1;
-             BKP_WriteBackupRegister(BKP_DR2, br2_index);
-            
-         }
-      
-    }
-   FLASH_Lock();
-
-   
+  
   GPIO_SetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
   GPIO_ResetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);
+  Delay(100);
+  GPIO_ResetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
+  GPIO_SetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);  
   
-
-   Mass_Storage_Start ();
-
-    Delay(1000);
-    GPIO_ResetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
-    GPIO_SetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);    
-
-    /* Wait till RTC Second event occurs */
-   RTC_ClearFlag(RTC_FLAG_SEC);
-    while(RTC_GetFlagStatus(RTC_FLAG_SEC) == RESET);
-
-    /* Set the RTC Alarm after 3s */
-    RTC_SetAlarm(RTC_GetCounter()+ 10);
-    /* Wait until last write operation on RTC registers has finished */
-    RTC_WaitForLastTask();
-
   if(bDeviceState == CONFIGURED)
   {
-    while(bDeviceState == CONFIGURED)
-    {
-      
-    }
+    /*
+    1.unmount the usb 
+    2.copy the nand.
+    3.remount the usb    
+    */
+    bDeviceState = UNCONNECTED;
+    PowerOff();
+    NAND_FAT();  
+    CreateDataLoggerFile();    
+    Mass_Storage_Start ();  
+    while(bDeviceState != CONFIGURED);
+    while(bDeviceState == CONFIGURED);
+    /* Generate a system reset */  
+    NVIC_SystemReset();
+  }
+  
+  PowerOff();
+  
+  /*
+  1.There is no usb.
+  2.Logger the data.
+  */  
+  
+  br3_rtc_count = BKP_ReadBackupRegister(BKP_DR3);
+  BKP_WriteBackupRegister(BKP_DR2, br2_index + 1);  
+  if(br3_rtc_count % 6 != 0)
+  {
+     //Do nothing.
   }
   else
   {
-    PowerOff();
-    /* Request to enter STANDBY mode (Wake Up flag is cleared in PWR_EnterSTANDBYMode function) */
-    PWR_EnterSTANDBYMode();    
-  }
+    br2_index =   BKP_ReadBackupRegister(BKP_DR2);
 
+    if(br2_index * 4 >= 0x0400)
+    {
+           //Full the page
+    }
+    else
+    {
+       FLASH_ProgramWord(BANK1_WRITE_START_ADDR + 4 * br2_index, br2_index);
+    }
+      
+  }
+  
+   /* Wait till RTC Second event occurs */
+   RTC_ClearFlag(RTC_FLAG_SEC);
+   while(RTC_GetFlagStatus(RTC_FLAG_SEC) == RESET);
+
+   /* Set the RTC Alarm after 10s */
+   RTC_SetAlarm(RTC_GetCounter()+ 10);
+   /* Wait until last write operation on RTC registers has finished */
+   RTC_WaitForLastTask();
+
+    PWR_EnterSTANDBYMode();    
   
 
 }
