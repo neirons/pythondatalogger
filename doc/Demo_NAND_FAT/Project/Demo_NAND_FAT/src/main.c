@@ -25,6 +25,7 @@ static __IO uint32_t LedShowStatus = 0;
 static __IO ErrorStatus HSEStartUpStatus = SUCCESS;
 static __IO uint32_t SELStatus = 0;
 static __IO uint32_t USBStatus = 0;
+static __IO uint8_t USBPlugin = 0;
 
 
 FIL  g_file_datalogger;
@@ -106,8 +107,8 @@ void Demo_Init(void)
     }
   }
 
-  /* Enable GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG and AFIO clocks */
-  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOF | RCC_APB2Periph_AFIO, ENABLE);
+  /* Enable GPIOA, GPIOB, and AFIO clocks */
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA |RCC_APB2Periph_GPIOB| RCC_APB2Periph_AFIO, ENABLE);
   
  
 /*------------------- Resources Initialization -----------------------------*/
@@ -136,10 +137,7 @@ void Demo_Init(void)
   PWR_BackupAccessCmd(ENABLE);
 
   
-  RTC_Configuration_xp();
-
-
-  
+  RTC_Configuration_xp();  
   
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
     /* Allow access to BKP Domain */
@@ -152,18 +150,10 @@ void Demo_Init(void)
     /* Generate NMI exception */
     SCB->ICSR |= SCB_ICSR_NMIPENDSET;
   }  
-
   
-  /*
-  1.Flash the Led
-  2.Detect the usb
-  3.
-  */
-  //try to start the mass storage
-  Mass_Storage_Start ();  
-  USBStatus = 0;
 #define BANK1_WRITE_START_ADDR  ((uint32_t)0x0801fc00)
 
+  /*init the flag*/  
   if(BKP_ReadBackupRegister(BKP_DR1) != 0xA5A5)
   {
     FLASH_Unlock();
@@ -176,59 +166,60 @@ void Demo_Init(void)
     BKP_WriteBackupRegister(BKP_DR3, 0x0000); 
     FLASH_Lock();
   }
+  
+  
+  USBPlugin = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
 
-  
-  GPIO_SetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
-  GPIO_ResetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);
-  Delay(100);
-  GPIO_ResetBits(GPIOF, GPIO_Pin_6 |  GPIO_Pin_7);
-  GPIO_SetBits(GPIOF,GPIO_Pin_8 | GPIO_Pin_9);  
-  
-  if(bDeviceState == CONFIGURED)
+  if(USBPlugin == 0)
   {
-    /*
-    1.unmount the usb 
-    2.copy the nand.
-    3.remount the usb    
-    */
-    bDeviceState = UNCONNECTED;
-    PowerOff();
-    NAND_FAT();  
-    CreateDataLoggerFile();    
-    Mass_Storage_Start ();  
-    while(bDeviceState != CONFIGURED);
-    while(bDeviceState == CONFIGURED);
-    /* Generate a system reset */  
-    NVIC_SystemReset();
-  }
   
-  PowerOff();
-  
-  /*
-  1.There is no usb.
-  2.Logger the data.
-  */  
-  
-  br3_rtc_count = BKP_ReadBackupRegister(BKP_DR3);
-  BKP_WriteBackupRegister(BKP_DR2, br2_index + 1);  
-  if(br3_rtc_count % 6 != 0)
-  {
-     //Do nothing.
-  }
-  else
-  {
-    br2_index =   BKP_ReadBackupRegister(BKP_DR2);
+    GPIO_SetBits(GPIOA, GPIO_Pin_1);
+    GPIO_ResetBits(GPIOA,GPIO_Pin_2);
+    Delay(100);
+    GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+    GPIO_SetBits(GPIOA,GPIO_Pin_2);  
 
-    if(br2_index * 4 >= 0x0400)
+    br3_rtc_count = BKP_ReadBackupRegister(BKP_DR3);
+    BKP_WriteBackupRegister(BKP_DR3, (br3_rtc_count + 1)%6);  
+    if(br3_rtc_count % 6 != 0)
     {
-           //Full the page
+     //Do nothing.
     }
     else
     {
-       FLASH_ProgramWord(BANK1_WRITE_START_ADDR + 4 * br2_index, br2_index);
-    }
+      br2_index =   BKP_ReadBackupRegister(BKP_DR2);
+
+      if(br2_index * 4 >= 0x0400)
+      {
+             //Full the page
+      }
+      else
+      {
+          FLASH_Unlock();
+          FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
+          FLASH_ProgramWord(BANK1_WRITE_START_ADDR + 4 * br2_index, br2_index);
+          FLASH_Lock();
+
+      }
       
+      BKP_WriteBackupRegister(BKP_DR2, br2_index + 1);  
+    }
   }
+  else
+  {
+    /*
+    if there is usb connect, copy the data to sdcard. and start the mass storage
+    */
+    NAND_FAT();  
+    CreateDataLoggerFile();    
+    Mass_Storage_Start ();     
+    while(bDeviceState != CONFIGURED);
+    while(bDeviceState == CONFIGURED);
+    PowerOff();    
+    /* Generate a system reset */  
+    NVIC_SystemReset();    
+  }
+  
   
    /* Wait till RTC Second event occurs */
    RTC_ClearFlag(RTC_FLAG_SEC);
@@ -239,7 +230,7 @@ void Demo_Init(void)
    /* Wait until last write operation on RTC registers has finished */
    RTC_WaitForLastTask();
 
-    PWR_EnterSTANDBYMode();    
+   PWR_EnterSTANDBYMode();    
   
 
 }
@@ -385,34 +376,12 @@ void IntExtOnOffConfig(FunctionalState NewState)
 void GPIO_Config(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
+  
+  /* Configure PB14 for usb detect*/
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-  /* Configure PG.07, PG.08, PG.13, PG.14 and PG.15 as input floating */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOG, &GPIO_InitStructure);
-
-  /* Configure PD.03 as input floating */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-  /* RIGHT Button */
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOG, GPIO_PinSource13);
-
-  /* LEFT Button */
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOG, GPIO_PinSource14);
-
-  /* DOWN Button */
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource3);
-
-  /* UP Button */
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOG, GPIO_PinSource15);
-
-  /* SEL Button */
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOG, GPIO_PinSource7);
-
-  /* KEY Button */
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOG, GPIO_PinSource8);
 }
 
 /*******************************************************************************
@@ -504,11 +473,11 @@ void LedShow_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
 
-  /* PF.06, PF.07, PF.08 and PF.09 as output push-pull */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9;
+  /* PA.01, PA.02 as output push-pull */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 ;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_Init(GPIOF, &GPIO_InitStructure); 
+  GPIO_Init(GPIOA, &GPIO_InitStructure); 
   
 }
 
