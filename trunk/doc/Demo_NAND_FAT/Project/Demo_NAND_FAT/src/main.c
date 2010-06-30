@@ -207,6 +207,7 @@ void Demo_Init(void)
   }
   else
   {
+    GPIO_SetBits(GPIOA, GPIO_Pin_1);
     /*
     if there is usb connect, copy the data to sdcard. and start the mass storage
     */
