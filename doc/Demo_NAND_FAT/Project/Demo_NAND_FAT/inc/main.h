@@ -49,6 +49,7 @@ void CheckBitmapFilesStatus(void);
 ErrorStatus Get_HSEStartUpStatus(void);
 void CreateDataLoggerFile();
 void Tim1_Init(void);
+void WakupPin_Init(void);
 
 #endif /* __MAIN_H */
 
