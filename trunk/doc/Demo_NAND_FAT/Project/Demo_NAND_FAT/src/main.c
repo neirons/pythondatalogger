@@ -64,6 +64,10 @@ void Demo_Init(void)
   /* RCC system reset(for debug purpose) */
   RCC_DeInit();
 
+  
+
+
+  
   /* Enable HSE */
   RCC_HSEConfig(RCC_HSE_ON);
 
@@ -108,7 +112,7 @@ void Demo_Init(void)
   }
 
   /* Enable GPIOA, GPIOB, and AFIO clocks */
-  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA |RCC_APB2Periph_GPIOB| RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA |RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOF| RCC_APB2Periph_AFIO, ENABLE);
   
  
 /*------------------- Resources Initialization -----------------------------*/
@@ -153,6 +157,68 @@ void Demo_Init(void)
   
 #define BANK1_WRITE_START_ADDR  ((uint32_t)0x0801fc00)
 
+  WakupPin_Init();
+  
+  /* Check if the Power On Reset flag is set */
+  if (RCC_GetFlagStatus(RCC_FLAG_PORRST) != RESET)
+  {
+    
+           GPIO_SetBits(GPIOF, GPIO_Pin_6 |GPIO_Pin_7 );
+           GPIO_ResetBits(GPIOF, GPIO_Pin_8 |GPIO_Pin_9 );
+           Delay(100 * 1);
+           GPIO_ResetBits(GPIOF, GPIO_Pin_6 |GPIO_Pin_7 );
+           GPIO_SetBits(GPIOF, GPIO_Pin_8 |GPIO_Pin_9 );
+           Delay(100 * 1);
+           RCC_ClearFlag();
+           /* power off standby*/
+           PWR_EnterSTANDBYMode();    
+    
+          
+  }
+  else
+  {
+            GPIO_SetBits(GPIOF, GPIO_Pin_6 |GPIO_Pin_9 );            
+            Delay(50);              
+            GPIO_ResetBits(GPIOF, GPIO_Pin_6 |GPIO_Pin_7| GPIO_Pin_8 |GPIO_Pin_9 );                        
+            Delay(50);                          
+            if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == 1)
+            {
+                Delay(100 * 3);
+               if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == 1)
+               {
+                 if(0xABCD == BKP_ReadBackupRegister(BKP_DR4))
+                 {
+                    //Power off
+                   BKP_WriteBackupRegister(BKP_DR4, 0x0000);             
+                   PWR_EnterSTANDBYMode();    
+                   
+                 }
+                 else
+                 {
+                   //Power on
+                   BKP_WriteBackupRegister(BKP_DR4, 0xABCD);             
+                   GPIO_SetBits(GPIOF, GPIO_Pin_6 |GPIO_Pin_7| GPIO_Pin_8 |GPIO_Pin_9 );                                           
+                   Delay(100 * 3);                   
+                 }
+                 
+               }
+               else
+               {
+                   BKP_WriteBackupRegister(BKP_DR4, 0x0000);                              
+                   PWR_EnterSTANDBYMode();                     
+               }
+                
+            } 
+            else
+            {
+              /* power on 0xABCD */              
+              GPIO_SetBits(GPIOF, GPIO_Pin_9);
+              Delay(100);
+              PWR_EnterSTANDBYMode();    
+            }
+  }
+
+  
   /*init the flag*/  
   if(BKP_ReadBackupRegister(BKP_DR1) != 0xA5A5)
   {
@@ -163,7 +229,6 @@ void Demo_Init(void)
     BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);
     FLASH_ErasePage(BANK1_WRITE_START_ADDR);
     BKP_WriteBackupRegister(BKP_DR2, 0x0000); 
-    BKP_WriteBackupRegister(BKP_DR3, 0x0000); 
     FLASH_Lock();
   }
   
@@ -173,20 +238,12 @@ void Demo_Init(void)
   if(USBPlugin == 0)
   {
   
-    GPIO_SetBits(GPIOA, GPIO_Pin_1);
-    GPIO_ResetBits(GPIOA,GPIO_Pin_2);
-    Delay(100);
-    GPIO_ResetBits(GPIOA, GPIO_Pin_1);
-    GPIO_SetBits(GPIOA,GPIO_Pin_2);  
+      GPIO_SetBits(GPIOA, GPIO_Pin_1);
+      GPIO_ResetBits(GPIOA,GPIO_Pin_2);
+      Delay(100);
+      GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+      GPIO_SetBits(GPIOA,GPIO_Pin_2);  
 
-    br3_rtc_count = BKP_ReadBackupRegister(BKP_DR3);
-    BKP_WriteBackupRegister(BKP_DR3, (br3_rtc_count + 1)%6);  
-    if(br3_rtc_count % 6 != 0)
-    {
-     //Do nothing.
-    }
-    else
-    {
       br2_index =   BKP_ReadBackupRegister(BKP_DR2);
 
       if(br2_index * 4 >= 0x0400)
@@ -203,7 +260,6 @@ void Demo_Init(void)
       }
       
       BKP_WriteBackupRegister(BKP_DR2, br2_index + 1);  
-    }
   }
   else
   {
@@ -460,6 +516,17 @@ void Set_SELStatus(void)
   SELStatus = 1;
 }
 
+void WakupPin_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  /* PA.01, PA.02 as output push-pull */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOA, &GPIO_InitStructure); 
+  
+}
 
 
 /*******************************************************************************
@@ -479,6 +546,11 @@ void LedShow_Init(void)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Init(GPIOA, &GPIO_InitStructure); 
+
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 |GPIO_Pin_8 | GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(GPIOF, &GPIO_InitStructure); 
   
 }
 
