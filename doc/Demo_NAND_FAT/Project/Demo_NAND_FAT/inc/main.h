@@ -39,17 +39,19 @@ void SysTick_Configuration(void);
 void IntExtOnOffConfig(FunctionalState NewState);
 void GPIO_Config(void);
 void Delay(__IO uint32_t nCount);
-uint32_t DelayJoyStick(__IO uint32_t nTime);
 void Decrement_TimingDelay(void);
-void Set_SELStatus(void);
-void LedShow_Init(void);
-void LedShow(FunctionalState NewState);
 uint32_t Get_LedShowStatus(void);
 void CheckBitmapFilesStatus(void);
 ErrorStatus Get_HSEStartUpStatus(void);
 void CreateDataLoggerFile();
 void Tim1_Init(void);
 void WakupPin_Init(void);
+void SetRTCAlarmFlag(void);
+uint8_t WaitWakeupPin();
+void Board_ADC_Init();
+void CheckVoltage();
+void CheckPowerOnReason();
+uint16_t GetTemperature();
 
 #endif /* __MAIN_H */
 

@@ -21,10 +21,9 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static __IO uint32_t TimingDelay = 0;
-static __IO uint32_t LedShowStatus = 0;
 static __IO ErrorStatus HSEStartUpStatus = SUCCESS;
-static __IO uint32_t SELStatus = 0;
-static __IO uint8_t USBPlugin = 0;
+
+static __IO uint8_t USB_Plugin_State = 0;
 
 #define ADC1_DR_Address    ((uint32_t)0x4001244C)
 #define ADC3_DR_Address    ((uint32_t)0x40013C4C)
@@ -33,7 +32,7 @@ __IO uint16_t ADC1ConvertedValue = 0, ADC3ConvertedValue = 0;
 
 
 FIL  g_file_datalogger;
-void RTC_Configuration_xp(void);
+void RTC_Init(void);
 #define BKP_POWER_ON BKP_DR1
 #define BKP_FLASH_READY BKP_DR2
 #define BKP_DATA_LOGGER_COUNT BKP_DR3
@@ -57,22 +56,7 @@ void RTC_Configuration_xp(void);
 * Return         : None
 *******************************************************************************/
 int main(void)
-{
-    /* Initialize the Demo */
-    Demo_Init();
-    
-}
-
-/*******************************************************************************
-* Function Name  : Demo_Init
-* Description    : Initializes the demonstration application.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void Demo_Init(void)
-{
-    
+{   
     uint32_t record_count;
     uint8_t i;
     /* RCC system reset(for debug purpose) */
@@ -124,11 +108,11 @@ void Demo_Init(void)
     /* Enable GPIOA, GPIOB, and AFIO clocks */
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA |RCC_APB2Periph_GPIOB| RCC_APB2Periph_AFIO, ENABLE);
     
-    /* Enable DMA1 clock */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+    /* Enable DMA1 ,DMA2 clock */
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, ENABLE);
     
-    /* Enable ADC1 and GPIOC clock */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_GPIOC, ENABLE);
+    /* Enable ADC1 ADC3,and GPIOC clock */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC3| RCC_APB2Periph_GPIOC, ENABLE);
     
     /*------------------- Resources Initialization -----------------------------*/
     /* GPIO Configuration */
@@ -141,12 +125,9 @@ void Demo_Init(void)
     SysTick_Configuration();
     
     /*------------------- Drivers Initialization -------------------------------*/
-    /* Initialize the LEDs toogling */
-    LedShow_Init();
     
     /* Initialize the Low Power application */
     LowPower_Init();
-    
     
     
     /* Enable WKUP pin */
@@ -156,13 +137,9 @@ void Demo_Init(void)
     PWR_BackupAccessCmd(ENABLE);
     
     
-    RTC_Configuration_xp();  
+    RTC_Init();  
     
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
-    
-    /* Allow access to BKP Domain */
-    PWR_BackupAccessCmd(ENABLE);
-    
     
     /* If HSE is not detected at program startup */
     if(HSEStartUpStatus == ERROR)
@@ -177,9 +154,8 @@ void Demo_Init(void)
     
     CheckPowerOnReason();
     
+    Board_ADC_Init();
     
-    
-    My_ADC_Init();
     CheckVoltage();
     
     /*init the flag*/  
@@ -187,9 +163,9 @@ void Demo_Init(void)
     {
         FLASH_Unlock();
         
-        FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	
-        
+        FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
         BKP_WriteBackupRegister(BKP_FLASH_READY, FLAG_FLASH_READY);
+        //Erase the 32 page 32K
         for(i = 0;i< 32;i++)
         {
             FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);
@@ -199,9 +175,9 @@ void Demo_Init(void)
     }
     
     
-    USBPlugin = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
     
-    if(USBPlugin == 0)
+    if(USB_Plugin_State == 0)
     {
         
         GPIO_SetBits(GPIOA, GPIO_Pin_1);
@@ -244,12 +220,8 @@ void Demo_Init(void)
     }
     
     
-    /* Wait till RTC Second event occurs */
-    RTC_ClearFlag(RTC_FLAG_SEC);
-    while(RTC_GetFlagStatus(RTC_FLAG_SEC) == RESET);
-    
-    /* Set the RTC Alarm after 10s */
-    RTC_SetAlarm(RTC_GetCounter()+ 3);
+    /* Set the RTC Alarm after 60s */
+    RTC_SetAlarm(RTC_GetCounter()+ 60);
     /* Wait until last write operation on RTC registers has finished */
     RTC_WaitForLastTask();
     
@@ -268,36 +240,12 @@ void Demo_Init(void)
 void InterruptConfig(void)
 { 
     NVIC_InitTypeDef NVIC_InitStructure;
-    EXTI_InitTypeDef EXTI_InitStructure;
     
     /* Set the Vector Table base address at 0x08000000 */
     NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x00);
     
     /* Configure the Priority Group to 2 bits */
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-    
-    /* Enable the EXTI3 Interrupt */
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    
-    /* Enable the EXTI9_5 Interrupt */
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    
-    /* Enable the EXTI15_10 Interrupt */
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    
-    
     
     /* Enable the USB_LP_CAN_RX0 Interrupt */
     NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
@@ -320,12 +268,7 @@ void InterruptConfig(void)
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
     
-    /* Enable the EXTI Line17 Interrupt */
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Line = EXTI_Line17;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init(&EXTI_InitStructure);
+ 
 }
 
 /*******************************************************************************
@@ -351,43 +294,6 @@ void SysTick_Configuration(void)
 
 
 
-/*******************************************************************************
-* Function Name  : IntExtOnOffConfig
-* Description    : Enables or disables EXTI for the menu navigation keys :
-*                  EXTI lines 3, 7 and 15 which correpond respectively
-*                  to "DOWN", "SEL" and "UP".
-* Input          : NewState: New state of the navigation keys. This parameter
-*                  can be: ENABLE or DISABLE.
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void IntExtOnOffConfig(FunctionalState NewState)
-{
-    EXTI_InitTypeDef EXTI_InitStructure;
-    
-    /* Initializes the EXTI_InitStructure */
-    EXTI_StructInit(&EXTI_InitStructure);
-    
-    /* Disable the EXTI line 3, 7 and 15 on falling edge */
-    if(NewState == DISABLE)
-    {
-        EXTI_InitStructure.EXTI_Line = EXTI_Line3 | EXTI_Line7 | EXTI_Line15;
-        EXTI_InitStructure.EXTI_LineCmd = DISABLE;
-        EXTI_Init(&EXTI_InitStructure);
-    }
-    /* Enable the EXTI line 3, 7 and 15 on falling edge */
-    else
-    {
-        /* Clear the the EXTI line 3, 7 and 15 interrupt pending bit */
-        EXTI_ClearITPendingBit(EXTI_Line3 | EXTI_Line7 | EXTI_Line15);
-        
-        EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-        EXTI_InitStructure.EXTI_Line = EXTI_Line3 | EXTI_Line7 | EXTI_Line15;
-        EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-        EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-        EXTI_Init(&EXTI_InitStructure);
-    }
-}
 
 /*******************************************************************************
 * Function Name  : GPIO_Config
@@ -404,6 +310,14 @@ void GPIO_Config(void)
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+
+    /* PA.01, PA.02 as output push-pull */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 ;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+
+    GPIO_Init(GPIOA, &GPIO_InitStructure); 
     
 }
 
@@ -431,31 +345,6 @@ void Delay(__IO uint32_t nCount)
 }
 
 /*******************************************************************************
-* Function Name  : DelayJoyStick
-* Description    : Inserts a delay time while no joystick RIGHT, LEFT and SEL 
-pushbuttons are pressed.
-* Input          : nCount: specifies the delay time length (time base 10 ms).
-* Output         : None
-* Return         : Pressed Key.  This value can be: NOKEY, RIGHT, LEFT or SEL.
-*******************************************************************************/
-uint32_t DelayJoyStick(__IO uint32_t nTime)
-{
-    __IO uint32_t keystate = 0;
-    
-    /* Enable the SysTick Counter */
-    SysTick->CTRL |= SysTick_CTRL_ENABLE;
-    
-    TimingDelay = nTime;
-    
-    while((TimingDelay != 0) && (keystate != RIGHT) && (keystate != LEFT) && (keystate != SEL))
-    {
-        keystate = ReadKey();
-    } 
-    
-    return keystate;
-}
-
-/*******************************************************************************
 * Function Name  : Decrement_TimingDelay
 * Description    : Decrements the TimingDelay variable.
 * Input          : None
@@ -470,80 +359,17 @@ void Decrement_TimingDelay(void)
     }
 }
 
-/*******************************************************************************
-* Function Name  : Set_SELStatus
-* Description    : Sets the SELStatus variable.
-* Input          : None
-* Output         : SELStatus
-* Return         : None
-*******************************************************************************/
-void Set_SELStatus(void)
-{
-    SELStatus = 1;
-}
 
 void WakupPin_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-    
-    /* PA.01, PA.02 as output push-pull */
+    GPIO_InitTypeDef GPIO_InitStructure;    
+    /* PA.01, input push-pull */
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOA, &GPIO_InitStructure); 
     
 }
-
-
-/*******************************************************************************
-* Function Name  : LedShow_Init
-* Description    : Configure the leds pins as output pushpull: LED1, LED2, LED3
-*                  and LED4
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void LedShow_Init(void)
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-    
-    /* PA.01, PA.02 as output push-pull */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 ;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOA, &GPIO_InitStructure); 
-    
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 |GPIO_Pin_8 | GPIO_Pin_9;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOF, &GPIO_InitStructure); 
-    
-}
-
-/*******************************************************************************
-* Function Name  : LedShow
-* Description    : Enables or disables LED1, LED2, LED3 and LED4 toggling.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void LedShow(FunctionalState NewState)
-{
-}
-
-/*******************************************************************************
-* Function Name  : Get_LedShowStatus
-* Description    : Get the LedShowStatus value.
-* Input          : None
-* Output         : None
-* Return         : LedShowStatus Value.
-*******************************************************************************/
-uint32_t Get_LedShowStatus(void)
-{
-    return LedShowStatus;
-}
-
-
 /*******************************************************************************
 * Function Name  : Get_HSEStartUpStatus
 * Description    : Returns the HSE StartUp Status.
@@ -603,7 +429,7 @@ void CreateDataLoggerFile()
     
 }
 
-void RTC_Configuration_xp(void)
+void RTC_Init(void)
 {
     /* Check if the StandBy flag is set */
     if(PWR_GetFlagStatus(PWR_FLAG_SB) != RESET)
@@ -675,7 +501,7 @@ uint8_t WaitWakeupPin()
     
     return wakup_pin_state;
 }
-void My_ADC_Init()
+void Board_ADC_Init()
 {
     
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -686,9 +512,6 @@ void My_ADC_Init()
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
-    
-    
-    
     
     /* DMA1 channel1 configuration ----------------------------------------------*/
     DMA_DeInit(DMA1_Channel1);
@@ -707,9 +530,6 @@ void My_ADC_Init()
     /* Enable DMA1 channel1 */
     DMA_Cmd(DMA1_Channel1, ENABLE);
     
-    
-    
-    
     /* DMA2 channel5 configuration ----------------------------------------------*/
     DMA_DeInit(DMA2_Channel5);
     DMA_InitStructure.DMA_PeripheralBaseAddr = ADC3_DR_Address;
@@ -726,8 +546,6 @@ void My_ADC_Init()
     DMA_Init(DMA2_Channel5, &DMA_InitStructure);  
     /* Enable DMA2 channel5 */
     DMA_Cmd(DMA2_Channel5, ENABLE);
-    
-    
     
     
     /* ADC1 configuration ------------------------------------------------------*/
@@ -820,24 +638,15 @@ uint16_t GetTemperature()
 }
 void CheckPowerOnReason()
 {
-    /* Check if the Power On Reset flag is set */
-    if (RCC_GetFlagStatus(RCC_FLAG_PORRST) != RESET)
-    {
-        /*First time power on .*/
-        GPIO_SetBits(GPIOF, GPIO_Pin_6 |GPIO_Pin_7 );
-        GPIO_ResetBits(GPIOF, GPIO_Pin_8 |GPIO_Pin_9 );
-        Delay(50 * 1);
-        GPIO_ResetBits(GPIOF, GPIO_Pin_6 |GPIO_Pin_7 );
-        GPIO_SetBits(GPIOF, GPIO_Pin_8 |GPIO_Pin_9 );
-        Delay(50 * 1);
-        RCC_ClearFlag();
-        /* power off standby*/
-        PWR_EnterSTANDBYMode();
-    }
-    else
+
+/*
+    if(PWR_GetFlagStatus(PWR_FLAG_SB) != RESET)
+
+  */  
+    if(PWR_GetFlagStatus(PWR_FLAG_SB) != RESET)    
     {
         /*Wake up by rtc or wake up pin*/
-        GPIO_SetBits(GPIOF, GPIO_Pin_6 |GPIO_Pin_9 );            
+        GPIO_SetBits(GPIOA, GPIO_Pin_1 |GPIO_Pin_2 );            
         
         if (WaitWakeupPin() == 1) //user press the pin for 3 seconds.....
         {
@@ -852,7 +661,6 @@ void CheckPowerOnReason()
             {
                 //Power on
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);             
-                GPIO_SetBits(GPIOF, GPIO_Pin_6 |GPIO_Pin_7| GPIO_Pin_8 |GPIO_Pin_9 );                                           
                 Delay(100 * 2);                   
             }
             
@@ -871,6 +679,17 @@ void CheckPowerOnReason()
                 
             }
         }
+      
+    }
+    else      
+    {
+        /*First time power on .*/
+        GPIO_SetBits(GPIOA, GPIO_Pin_1);
+        GPIO_SetBits(GPIOA, GPIO_Pin_2);
+        Delay(50 * 1);
+//        RCC_ClearFlag();
+        /* power off standby*/
+        PWR_EnterSTANDBYMode();
     }
     
 }
