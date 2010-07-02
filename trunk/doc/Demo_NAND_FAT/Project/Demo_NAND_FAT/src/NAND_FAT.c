@@ -5,10 +5,6 @@
 
 void NAND_FAT(void)
 {
-    FIL fsrc, fdst;       /* file objects */
-    BYTE buffer[512];     /* file copy buffer */
-    FRESULT res;          /* FatFs function common result code */
-    UINT br, bw;          /* File R/W count */
    
 
     /* Register work area for logical drives */
