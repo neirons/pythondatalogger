@@ -176,11 +176,9 @@ void Board_main(void)
     
     WakupPin_Init();
     
-    CheckPowerOnReason();
+    //CheckPowerOnReason();
     
     Board_ADC_Init();
-    
-    CheckVoltage();
     
     /*init the flag*/  
     flash_flag = BKP_ReadBackupRegister(BKP_FLASH_READY);
@@ -223,7 +221,11 @@ void Board_main(void)
         {
             FLASH_Unlock();
             FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
+#if 0            
             FLASH_ProgramHalfWord(DATA_LOGGER_ADDRESS_START + record_count * 2, GetTemperature());
+#else
+            FLASH_ProgramHalfWord(DATA_LOGGER_ADDRESS_START + record_count * 2, GetBatteryInfo());            
+#endif               
             FLASH_Lock();
             record_count = record_count + 1;
             BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, record_count);  
@@ -671,6 +673,24 @@ void CheckVoltage()
     /*The value is in ADC1ConvertedValue*/
     ADC1ConvertedValue = ADC1ConvertedValue;
     
+}
+
+uint16_t GetBatteryInfo()
+{
+  
+      /* Check the voltage*/      
+    ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+    
+    /*wait for the TC14 to be 1*/
+    while(DMA_GetFlagStatus(DMA1_FLAG_TC1)==0);
+    DMA_ClearFlag(DMA1_FLAG_TC1);     
+    
+    /*The value is in ADC1ConvertedValue*/
+    ADC1ConvertedValue = ADC1ConvertedValue;
+    
+    return ADC1ConvertedValue;
+    
+
 }
 uint16_t GetTemperature()
 {
