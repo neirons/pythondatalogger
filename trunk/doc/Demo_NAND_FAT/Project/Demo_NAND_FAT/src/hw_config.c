@@ -134,27 +134,6 @@ void USB_Interrupts_Config(void)
 }
 
 /*******************************************************************************
-* Function Name  : Led_Config
-* Description    : configure the Read/Write LEDs.
-* Input          : None.
-* Output         : None.
-* Return         : None.
-*******************************************************************************/
-void Led_Config(void)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  /* Enable USB_LED_PORT clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIO_LED, ENABLE);
-
-  /* Configure USB_LED_PORT pin6, pin7, pin8 and pin9 as output push-pull */
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(USB_LED_PORT, &GPIO_InitStructure);
-}
-
-/*******************************************************************************
 * Function Name  : Led_RW_ON
 * Description    : Turn ON the Read/Write LEDs.
 * Input          : None.
@@ -163,7 +142,6 @@ void Led_Config(void)
 *******************************************************************************/
 void Led_RW_ON(void)
 {
-  GPIO_SetBits(USB_LED_PORT, GPIO_Pin_8);
 }
 
 /*******************************************************************************
@@ -175,7 +153,6 @@ void Led_RW_ON(void)
 *******************************************************************************/
 void Led_RW_OFF(void)
 {
-  GPIO_ResetBits(USB_LED_PORT, GPIO_Pin_8);
 }
 /*******************************************************************************
 * Function Name  : USB_Configured_LED
@@ -186,7 +163,6 @@ void Led_RW_OFF(void)
 *******************************************************************************/
 void USB_Configured_LED(void)
 {
-  GPIO_SetBits(USB_LED_PORT, GPIO_Pin_6);
 }
 
 /*******************************************************************************
@@ -198,7 +174,6 @@ void USB_Configured_LED(void)
 *******************************************************************************/
 void USB_NotConfigured_LED(void)
 {
-  GPIO_ResetBits(USB_LED_PORT, GPIO_Pin_6);
 }
 
 /*******************************************************************************
@@ -209,14 +184,6 @@ void USB_NotConfigured_LED(void)
 *******************************************************************************/
 void USB_Cable_Config (FunctionalState NewState)
 {
-  if (NewState != DISABLE)
-  {
-    GPIO_ResetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
-  }
-  else
-  {
-    GPIO_SetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
-  }
 }
 
 /*******************************************************************************
@@ -295,16 +262,6 @@ void MAL_Config(void)
 *******************************************************************************/
 void USB_Disconnect_Config(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  /* Enable USB_DISCONNECT GPIO clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIO_DISCONNECT, ENABLE);
-
-  /* USB_DISCONNECT_PIN used as USB pull-up */
-  GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-  GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);
 }
 
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/

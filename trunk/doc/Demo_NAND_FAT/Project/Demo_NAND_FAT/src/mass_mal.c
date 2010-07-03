@@ -143,7 +143,6 @@ uint16_t MAL_GetStatus (uint8_t lun)
       }
       Mass_Block_Size[0]  = 512;
       Mass_Memory_Size[0] = Mass_Block_Count[0] * Mass_Block_Size[0];
-      GPIO_SetBits(USB_LED_PORT, GPIO_Pin_7);
       
       Status = SD_SelectDeselect((uint32_t) (SDCardInfo.RCA << 16)); 
       Status = SD_EnableWideBusOperation(SDIO_BusWide_4b); 
@@ -163,7 +162,6 @@ uint16_t MAL_GetStatus (uint8_t lun)
   else
   {
   }
-  GPIO_ResetBits(USB_LED_PORT, GPIO_Pin_7);
   return MAL_FAIL;
 }
 

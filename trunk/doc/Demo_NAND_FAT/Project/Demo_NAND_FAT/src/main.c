@@ -184,11 +184,6 @@ void Board_main(void)
     if(USB_Plugin_State == 0)
     {
         
-        GPIO_SetBits(GPIOA, GPIO_Pin_1);
-        GPIO_ResetBits(GPIOA,GPIO_Pin_2);
-        Delay(50);
-        GPIO_ResetBits(GPIOA, GPIO_Pin_1);
-        GPIO_SetBits(GPIOA,GPIO_Pin_2);  
         
         record_count =   BKP_ReadBackupRegister(BKP_DATA_LOGGER_COUNT);
         
@@ -205,7 +200,12 @@ void Board_main(void)
             BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, record_count + 1);  			
         }
         
-        
+        GPIO_SetBits(GPIOA, GPIO_Pin_1);
+        GPIO_ResetBits(GPIOA,GPIO_Pin_2);
+        Delay(50);
+        GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+        GPIO_SetBits(GPIOA,GPIO_Pin_2);  
+
     }
     else
     {
@@ -214,18 +214,28 @@ void Board_main(void)
         */
 //        NAND_FAT();  
 //        CreateDataLoggerFile();
+              
         Mass_Storage_Start ();     
+
         while( bDeviceState != CONFIGURED)
         {
         }
-        while( USB_Plugin_State == 1)
+#if 0        
+        while( bDeviceState == CONFIGURED)
         {
-          USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);          
-        }        
+        }
+#else
+        USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+        while(    USB_Plugin_State == 1)
+        {
+                  USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+        }
+#endif        
         //Power off
-        Flash_Led_For_Power_On_Off();                
+//        Led_Power_Off();                
         
         PowerOff();    
+        BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF); 
         PWR_EnterSTANDBYMode();    
 
         /* Generate a system reset */  
@@ -234,7 +244,7 @@ void Board_main(void)
     
     
     /* Set the RTC Alarm after 60s */
-    RTC_SetAlarm(RTC_GetCounter()+ 3);
+    RTC_SetAlarm(RTC_GetCounter()+ 60);
     /* Wait until last write operation on RTC registers has finished */
     RTC_WaitForLastTask();
     
@@ -653,13 +663,15 @@ void CheckPowerOnReason()
 {
   
   /*If there is usb connected, just return.*/
-      USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
-      if(USB_Plugin_State == 1)
-          return;
-      
+   USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+   if(USB_Plugin_State == 1)
+       return;
+
+        
     /* Check if the Power On Reset flag is set */
     if (RCC_GetFlagStatus(RCC_FLAG_PORRST) != RESET)    
     {
+      
       
         /*First time power on .*/
         GPIO_SetBits(GPIOA, GPIO_Pin_1);
@@ -681,16 +693,14 @@ void CheckPowerOnReason()
                 //Power off
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);  
                 
-                Flash_Led_For_Power_On_Off();                
+                Led_Power_Off();                
                 PWR_EnterSTANDBYMode();    
             }
             else
             {
                 //Power on
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);             
-                
-                
-                Flash_Led_For_Power_On_Off();                
+                Led_Power_On();                
                 
             }
             
@@ -706,8 +716,7 @@ void CheckPowerOnReason()
             else
             {
               
-                BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);            
-              
+                BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF); 
                 //continue to power off  mode.
                 PWR_EnterSTANDBYMode();    
                 
@@ -717,11 +726,38 @@ void CheckPowerOnReason()
     }
     
 }
-void Flash_Led_For_Power_On_Off()
-{
-    uint8_t i = 0;
 
-    for(i = 0;i<4;i++)
+
+void Led_Power_On()
+{
+  Led_Both(4);
+}
+
+void Led_Power_Off()
+{
+ Led_One_By_One(4); 
+}
+
+void Led_One_By_One(uint8_t count)
+{
+    uint8_t i;
+    for(i = 0;i<count;i++)
+    {
+        /*Wake up by rtc or wake up pin*/
+        GPIO_SetBits(GPIOA, GPIO_Pin_1 );            
+        GPIO_ResetBits(GPIOA, GPIO_Pin_2 );                                    
+        Delay(50); 
+        GPIO_SetBits(GPIOA, GPIO_Pin_2 );            
+        GPIO_ResetBits(GPIOA, GPIO_Pin_1 );
+        Delay(50); 
+    }
+  
+}
+
+void Led_Both(uint8_t count)
+{
+    uint8_t i;
+    for(i = 0;i<count;i++)
     {
         /*Wake up by rtc or wake up pin*/
         GPIO_SetBits(GPIOA, GPIO_Pin_1 |GPIO_Pin_2 );            
@@ -729,5 +765,5 @@ void Flash_Led_For_Power_On_Off()
         GPIO_ResetBits(GPIOA, GPIO_Pin_1 |GPIO_Pin_2 );                            
         Delay(50); 
     }
-
+  
 }
