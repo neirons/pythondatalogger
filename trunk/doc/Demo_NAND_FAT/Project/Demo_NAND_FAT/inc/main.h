@@ -58,9 +58,7 @@ void Led_Power_On();
 void Led_Power_Off();
 void Led_One_By_One(uint8_t count);
 void Led_Both(uint8_t count);
-
-void    Test_GPIO();
-
+uint16_t GetBatteryInfo();
 #endif /* __MAIN_H */
 
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
