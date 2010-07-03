@@ -218,41 +218,12 @@ void Board_main(void)
         while( bDeviceState != CONFIGURED)
         {
         }
-        
         while( USB_Plugin_State == 1)
         {
           USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);          
-        }
-
-        
-/*        
-        while( bDeviceState == CONFIGURED)
-        {
-        }
-        
-
-        USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
-        while( (bDeviceState != CONFIGURED) && (USB_Plugin_State == 1))
-        {
-          USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);          
-        }
-        
-        USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);        
-        while ( (bDeviceState == CONFIGURED) && (USB_Plugin_State == 1))
-        {
-           USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14); 
-        }
-  */
-        
-        
+        }        
         //Power off
-
         Flash_Led_For_Power_On_Off();                
-        
-        while( (bDeviceState != CONFIGURED) && (USB_Plugin_State == 1))
-        {
-          USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);          
-        }
         
         PowerOff();    
         PWR_EnterSTANDBYMode();    
