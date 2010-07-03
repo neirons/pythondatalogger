@@ -24,6 +24,7 @@ static __IO uint32_t TimingDelay = 0;
 static __IO ErrorStatus HSEStartUpStatus = SUCCESS;
 
 static __IO uint8_t USB_Plugin_State = 0;
+static uint16_t record_count = 0;
 
 #define ADC1_DR_Address    ((uint32_t)0x4001244C)
 #define ADC3_DR_Address    ((uint32_t)0x40013C4C)
@@ -33,10 +34,13 @@ __IO uint16_t ADC1ConvertedValue = 0, ADC3ConvertedValue = 0;
 
 FIL  g_file_datalogger;
 void RTC_Init(void);
-#define BKP_POWER_ON BKP_DR1
-#define BKP_FLASH_READY BKP_DR2
-#define BKP_DATA_LOGGER_COUNT BKP_DR3
-#define BKP_RECORD_FULL BKP_DR4
+#define BKP_POWER_ON BKP_DR8
+#define BKP_FLASH_READY BKP_DR1
+
+//BKP_DR3 have problem???
+
+#define BKP_RECORD_FULL BKP_DR6
+#define BKP_DATA_LOGGER_COUNT BKP_DR5
 
 #define FLAG_POWER_ON 0x5A5A
 #define FLAG_POWER_OFF 0x4B4B
@@ -67,8 +71,8 @@ int main(void)
 }
 void Board_main(void)
 {   
-    uint32_t record_count;
     uint8_t i;
+    uint16_t flash_flag = 0;
     /* RCC system reset(for debug purpose) */
     RCC_DeInit();
     
@@ -123,7 +127,18 @@ void Board_main(void)
     
     /* Enable ADC1 ADC3,and GPIOC clock */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC3| RCC_APB2Periph_GPIOC, ENABLE);
+
+
+    /* Enable PWR and BKP clock */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+  
+    /* Enable write access to Backup domain */
+    PWR_BackupAccessCmd(ENABLE);
     
+    /* Clear Tamper pin Event(TE) pending flag */
+    BKP_ClearFlag();
+
+  
     /*------------------- Resources Initialization -----------------------------*/
     /* GPIO Configuration */
     GPIO_Config();
@@ -149,7 +164,6 @@ void Board_main(void)
     
     RTC_Init();  
     
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
     
     /* If HSE is not detected at program startup */
     if(HSEStartUpStatus == ERROR)
@@ -169,8 +183,16 @@ void Board_main(void)
     CheckVoltage();
     
     /*init the flag*/  
-    if(BKP_ReadBackupRegister(BKP_FLASH_READY) != FLAG_FLASH_READY)
+    flash_flag = BKP_ReadBackupRegister(BKP_FLASH_READY);
+    if( flash_flag != FLAG_FLASH_READY)
     {
+      
+        BKP_WriteBackupRegister(BKP_FLASH_READY, FLAG_FLASH_READY);        
+        BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, 0x0000); 
+        BKP_WriteBackupRegister(BKP_RECORD_FULL, FLAG_RECORD_NOT_FULL); 
+        
+        BKP_WriteBackupRegister(BKP_DR9, flash_flag);        
+        
         FLASH_Unlock();
         FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
         //Erase the 32 page 32K
@@ -179,9 +201,6 @@ void Board_main(void)
             FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);
         }
         FLASH_Lock();
-        BKP_WriteBackupRegister(BKP_FLASH_READY, FLAG_FLASH_READY);        
-        BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, 0x0000); 
-        BKP_WriteBackupRegister(BKP_RECORD_FULL, FLAG_RECORD_NOT_FULL); 
 
     }
     
@@ -208,7 +227,7 @@ void Board_main(void)
             FLASH_Lock();
             record_count = record_count + 1;
             BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, record_count);  
-            BKP_WriteBackupRegister(BKP_RECORD_FULL, FLAG_RECORD_NOT_FULL); 
+            BKP_WriteBackupRegister(BKP_RECORD_FULL, record_count); 
             
         }
         
@@ -446,7 +465,6 @@ void CreateDataLoggerFile()
     FRESULT res;          /* FatFs function common result code */
     UINT  bw;          /* File R/W count */
     
-    uint16_t record_count = 0;
     uint8_t i = 0;    
     uint16_t value = 0;  
     record_count =   BKP_ReadBackupRegister(BKP_DATA_LOGGER_COUNT);
