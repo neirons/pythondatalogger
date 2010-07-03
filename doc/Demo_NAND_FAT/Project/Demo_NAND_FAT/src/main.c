@@ -218,12 +218,19 @@ void Board_main(void)
         while( bDeviceState != CONFIGURED)
         {
         }
+        
+        while( USB_Plugin_State == 1)
+        {
+          USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);          
+        }
 
+        
+/*        
         while( bDeviceState == CONFIGURED)
         {
         }
         
-/*        
+
         USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
         while( (bDeviceState != CONFIGURED) && (USB_Plugin_State == 1))
         {
@@ -237,12 +244,17 @@ void Board_main(void)
         }
   */
         
-        PowerOff();    
         
         //Power off
-        BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);  
-        
+
         Flash_Led_For_Power_On_Off();                
+        
+        while( (bDeviceState != CONFIGURED) && (USB_Plugin_State == 1))
+        {
+          USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);          
+        }
+        
+        PowerOff();    
         PWR_EnterSTANDBYMode();    
 
         /* Generate a system reset */  
@@ -338,7 +350,7 @@ void GPIO_Config(void)
     
     /* Configure PB14 for usb detect*/
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+    GPIO_InitStructure.GPIO_Mode =  GPIO_Mode_IN_FLOATING ;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 
