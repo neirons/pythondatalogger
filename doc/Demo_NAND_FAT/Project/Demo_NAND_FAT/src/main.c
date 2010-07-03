@@ -35,12 +35,6 @@ __IO uint16_t ADC1ConvertedValue = 0, ADC3ConvertedValue = 0;
 FIL  g_file_datalogger;
 void RTC_Init(void);
 #define BKP_POWER_ON BKP_DR8
-#define BKP_FLASH_READY BKP_DR1
-
-//BKP_DR3 have problem???
-
-#define BKP_RECORD_FULL BKP_DR6
-#define BKP_DATA_LOGGER_COUNT BKP_DR5
 
 #define FLAG_POWER_ON 0x5A5A
 #define FLAG_POWER_OFF 0x4B4B
@@ -49,11 +43,17 @@ void RTC_Init(void);
 #define FLAG_FLASH_NOT_READY 0x0000
 
 
-#define FLAG_RECORD_FULL 0xD7D7
-#define FLAG_RECORD_NOT_FULL 0xABCD
 
 
 #define DATA_LOGGER_ADDRESS_START  ((uint32_t)0x08008000)
+
+
+#define FLASH_READY_ADDRESS_START  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * 32)
+#define REOCRD_COUNT_ADDRESS_START  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * 33)
+
+#define FLASH_READY_ADDRESS FLASH_READY_ADDRESS_START
+#define REOCRD_COUNT_ADDRESS REOCRD_COUNT_ADDRESS_START
+
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -176,20 +176,15 @@ void Board_main(void)
     
     WakupPin_Init();
     
-    //CheckPowerOnReason();
+    CheckPowerOnReason();
     
     Board_ADC_Init();
     
     /*init the flag*/  
-    flash_flag = BKP_ReadBackupRegister(BKP_FLASH_READY);
+    flash_flag = *(uint16_t *)FLASH_READY_ADDRESS;
     if( flash_flag != FLAG_FLASH_READY)
     {
       
-        BKP_WriteBackupRegister(BKP_FLASH_READY, FLAG_FLASH_READY);        
-        BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, 0x0000); 
-        BKP_WriteBackupRegister(BKP_RECORD_FULL, FLAG_RECORD_NOT_FULL); 
-        
-        BKP_WriteBackupRegister(BKP_DR9, flash_flag);        
         
         FLASH_Unlock();
         FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
@@ -198,6 +193,11 @@ void Board_main(void)
         {
             FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);
         }
+        FLASH_ErasePage(FLASH_READY_ADDRESS_START);
+        FLASH_ErasePage(REOCRD_COUNT_ADDRESS_START);
+        FLASH_ProgramHalfWord(FLASH_READY_ADDRESS , FLAG_FLASH_READY);
+        FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , 0x0000);
+        
         FLASH_Lock();
 
     }
@@ -209,13 +209,12 @@ void Board_main(void)
     {
         
         
-        record_count =   BKP_ReadBackupRegister(BKP_DATA_LOGGER_COUNT);
+        record_count =   *(uint16_t *)REOCRD_COUNT_ADDRESS;
         
         if(record_count >= 15428)
         {
             //Write the full flag
-            BKP_WriteBackupRegister(BKP_RECORD_FULL, FLAG_RECORD_FULL); 
-          
+            //Do nothing....          
         }
         else
         {
@@ -226,10 +225,14 @@ void Board_main(void)
 #else
             FLASH_ProgramHalfWord(DATA_LOGGER_ADDRESS_START + record_count * 2, GetBatteryInfo());            
 #endif               
-            FLASH_Lock();
+     
+            //Erase first
+            FLASH_ErasePage(REOCRD_COUNT_ADDRESS_START);
+            //Update the count
             record_count = record_count + 1;
-            BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, record_count);  
-            BKP_WriteBackupRegister(BKP_RECORD_FULL, record_count); 
+            
+            FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , record_count);
+            FLASH_Lock();
             
         }
         
@@ -469,7 +472,7 @@ void CreateDataLoggerFile()
     
     uint8_t i = 0;    
     uint16_t value = 0;  
-    record_count =   BKP_ReadBackupRegister(BKP_DATA_LOGGER_COUNT);
+    record_count =   *(uint16_t *)REOCRD_COUNT_ADDRESS;
     /* Create destination file on the drive 0 */
     res = f_open(&g_file_datalogger, "0:datalogger.bin", FA_CREATE_ALWAYS | FA_WRITE);
     if (res) die(res);
@@ -733,7 +736,7 @@ void CheckPowerOnReason()
         /*First time power on .*/
         GPIO_SetBits(GPIOA, GPIO_Pin_1);
         GPIO_SetBits(GPIOA, GPIO_Pin_2);
-        Delay(50 * 1);
+        Delay(50 * 4);
         BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);    
         
         RCC_ClearFlag();
