@@ -52,6 +52,8 @@ void Board_ADC_Init();
 void CheckVoltage();
 void CheckPowerOnReason();
 uint16_t GetTemperature();
+void Board_main();
+void Flash_Led_For_Power_On_Off();
 
 #endif /* __MAIN_H */
 
