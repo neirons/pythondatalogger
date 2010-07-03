@@ -43,13 +43,13 @@ void RTC_Init(void);
 #define FLAG_FLASH_NOT_READY 0x0000
 
 
-
+#define DATA_PAGES 32
 
 #define DATA_LOGGER_ADDRESS_START  ((uint32_t)0x08008000)
 
 
-#define FLASH_READY_ADDRESS_START  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * 32)
-#define REOCRD_COUNT_ADDRESS_START  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * 33)
+#define FLASH_READY_ADDRESS_START  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * DATA_PAGES)
+#define REOCRD_COUNT_ADDRESS_START  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * (DATA_PAGES + 1))
 
 #define FLASH_READY_ADDRESS FLASH_READY_ADDRESS_START
 #define REOCRD_COUNT_ADDRESS REOCRD_COUNT_ADDRESS_START
@@ -171,15 +171,9 @@ void Board_main(void)
         /* Generate NMI exception */
         SCB->ICSR |= SCB_ICSR_NMIPENDSET;
     }  
-    
-    
-    
     WakupPin_Init();
-    
     CheckPowerOnReason();
-    
     Board_ADC_Init();
-    
     /*init the flag*/  
     flash_flag = *(uint16_t *)FLASH_READY_ADDRESS;
     if( flash_flag != FLAG_FLASH_READY)
@@ -189,7 +183,7 @@ void Board_main(void)
         FLASH_Unlock();
         FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
         //Erase the 32 page 32K
-        for(i = 0;i< 32;i++)
+        for(i = 0;i< DATA_PAGES;i++)
         {
             FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);
         }
@@ -220,12 +214,7 @@ void Board_main(void)
         {
             FLASH_Unlock();
             FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
-#if 0            
             FLASH_ProgramHalfWord(DATA_LOGGER_ADDRESS_START + record_count * 2, GetTemperature());
-#else
-            FLASH_ProgramHalfWord(DATA_LOGGER_ADDRESS_START + record_count * 2, GetBatteryInfo());            
-#endif               
-     
             //Erase first
             FLASH_ErasePage(REOCRD_COUNT_ADDRESS_START);
             //Update the count
@@ -484,6 +473,14 @@ void CreateDataLoggerFile()
     }
     f_close(&g_file_datalogger);
     
+    
+/*Write the battery file*/
+    res = f_open(&g_file_datalogger, "0:battery.bin", FA_CREATE_ALWAYS | FA_WRITE);
+    value = GetBatteryInfo();
+    res = f_write(&g_file_datalogger, &value, sizeof(value), &bw);    
+    if (res) die(res);
+    f_close(&g_file_datalogger);
+
 }
 
 void RTC_Init(void)
@@ -713,7 +710,14 @@ uint16_t GetTemperature()
 }
 void CheckPowerOnReason()
 {
+#if 0 
+while(1)
+{
+Led_Both(4);
+}
   
+#endif 
+
   /*If there is usb connected, just return.*/
    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
    if(USB_Plugin_State == 1)
