@@ -211,6 +211,10 @@ SOURCE=.\StdAfx.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Temperature_Const.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\WarningDialog.h
 # End Source File
 # End Group
