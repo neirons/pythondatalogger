@@ -56,6 +56,10 @@ void RTC_Init(void);
 * Return         : None
 *******************************************************************************/
 int main(void)
+{
+  Board_main();
+}
+void Board_main(void)
 {   
     uint32_t record_count;
     uint8_t i;
@@ -205,23 +209,49 @@ int main(void)
     }
     else
     {
-        GPIO_SetBits(GPIOA, GPIO_Pin_1);
         /*
         if there is usb connect, copy the data to sdcard. and start the mass storage
         */
-        NAND_FAT();  
-        CreateDataLoggerFile();    
+//        NAND_FAT();  
+//        CreateDataLoggerFile();
         Mass_Storage_Start ();     
-        while(bDeviceState != CONFIGURED);
-        while(bDeviceState == CONFIGURED);
+        while( bDeviceState != CONFIGURED)
+        {
+        }
+
+        while( bDeviceState == CONFIGURED)
+        {
+        }
+        
+/*        
+        USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+        while( (bDeviceState != CONFIGURED) && (USB_Plugin_State == 1))
+        {
+          USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);          
+        }
+        
+        USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);        
+        while ( (bDeviceState == CONFIGURED) && (USB_Plugin_State == 1))
+        {
+           USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14); 
+        }
+  */
+        
         PowerOff();    
+        
+        //Power off
+        BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);  
+        
+        Flash_Led_For_Power_On_Off();                
+        PWR_EnterSTANDBYMode();    
+
         /* Generate a system reset */  
-        NVIC_SystemReset();    
+        //NVIC_SystemReset();    
     }
     
     
     /* Set the RTC Alarm after 60s */
-    RTC_SetAlarm(RTC_GetCounter()+ 60);
+    RTC_SetAlarm(RTC_GetCounter()+ 3);
     /* Wait until last write operation on RTC registers has finished */
     RTC_WaitForLastTask();
     
@@ -638,30 +668,47 @@ uint16_t GetTemperature()
 }
 void CheckPowerOnReason()
 {
-
-/*
-    if(PWR_GetFlagStatus(PWR_FLAG_SB) != RESET)
-
-  */  
-    if(PWR_GetFlagStatus(PWR_FLAG_SB) != RESET)    
+  
+  /*If there is usb connected, just return.*/
+      USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+      if(USB_Plugin_State == 1)
+          return;
+      
+    /* Check if the Power On Reset flag is set */
+    if (RCC_GetFlagStatus(RCC_FLAG_PORRST) != RESET)    
     {
-        /*Wake up by rtc or wake up pin*/
-        GPIO_SetBits(GPIOA, GPIO_Pin_1 |GPIO_Pin_2 );            
+      
+        /*First time power on .*/
+        GPIO_SetBits(GPIOA, GPIO_Pin_1);
+        GPIO_SetBits(GPIOA, GPIO_Pin_2);
+        Delay(50 * 1);
+        BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);    
         
+        RCC_ClearFlag();
+        /* power off standby*/
+        PWR_EnterSTANDBYMode();
+
+    }
+      else
+    {
         if (WaitWakeupPin() == 1) //user press the pin for 3 seconds.....
         {
             if(FLAG_POWER_ON == BKP_ReadBackupRegister(BKP_POWER_ON))
             {
                 //Power off
-                BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);    
-                PWR_EnterSTANDBYMode();    
+                BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);  
                 
+                Flash_Led_For_Power_On_Off();                
+                PWR_EnterSTANDBYMode();    
             }
             else
             {
                 //Power on
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);             
-                Delay(100 * 2);                   
+                
+                
+                Flash_Led_For_Power_On_Off();                
+                
             }
             
         }
@@ -670,26 +717,34 @@ void CheckPowerOnReason()
             if(FLAG_POWER_ON == BKP_ReadBackupRegister(BKP_POWER_ON))
             {
                 //power on with rtc or wake up pin -- need to data logger
+                BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);             
                 
             }
             else
             {
-                //continue to standby mode.
+              
+                BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);            
+              
+                //continue to power off  mode.
                 PWR_EnterSTANDBYMode();    
                 
             }
         }
       
     }
-    else      
-    {
-        /*First time power on .*/
-        GPIO_SetBits(GPIOA, GPIO_Pin_1);
-        GPIO_SetBits(GPIOA, GPIO_Pin_2);
-        Delay(50 * 1);
-//        RCC_ClearFlag();
-        /* power off standby*/
-        PWR_EnterSTANDBYMode();
-    }
     
+}
+void Flash_Led_For_Power_On_Off()
+{
+    uint8_t i = 0;
+
+    for(i = 0;i<4;i++)
+    {
+        /*Wake up by rtc or wake up pin*/
+        GPIO_SetBits(GPIOA, GPIO_Pin_1 |GPIO_Pin_2 );            
+        Delay(50); 
+        GPIO_ResetBits(GPIOA, GPIO_Pin_1 |GPIO_Pin_2 );                            
+        Delay(50); 
+    }
+
 }
