@@ -21,6 +21,7 @@
 #include ".\PDFLib\PDFLib.hpp"
 #include "ResetDialog.h"
 #include "LogFile.h"
+#include "Temperature_Const.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -196,19 +197,51 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	else
 	{
 		CFile cfile;
-		cfile.Open("data.bin",CFile::modeRead|CFile::typeBinary);
+        unsigned short rd_value;
+        unsigned short convert_value;
+
+		cfile.Open("datalogger.bin",CFile::modeRead|CFile::typeBinary);
 
 		for(int i =0;i<m_TotalPoint;i++)
 		{
+            cfile.Read(&rd_value,sizeof(unsigned short));
+            convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
+            m_Data[i] = GetTemperature(convert_value);
+                
+/*
 
-			cfile.Read(&m_Data[i],sizeof(double));
+    3300 * rd_value
+    --------------------
+          4096                            3300
+  ---------------------------  =   --------------------
+      100*1000                        100 * 1000 + Y
+
+
+
+
+           (4096 - A) * 100 * 1000         
+     Y =  --------------------------
+               rd_value
+
+*/
 			sum += m_Data[i];
 		}
+        cfile.Close();
+
 	}
 
 	m_Average=sum/m_TotalPoint;
 	
-	m_Battery.SetBatteryLevel(16,12);
+
+	CFile cfile;
+    unsigned short batter_value;
+
+	cfile.Open("battery.bin",CFile::modeRead|CFile::typeBinary);
+    cfile.Read(&batter_value,sizeof(unsigned short));
+    cfile.Close();
+
+	m_Battery.SetBatteryLevel(33,(batter_value * 3300/4096)/100);
+
 	m_Graph.SetData(m_Days,m_Data,m_TotalPoint,m_Average);
 
 	CString csHour;
@@ -777,5 +810,37 @@ void CDataLoggerDlg::ClearData()
 	m_Graph.SetData(m_Days,m_Data,m_TotalPoint,0);
 
 	m_Graph.Invalidate();
+
+}
+
+double CDataLoggerDlg::GetTemperature(int value)
+{
+    int size = sizeof(TEMPERATURE_TABLE)/sizeof(double);
+    double value_double = value/1000.0;
+    int index;
+
+    if(value_double >= TEMPERATURE_TABLE[0])
+        return -50.0;
+
+    if(value_double <= TEMPERATURE_TABLE[size - 1])
+        return (size-50.0);
+
+    for(int i=0;i<size;i++)
+    {
+        if(TEMPERATURE_TABLE[i] > value_double && TEMPERATURE_TABLE[i + 1] < value_double)
+        {
+            if(( TEMPERATURE_TABLE[i] - value_double ) < (value_double - TEMPERATURE_TABLE[i + 1]))
+            {
+                index = i;
+            }
+            else
+            {
+                index = i + 1;
+            }
+            break;
+        }
+    }
+
+    return (index - 50.0);
 
 }

@@ -68,6 +68,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 private:
+	double GetTemperature(int value);
 	void ClearData();
 	void SaveToTxtFile(CString txtfilename);
 	int  SaveToPDFFile(CString pdfillename,CString cstempjpgfile);
