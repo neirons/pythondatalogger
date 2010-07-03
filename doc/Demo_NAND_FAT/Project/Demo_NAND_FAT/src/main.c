@@ -36,12 +36,18 @@ void RTC_Init(void);
 #define BKP_POWER_ON BKP_DR1
 #define BKP_FLASH_READY BKP_DR2
 #define BKP_DATA_LOGGER_COUNT BKP_DR3
+#define BKP_RECORD_FULL BKP_DR4
 
 #define FLAG_POWER_ON 0x5A5A
-#define FLAG_POWER_OFF 0xC5B5
+#define FLAG_POWER_OFF 0x4B4B
 
-#define FLAG_FLASH_READY 0x7C8A
+#define FLAG_FLASH_READY 0x3C3C
 #define FLAG_FLASH_NOT_READY 0x0000
+
+
+#define FLAG_RECORD_FULL 0xD7D7
+#define FLAG_RECORD_NOT_FULL 0xABCD
+
 
 #define DATA_LOGGER_ADDRESS_START  ((uint32_t)0x08008000)
 
@@ -166,16 +172,17 @@ void Board_main(void)
     if(BKP_ReadBackupRegister(BKP_FLASH_READY) != FLAG_FLASH_READY)
     {
         FLASH_Unlock();
-        
         FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
-        BKP_WriteBackupRegister(BKP_FLASH_READY, FLAG_FLASH_READY);
         //Erase the 32 page 32K
         for(i = 0;i< 32;i++)
         {
             FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);
         }
-        BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, 0x0000); 
         FLASH_Lock();
+        BKP_WriteBackupRegister(BKP_FLASH_READY, FLAG_FLASH_READY);        
+        BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, 0x0000); 
+        BKP_WriteBackupRegister(BKP_RECORD_FULL, FLAG_RECORD_NOT_FULL); 
+
     }
     
     
@@ -189,7 +196,9 @@ void Board_main(void)
         
         if(record_count >= 15428)
         {
-            //Write the full.
+            //Write the full flag
+            BKP_WriteBackupRegister(BKP_RECORD_FULL, FLAG_RECORD_FULL); 
+          
         }
         else
         {
@@ -197,7 +206,10 @@ void Board_main(void)
             FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
             FLASH_ProgramHalfWord(DATA_LOGGER_ADDRESS_START + record_count * 2, GetTemperature());
             FLASH_Lock();
-            BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, record_count + 1);  			
+            record_count = record_count + 1;
+            BKP_WriteBackupRegister(BKP_DATA_LOGGER_COUNT, record_count);  
+            BKP_WriteBackupRegister(BKP_RECORD_FULL, FLAG_RECORD_NOT_FULL); 
+            
         }
         
         GPIO_SetBits(GPIOA, GPIO_Pin_1);
@@ -212,9 +224,8 @@ void Board_main(void)
         /*
         if there is usb connect, copy the data to sdcard. and start the mass storage
         */
-//        NAND_FAT();  
-//        CreateDataLoggerFile();
-              
+        NAND_FAT();  
+        CreateDataLoggerFile();              
         Mass_Storage_Start ();     
 
         while( bDeviceState != CONFIGURED)
@@ -244,7 +255,7 @@ void Board_main(void)
     
     
     /* Set the RTC Alarm after 60s */
-    RTC_SetAlarm(RTC_GetCounter()+ 60);
+    RTC_SetAlarm(RTC_GetCounter()+ 3);
     /* Wait until last write operation on RTC registers has finished */
     RTC_WaitForLastTask();
     
@@ -665,9 +676,17 @@ void CheckPowerOnReason()
   /*If there is usb connected, just return.*/
    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
    if(USB_Plugin_State == 1)
-       return;
-
-        
+   {
+        Delay(25);
+        USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);     
+        if(USB_Plugin_State == 1)
+        {
+              /* usb wake up*/
+                BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);             
+                return ;
+        }
+   }
+   
     /* Check if the Power On Reset flag is set */
     if (RCC_GetFlagStatus(RCC_FLAG_PORRST) != RESET)    
     {
