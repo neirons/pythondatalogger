@@ -53,7 +53,13 @@ void CheckVoltage();
 void CheckPowerOnReason();
 uint16_t GetTemperature();
 void Board_main();
-void Flash_Led_For_Power_On_Off();
+
+void Led_Power_On();
+void Led_Power_Off();
+void Led_One_By_One(uint8_t count);
+void Led_Both(uint8_t count);
+
+void    Test_GPIO();
 
 #endif /* __MAIN_H */
 
