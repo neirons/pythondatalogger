@@ -48,11 +48,9 @@ void RTC_Init(void);
 #define DATA_LOGGER_ADDRESS_START  ((uint32_t)0x08008000)
 
 
-#define FLASH_READY_ADDRESS_START  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * DATA_PAGES)
-#define REOCRD_COUNT_ADDRESS_START  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * (DATA_PAGES + 1))
+#define FLASH_READY_ADDRESS  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * DATA_PAGES + 10 )
+#define REOCRD_COUNT_ADDRESS  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * (DATA_PAGES + 2 + 10))
 
-#define FLASH_READY_ADDRESS FLASH_READY_ADDRESS_START
-#define REOCRD_COUNT_ADDRESS REOCRD_COUNT_ADDRESS_START
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -171,15 +169,20 @@ void Board_main(void)
         /* Generate NMI exception */
         SCB->ICSR |= SCB_ICSR_NMIPENDSET;
     }  
+    
+
+    
+    
     WakupPin_Init();
     CheckPowerOnReason();
     Board_ADC_Init();
+    
+//    Test_Flash();
+    
     /*init the flag*/  
     flash_flag = *(uint16_t *)FLASH_READY_ADDRESS;
     if( flash_flag != FLAG_FLASH_READY)
     {
-      
-        
         FLASH_Unlock();
         FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
         //Erase the 32 page 32K
@@ -187,9 +190,10 @@ void Board_main(void)
         {
             FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);
         }
-        FLASH_ErasePage(FLASH_READY_ADDRESS_START);
-        FLASH_ErasePage(REOCRD_COUNT_ADDRESS_START);
+        FLASH_ErasePage(FLASH_READY_ADDRESS);
         FLASH_ProgramHalfWord(FLASH_READY_ADDRESS , FLAG_FLASH_READY);
+
+        FLASH_ErasePage(REOCRD_COUNT_ADDRESS);        
         FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , 0x0000);
         
         FLASH_Lock();
@@ -209,6 +213,10 @@ void Board_main(void)
         {
             //Write the full flag
             //Do nothing....          
+          while(1)
+          {
+            Led_One_By_One(4);
+          }
         }
         else
         {
@@ -216,21 +224,16 @@ void Board_main(void)
             FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
             FLASH_ProgramHalfWord(DATA_LOGGER_ADDRESS_START + record_count * 2, GetTemperature());
             //Erase first
-            FLASH_ErasePage(REOCRD_COUNT_ADDRESS_START);
+            FLASH_ErasePage(REOCRD_COUNT_ADDRESS);
             //Update the count
             record_count = record_count + 1;
             
             FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , record_count);
             FLASH_Lock();
             
+            GPIO_SetBits(GPIOA, GPIO_Pin_1);
+            Delay(50);
         }
-        
-        GPIO_SetBits(GPIOA, GPIO_Pin_1);
-        GPIO_ResetBits(GPIOA,GPIO_Pin_2);
-        Delay(50);
-        GPIO_ResetBits(GPIOA, GPIO_Pin_1);
-        GPIO_SetBits(GPIOA,GPIO_Pin_2);  
-
     }
     else
     {
@@ -830,4 +833,69 @@ void Led_Both(uint8_t count)
         Delay(50); 
     }
   
+}
+void Test_Flash()
+{
+  
+    uint8_t i = 0;
+    uint16_t flash_flag = 0;
+    
+    flash_flag = *(uint16_t *)FLASH_READY_ADDRESS;
+    
+    if( flash_flag != FLAG_FLASH_READY)
+    {
+        FLASH_Unlock();
+        FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
+        //Erase the 32 page 32K
+        for(i = 0;i< DATA_PAGES;i++)
+        {
+            FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);
+        }
+        FLASH_ErasePage(FLASH_READY_ADDRESS);
+        FLASH_ProgramHalfWord(FLASH_READY_ADDRESS , FLAG_FLASH_READY);
+
+        FLASH_ErasePage(REOCRD_COUNT_ADDRESS);        
+        FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , 0x0000);
+        
+        FLASH_Lock();
+
+    } 
+
+    flash_flag = *(uint16_t *)FLASH_READY_ADDRESS;    
+    if( flash_flag != FLAG_FLASH_READY)
+    {
+        FLASH_Unlock();
+        FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
+        //Erase the 32 page 32K
+        for(i = 0;i< DATA_PAGES;i++)
+        {
+            FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);
+        }
+        FLASH_ErasePage(FLASH_READY_ADDRESS);
+        FLASH_ProgramHalfWord(FLASH_READY_ADDRESS , FLAG_FLASH_READY);
+
+        FLASH_ErasePage(REOCRD_COUNT_ADDRESS);        
+        FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , 0x0000);
+        
+        FLASH_Lock();
+
+    } 
+
+    while(1)
+    {
+              record_count =   *(uint16_t *)REOCRD_COUNT_ADDRESS;
+  
+              FLASH_Unlock();
+              FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
+              FLASH_ProgramHalfWord(DATA_LOGGER_ADDRESS_START + record_count * 2, 0xABCD);
+              //Erase first
+              FLASH_ErasePage(REOCRD_COUNT_ADDRESS);
+              //Update the count
+              record_count = record_count + 1;
+              
+              FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , record_count);
+              FLASH_Lock();
+      
+      Delay(3);
+    }
 }
