@@ -27,9 +27,11 @@ static __IO uint8_t USB_Plugin_State = 0;
 static uint16_t record_count = 0;
 
 #define ADC1_DR_Address    ((uint32_t)0x4001244C)
-#define ADC3_DR_Address    ((uint32_t)0x40013C4C)
 
-__IO uint16_t ADC1ConvertedValue = 0, ADC3ConvertedValue = 0;
+//#define ADC3_DR_Address    ((uint32_t)0x40013C4C)
+#define ADC3_DR_Address    (ADC1_DR_Address)
+
+__IO uint16_t ADC1ConvertedValue = 0, ADC2ConvertedValue = 0;
 
 
 FIL  g_file_datalogger;
@@ -322,6 +324,15 @@ void InterruptConfig(void)
     NVIC_Init(&NVIC_InitStructure);
     
  
+    
+    
+      /* Configure and enable ADC interrupt */
+    NVIC_InitStructure.NVIC_IRQChannel = ADC1_2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
 }
 
 /*******************************************************************************
@@ -590,22 +601,6 @@ void Board_ADC_Init()
     /* Enable DMA1 channel1 */
     DMA_Cmd(DMA1_Channel1, ENABLE);
     
-    /* DMA2 channel5 configuration ----------------------------------------------*/
-    DMA_DeInit(DMA2_Channel5);
-    DMA_InitStructure.DMA_PeripheralBaseAddr = ADC3_DR_Address;
-    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&ADC3ConvertedValue;
-    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-    DMA_InitStructure.DMA_BufferSize = 1;
-    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-    DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-    DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-    DMA_Init(DMA2_Channel5, &DMA_InitStructure);  
-    /* Enable DMA2 channel5 */
-    DMA_Cmd(DMA2_Channel5, ENABLE);
     
     
     /* ADC1 configuration ------------------------------------------------------*/
@@ -622,20 +617,21 @@ void Board_ADC_Init()
     ADC_DMACmd(ADC1, ENABLE);
     
     
-    /* ADC2 configuration ------------------------------------------------------*/
+   /* ADC2 configuration ------------------------------------------------------*/
     ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
     ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-    ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+    ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
     ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
     ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
     ADC_InitStructure.ADC_NbrOfChannel = 1;
     ADC_Init(ADC2, &ADC_InitStructure);
-    /* ADC2 regular channel configuration */ 
+    /* ADC2 regular channels configuration */ 
     ADC_RegularChannelConfig(ADC2, ADC_Channel_15, 1, ADC_SampleTime_28Cycles5);
-    /* Enable ADC2 DMA */
-    ADC_DMACmd(ADC2, ENABLE);
-    
-    
+    /* Enable ADC2 EOC interupt */
+    ADC_ITConfig(ADC2, ADC_IT_EOC, ENABLE);    
+      /* Enable ADC2 */
+    ADC_Cmd(ADC2, ENABLE);
+
     
     /* Enable ADC1 */
     ADC_Cmd(ADC1, ENABLE);
@@ -649,8 +645,6 @@ void Board_ADC_Init()
     ADC_StartCalibration(ADC1);
     /* Check the end of ADC1 calibration */
     while(ADC_GetCalibrationStatus(ADC1));
-    
-    
     
     
     /* Enable ADC2 */
@@ -702,15 +696,12 @@ uint16_t GetTemperature()
 {
     /* Check the voltage*/      
     ADC_SoftwareStartConvCmd(ADC2, ENABLE);
-    
-    /*wait for the TC5 to be 1*/
-    while(DMA_GetFlagStatus(DMA2_FLAG_TC5)==0);
-    DMA_ClearFlag(DMA2_FLAG_TC5);
+
     
     /*The value is in ADC1ConvertedValue*/
-    ADC3ConvertedValue = ADC3ConvertedValue;
+    ADC2ConvertedValue = ADC2ConvertedValue;
     
-    return ADC3ConvertedValue;
+    return ADC2ConvertedValue;
     
     
 }
@@ -728,7 +719,7 @@ Led_Both(4);
    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
    if(USB_Plugin_State == 1)
    {
-        Delay(25);
+        Delay(10);
         USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);     
         if(USB_Plugin_State == 1)
         {

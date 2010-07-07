@@ -26,7 +26,7 @@
 static __IO uint32_t Index = 0;
 static __IO uint32_t AlarmStatus = 0;
 static __IO uint32_t LedCounter = 0;
-
+extern uint16_t ADC2ConvertedValue;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -330,6 +330,18 @@ void SDIO_IRQHandler(void)
   /* Process All SDIO Interrupt Sources */
   SD_ProcessIRQSrc();
 }
+
+/**
+  * @brief  This function handles ADC1 and ADC2 global interrupts requests.
+  * @param  None
+  * @retval None
+  */
+void ADC1_2_IRQHandler(void)
+{
+  /* Get injected channel13 converted value */
+  ADC2ConvertedValue = ADC_GetConversionValue(ADC2);
+}
+
 /******************************************************************************/
 /*                 STM32F10x Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
