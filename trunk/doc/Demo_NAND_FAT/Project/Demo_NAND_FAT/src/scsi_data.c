@@ -26,7 +26,11 @@ uint8_t Page00_Inquiry_Data[] =
   };
 uint8_t Standard_Inquiry_Data[] =
   {
+#if 0    
     0x00,          /* Direct Access Device */
+#else
+    0x05,          /* Direct Access Device  CDROM*/
+#endif    
     0x80,          /* RMB = 1: Removable Medium */
     0x02,          /* Version: No conformance claim to standard */
     0x02,

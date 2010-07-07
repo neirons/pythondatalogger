@@ -60,6 +60,9 @@ void Led_One_By_One(uint8_t count);
 void Led_Both(uint8_t count);
 uint16_t GetBatteryInfo();
 void Test_Flash();
+void Enable_SDcard();
+void Disable_SDcard();
+
 #endif /* __MAIN_H */
 
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
