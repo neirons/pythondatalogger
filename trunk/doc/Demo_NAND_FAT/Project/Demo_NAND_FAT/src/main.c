@@ -101,6 +101,7 @@ void Board_main(void)
         
         /* PLLCLK = 8MHz * 9 = 72 MHz */
         RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
+//        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_2);
         
         /* Enable PLL */ 
         RCC_PLLCmd(ENABLE);
@@ -122,11 +123,6 @@ void Board_main(void)
     /* Enable GPIOA, GPIOB, and AFIO clocks */
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA |RCC_APB2Periph_GPIOB| RCC_APB2Periph_AFIO, ENABLE);
     
-    /* Enable DMA1 ,DMA2 clock */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, ENABLE);
-    
-    /* Enable ADC1 ADC2,and GPIOC clock */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC2| RCC_APB2Periph_GPIOC, ENABLE);
 
 
     /* Enable PWR and BKP clock */
@@ -177,10 +173,7 @@ void Board_main(void)
     
     WakupPin_Init();
     CheckPowerOnReason();
-    Board_ADC_Init();
-    
-//    Test_Flash();
-    
+
     /*init the flag*/  
     flash_flag = *(uint16_t *)FLASH_READY_ADDRESS;
     if( flash_flag != FLAG_FLASH_READY)
@@ -208,7 +201,14 @@ void Board_main(void)
     if(USB_Plugin_State == 0)
     {
         
+      
+        /* Enable DMA1 ,DMA2 clock */
+        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, ENABLE);
         
+        /* Enable ADC1 ADC2,and GPIOC clock */
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC2| RCC_APB2Periph_GPIOC, ENABLE);
+      
+        Board_ADC_Init();        
         record_count =   *(uint16_t *)REOCRD_COUNT_ADDRESS;
         
         if(record_count >= 15428)
@@ -233,9 +233,27 @@ void Board_main(void)
             FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , record_count);
             FLASH_Lock();
             
-            GPIO_SetBits(GPIOA, GPIO_Pin_1);
-            Delay(50);
+            
+            //Each 10 point 
+            if(record_count % 10 == 0)
+            {
+                Enable_SDcard();
+                NAND_FAT();  
+                CreateDataLoggerFile();                
+                Disable_SDcard();        
+                          
+            }            
         }
+        
+      /* Disable DMA1 ,DMA2 clock */
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, DISABLE);
+      
+      /* Disable ADC1 ADC2,and GPIOC clock */
+      RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC2| RCC_APB2Periph_GPIOC, DISABLE);
+      
+      GPIO_SetBits(GPIOA, GPIO_Pin_1);
+      Delay(25);
+
     }
     else
     {
@@ -244,8 +262,6 @@ void Board_main(void)
         /*
         if there is usb connect, copy the data to sdcard. and start the mass storage
         */
-        NAND_FAT();  
-        CreateDataLoggerFile();              
         Mass_Storage_Start ();     
 
         while( bDeviceState != CONFIGURED)
@@ -478,25 +494,35 @@ void CreateDataLoggerFile()
     
     uint8_t i = 0;    
     uint16_t value = 0;  
+    
     record_count =   *(uint16_t *)REOCRD_COUNT_ADDRESS;
+    
+    FIL*  pfile = &g_file_datalogger;
+    
     /* Create destination file on the drive 0 */
-    res = f_open(&g_file_datalogger, "0:datalogger.bin", FA_CREATE_ALWAYS | FA_WRITE);
+    res = f_open(pfile, "0:datalogger.bin", FA_OPEN_ALWAYS|FA_WRITE);
     if (res) die(res);
     
-    for(i =0;i<record_count;i++)
+    res = f_lseek(pfile, pfile->fsize,0);
+
+    
+    for(i =record_count - 10;i<record_count;i++)
     {
         value = *(uint16_t*)(DATA_LOGGER_ADDRESS_START + i * 2);
-        res = f_write(&g_file_datalogger, &value, sizeof(value), &bw);
+        res = f_write(pfile, &value, sizeof(value), &bw);
     }
-    f_close(&g_file_datalogger);
+    f_close(pfile);
+    
     
     
 /*Write the battery file*/
-    res = f_open(&g_file_datalogger, "0:battery.bin", FA_CREATE_ALWAYS | FA_WRITE);
+    res = f_open(pfile, "0:battery.bin", FA_CREATE_ALWAYS | FA_WRITE);
     value = GetBatteryInfo();
-    res = f_write(&g_file_datalogger, &value, sizeof(value), &bw);    
+    res = f_write(pfile, &value, sizeof(value), &bw);    
     if (res) die(res);
-    f_close(&g_file_datalogger);
+    f_close(pfile);
+
+    f_mount(0, NULL);
 
 }
 
@@ -707,19 +733,19 @@ uint16_t GetTemperature()
 }
 void CheckPowerOnReason()
 {
+  
 #if 0 
 while(1)
 {
 Led_Both(4);
 }
-  
-#endif 
 
+#endif 
   /*If there is usb connected, just return.*/
    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
    if(USB_Plugin_State == 1)
    {
-        Delay(10);
+        Delay(15);
         USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);     
         if(USB_Plugin_State == 1)
         {
