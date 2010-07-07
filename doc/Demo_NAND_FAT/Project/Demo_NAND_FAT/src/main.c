@@ -123,8 +123,8 @@ void Board_main(void)
     /* Enable DMA1 ,DMA2 clock */
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, ENABLE);
     
-    /* Enable ADC1 ADC3,and GPIOC clock */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC3| RCC_APB2Periph_GPIOC, ENABLE);
+    /* Enable ADC1 ADC2,and GPIOC clock */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC2| RCC_APB2Periph_GPIOC, ENABLE);
 
 
     /* Enable PWR and BKP clock */
@@ -237,6 +237,8 @@ void Board_main(void)
     }
     else
     {
+      
+        Enable_SDcard();
         /*
         if there is usb connect, copy the data to sdcard. and start the mass storage
         */
@@ -262,6 +264,7 @@ void Board_main(void)
 //        Led_Power_Off();                
         
         PowerOff();    
+        Disable_SDcard();        
         BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF); 
         PWR_EnterSTANDBYMode();    
 
@@ -363,7 +366,7 @@ void GPIO_Config(void)
 
 
     /* PA.01, PA.02 as output push-pull */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 ;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 |GPIO_Pin_3;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 
@@ -619,18 +622,18 @@ void Board_ADC_Init()
     ADC_DMACmd(ADC1, ENABLE);
     
     
-    /* ADC3 configuration ------------------------------------------------------*/
+    /* ADC2 configuration ------------------------------------------------------*/
     ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
     ADC_InitStructure.ADC_ScanConvMode = DISABLE;
     ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
     ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
     ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
     ADC_InitStructure.ADC_NbrOfChannel = 1;
-    ADC_Init(ADC3, &ADC_InitStructure);
-    /* ADC3 regular channel configuration */ 
-    ADC_RegularChannelConfig(ADC3, ADC_Channel_15, 1, ADC_SampleTime_28Cycles5);
-    /* Enable ADC3 DMA */
-    ADC_DMACmd(ADC3, ENABLE);
+    ADC_Init(ADC2, &ADC_InitStructure);
+    /* ADC2 regular channel configuration */ 
+    ADC_RegularChannelConfig(ADC2, ADC_Channel_15, 1, ADC_SampleTime_28Cycles5);
+    /* Enable ADC2 DMA */
+    ADC_DMACmd(ADC2, ENABLE);
     
     
     
@@ -650,18 +653,18 @@ void Board_ADC_Init()
     
     
     
-    /* Enable ADC3 */
-    ADC_Cmd(ADC3, ENABLE);
+    /* Enable ADC2 */
+    ADC_Cmd(ADC2, ENABLE);
     
-    /* Enable ADC3 reset calibaration register */   
-    ADC_ResetCalibration(ADC3);
-    /* Check the end of ADC3 reset calibration register */
-    while(ADC_GetResetCalibrationStatus(ADC3));
+    /* Enable ADC2 reset calibaration register */   
+    ADC_ResetCalibration(ADC2);
+    /* Check the end of ADC2 reset calibration register */
+    while(ADC_GetResetCalibrationStatus(ADC2));
     
-    /* Start ADC3 calibaration */
-    ADC_StartCalibration(ADC3);
-    /* Check the end of ADC3 calibration */
-    while(ADC_GetCalibrationStatus(ADC3));
+    /* Start ADC2 calibaration */
+    ADC_StartCalibration(ADC2);
+    /* Check the end of ADC2 calibration */
+    while(ADC_GetCalibrationStatus(ADC2));
     
 }
 void CheckVoltage()
@@ -698,7 +701,7 @@ uint16_t GetBatteryInfo()
 uint16_t GetTemperature()
 {
     /* Check the voltage*/      
-    ADC_SoftwareStartConvCmd(ADC3, ENABLE);
+    ADC_SoftwareStartConvCmd(ADC2, ENABLE);
     
     /*wait for the TC5 to be 1*/
     while(DMA_GetFlagStatus(DMA2_FLAG_TC5)==0);
@@ -898,4 +901,13 @@ void Test_Flash()
       
       Delay(3);
     }
+}
+void Enable_SDcard()
+{
+         GPIO_SetBits(GPIOA, GPIO_Pin_3 );             
+}
+
+void Disable_SDcard()
+{
+         GPIO_ResetBits(GPIOA, GPIO_Pin_3 );             
 }
