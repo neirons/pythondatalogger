@@ -131,6 +131,11 @@ void Board_main(void)
     /* Enable GPIOA, GPIOB, and AFIO clocks */
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA |RCC_APB2Periph_GPIOB| RCC_APB2Periph_AFIO, ENABLE);
     
+        /* Enable DMA1 ,DMA2 clock */
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, ENABLE);
+    
+    /* Enable ADC1 ADC2,and GPIOC clock */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC2| RCC_APB2Periph_GPIOC, ENABLE);
 
 
     /* Enable PWR and BKP clock */
@@ -183,11 +188,6 @@ void Board_main(void)
     WakupPin_Init();
     CheckPowerOnReason();
 
-        /* Enable DMA1 ,DMA2 clock */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, ENABLE);
-    
-    /* Enable ADC1 ADC2,and GPIOC clock */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC2| RCC_APB2Periph_GPIOC, ENABLE);
   
     Board_ADC_Init();        
 
@@ -266,7 +266,8 @@ void Board_main(void)
         if(copy_file_flag == FLAG_FILE_COPYED)
         {
 
-              Write_Copy_File_Flag(FLAG_FILE_NO_COPYED);
+              Write_Copy_File_Flag(FLAG_FILE_NO_COPYED);                    
+
               USB_Disconnect_Config();       
               GPIO_SetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
               Delay(10);
@@ -286,17 +287,16 @@ void Board_main(void)
                         Led_One_By_One(1);
               }
               PowerOff();    
-                    
+              Write_Copy_File_Flag(FLAG_FILE_NO_COPYED);                    
 
         }
         else
         {
               Write_Copy_File_Flag(FLAG_FILE_COPYED);
-          
               Led_Green_Flink(3);
               NAND_FAT();  
               CreateDataLoggerFile();                          
-
+              Write_Copy_File_Flag(FLAG_FILE_COPYED);
         }
 
         Disable_SDcard();        
