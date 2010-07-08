@@ -58,6 +58,7 @@ void RTC_Init(void);
 #define FLASH_READY_ADDRESS  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * DATA_PAGES + 10 )
 #define REOCRD_COUNT_ADDRESS  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * (DATA_PAGES + 2 + 10))
 
+#define COPY_FILE_ADDRESS  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * (DATA_PAGES + 4 + 10))
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,6 +79,8 @@ void Board_main(void)
 {   
     uint8_t i;
     uint16_t flash_flag = 0;
+    uint16_t copy_file_flag = 0;
+    
     /* RCC system reset(for debug purpose) */
     RCC_DeInit();
     
@@ -106,7 +109,7 @@ void Board_main(void)
         
         /* PLLCLK = 8MHz * 9 = 72 MHz */
         RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
-//        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_2);
+//        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_8);
         
         /* Enable PLL */ 
         RCC_PLLCmd(ENABLE);
@@ -174,6 +177,8 @@ void Board_main(void)
     }  
     
 
+    USB_Disconnect_Config();       
+    GPIO_SetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
     
     WakupPin_Init();
     CheckPowerOnReason();
@@ -257,10 +262,16 @@ void Board_main(void)
         /*
         if there is usb connect, copy the data to sdcard. and start the mass storage
         */
-        if(1)
+        
+        copy_file_flag =   *(uint16_t *)COPY_FILE_ADDRESS;
+
+        if(copy_file_flag == FLAG_FILE_COPYED)
         {
-              BKP_WriteBackupRegister(BKP_COPY_FILE, FLAG_FILE_NO_COPYED);                      
+
+              Write_Copy_File_Flag(FLAG_FILE_NO_COPYED);
               USB_Disconnect_Config();       
+              GPIO_SetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
+              Delay(10);
               GPIO_ResetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
               
                /* Enable and GPIOD clock */
@@ -282,10 +293,12 @@ void Board_main(void)
         }
         else
         {
+              Write_Copy_File_Flag(FLAG_FILE_COPYED);
+          
               Led_Green_Flink(3);
               NAND_FAT();  
               CreateDataLoggerFile();                          
-              BKP_WriteBackupRegister(BKP_COPY_FILE, FLAG_FILE_COPYED);            
+
         }
 
         Disable_SDcard();        
@@ -959,4 +972,13 @@ void Enable_SDcard()
 void Disable_SDcard()
 {
          GPIO_ResetBits(GPIOA, GPIO_Pin_3 );             
+}
+void Write_Copy_File_Flag(uint16_t flag)
+{
+    FLASH_Unlock();
+    FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
+    FLASH_ErasePage(COPY_FILE_ADDRESS);
+    FLASH_ProgramHalfWord(COPY_FILE_ADDRESS, flag);
+    FLASH_Lock();
+
 }
