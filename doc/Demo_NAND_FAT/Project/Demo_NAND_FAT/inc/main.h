@@ -66,6 +66,8 @@ void Led_Red_Flink(uint8_t count);
 
 void Led_Green_Flink(uint8_t count);
 void Write_Copy_File_Flag(uint16_t flag);
+void UpgradeToHighSpeed();
+
 
 #endif /* __MAIN_H */
 
