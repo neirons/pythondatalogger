@@ -170,7 +170,6 @@ void Board_main(void)
     
 
     
-    
     WakupPin_Init();
     CheckPowerOnReason();
 
@@ -253,15 +252,30 @@ void Board_main(void)
         /*
         if there is usb connect, copy the data to sdcard. and start the mass storage
         */
+
+        USB_Disconnect_Config();
+        GPIO_ResetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
+        
+        while(1)
+        {
+          Led_Both(1);
+        }  
         
         
         NAND_FAT();  
         CreateDataLoggerFile();                
+        
 
-        Mass_Storage_Start ();     
+          /* Enable and GPIOD clock */
+//        USB_Disconnect_Config();
+        
+//        PowerOn();
+        Mass_Storage_Start ();    
+
 
         while( bDeviceState != CONFIGURED)
         {
+          Led_Both(1);
         }
 #if 0        
         while( bDeviceState == CONFIGURED)
@@ -272,6 +286,7 @@ void Board_main(void)
         while(    USB_Plugin_State == 1)
         {
                   USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+                  Led_One_By_One(1);
         }
 #endif        
         //Power off
@@ -734,6 +749,9 @@ Led_Both(4);
 }
 
 #endif 
+
+//  Led_Both(1);
+
   /*If there is usb connected, just return.*/
    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
    if(USB_Plugin_State == 1)
@@ -743,7 +761,9 @@ Led_Both(4);
         if(USB_Plugin_State == 1)
         {
               /* usb wake up*/
-                BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);             
+                BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);  
+                Led_Both(1);
+
                 return ;
         }
    }

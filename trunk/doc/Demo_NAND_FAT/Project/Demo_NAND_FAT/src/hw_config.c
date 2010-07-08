@@ -184,7 +184,7 @@ void USB_NotConfigured_LED(void)
 *******************************************************************************/
 void USB_Cable_Config (FunctionalState NewState)
 {
-#if 1
+#if 0
   if (NewState != DISABLE)
   {
     GPIO_ResetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
@@ -273,18 +273,17 @@ void MAL_Config(void)
 *******************************************************************************/
 void USB_Disconnect_Config(void)
 {
-#if 0
+
    GPIO_InitTypeDef GPIO_InitStructure;
 
   /* Enable USB_DISCONNECT GPIO clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIO_DISCONNECT, ENABLE);
 
   /* USB_DISCONNECT_PIN used as USB pull-up */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+  GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
   GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);
-#endif
 }
 
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
