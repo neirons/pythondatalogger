@@ -183,6 +183,15 @@ void Board_main(void)
     WakupPin_Init();
     CheckPowerOnReason();
 
+        /* Enable DMA1 ,DMA2 clock */
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, ENABLE);
+    
+    /* Enable ADC1 ADC2,and GPIOC clock */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC2| RCC_APB2Periph_GPIOC, ENABLE);
+  
+    Board_ADC_Init();        
+
+        
     /*init the flag*/  
     flash_flag = *(uint16_t *)FLASH_READY_ADDRESS;
     if( flash_flag != FLAG_FLASH_READY)
@@ -211,13 +220,6 @@ void Board_main(void)
     {
         
       
-        /* Enable DMA1 ,DMA2 clock */
-        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, ENABLE);
-        
-        /* Enable ADC1 ADC2,and GPIOC clock */
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC2| RCC_APB2Periph_GPIOC, ENABLE);
-      
-        Board_ADC_Init();        
         record_count =   *(uint16_t *)REOCRD_COUNT_ADDRESS;
         
         if(record_count >= 15428)
@@ -245,11 +247,7 @@ void Board_main(void)
             
         }
         
-      /* Disable DMA1 ,DMA2 clock */
-      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, DISABLE);
-      
-      /* Disable ADC1 ADC2,and GPIOC clock */
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 |RCC_APB2Periph_ADC2| RCC_APB2Periph_GPIOC, DISABLE);
+
       
       GPIO_SetBits(GPIOA, GPIO_Pin_1);
       Delay(25);
@@ -758,7 +756,6 @@ Led_Both(4);
 
 #endif 
 
-  Led_Both(1);
   /*If there is usb connected, just return.*/
    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
    if(USB_Plugin_State == 1)
@@ -836,12 +833,12 @@ Led_Both(4);
 
 void Led_Power_On()
 {
-  Led_Both(4);
+  Led_Both(3);
 }
 
 void Led_Power_Off()
 {
- Led_One_By_One(4); 
+ Led_One_By_One(3); 
 }
 void Led_Red_Flink(uint8_t count)
 {
@@ -850,9 +847,9 @@ void Led_Red_Flink(uint8_t count)
     {
         /*Wake up by rtc or wake up pin*/
         GPIO_SetBits(GPIOA, GPIO_Pin_1 );            
-        Delay(50); 
+        Delay(25); 
         GPIO_ResetBits(GPIOA, GPIO_Pin_1 );            
-        Delay(50); 
+        Delay(25); 
     }
   
 }
