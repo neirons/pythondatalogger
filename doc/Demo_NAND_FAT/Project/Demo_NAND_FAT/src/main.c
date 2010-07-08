@@ -25,6 +25,7 @@ static __IO ErrorStatus HSEStartUpStatus = SUCCESS;
 
 static __IO uint8_t USB_Plugin_State = 0;
 static uint16_t record_count = 0;
+static uint16_t copy_files = 0;
 
 #define ADC1_DR_Address    ((uint32_t)0x4001244C)
 
@@ -43,6 +44,10 @@ void RTC_Init(void);
 
 #define FLAG_FLASH_READY 0x3C3C
 #define FLAG_FLASH_NOT_READY 0x0000
+
+#define FLAG_FILE_COPYED 0x5A5A
+#define FLAG_FILE_NO_COPYED 0x3B3B
+#define BKP_COPY_FILE BKP_DR1
 
 
 #define DATA_PAGES 32
@@ -252,47 +257,37 @@ void Board_main(void)
         /*
         if there is usb connect, copy the data to sdcard. and start the mass storage
         */
-
-        USB_Disconnect_Config();
-        GPIO_ResetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
-        
-        while(1)
+        if(1)
         {
-          Led_Both(1);
-        }  
-        
-        
-        NAND_FAT();  
-        CreateDataLoggerFile();                
-        
+              BKP_WriteBackupRegister(BKP_COPY_FILE, FLAG_FILE_NO_COPYED);                      
+              USB_Disconnect_Config();       
+              GPIO_ResetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
+              
+               /* Enable and GPIOD clock */
+               Mass_Storage_Start ();                  
+               while( bDeviceState != CONFIGURED)
+               {
+                  Led_Both(1);
+               }
+               
+               USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+               while(    USB_Plugin_State == 1)
+              {
+                        USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+                        Led_One_By_One(1);
+              }
+              PowerOff();    
+                    
 
-          /* Enable and GPIOD clock */
-//        USB_Disconnect_Config();
-        
-//        PowerOn();
-        Mass_Storage_Start ();    
-
-
-        while( bDeviceState != CONFIGURED)
-        {
-          Led_Both(1);
         }
-#if 0        
-        while( bDeviceState == CONFIGURED)
+        else
         {
+              Led_Green_Flink(3);
+              NAND_FAT();  
+              CreateDataLoggerFile();                          
+              BKP_WriteBackupRegister(BKP_COPY_FILE, FLAG_FILE_COPYED);            
         }
-#else
-        USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
-        while(    USB_Plugin_State == 1)
-        {
-                  USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
-                  Led_One_By_One(1);
-        }
-#endif        
-        //Power off
-//        Led_Power_Off();                
-        
-        PowerOff();    
+
         Disable_SDcard();        
         BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF); 
         PWR_EnterSTANDBYMode();    
@@ -750,8 +745,7 @@ Led_Both(4);
 
 #endif 
 
-//  Led_Both(1);
-
+  Led_Both(1);
   /*If there is usb connected, just return.*/
    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
    if(USB_Plugin_State == 1)
@@ -762,7 +756,6 @@ Led_Both(4);
         {
               /* usb wake up*/
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);  
-                Led_Both(1);
 
                 return ;
         }
@@ -837,7 +830,33 @@ void Led_Power_Off()
 {
  Led_One_By_One(4); 
 }
+void Led_Red_Flink(uint8_t count)
+{
+    uint8_t i;
+    for(i = 0;i<count;i++)
+    {
+        /*Wake up by rtc or wake up pin*/
+        GPIO_SetBits(GPIOA, GPIO_Pin_1 );            
+        Delay(50); 
+        GPIO_ResetBits(GPIOA, GPIO_Pin_1 );            
+        Delay(50); 
+    }
+  
+}
 
+void Led_Green_Flink(uint8_t count)
+{
+    uint8_t i;
+    for(i = 0;i<count;i++)
+    {
+        /*Wake up by rtc or wake up pin*/
+        GPIO_SetBits(GPIOA, GPIO_Pin_2 );            
+        Delay(50); 
+        GPIO_ResetBits(GPIOA, GPIO_Pin_2 );            
+        Delay(50); 
+    }
+  
+}
 void Led_One_By_One(uint8_t count)
 {
     uint8_t i;
