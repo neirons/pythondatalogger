@@ -57,9 +57,13 @@ void Mass_Storage_Start (void)
 {
   NVIC_InitTypeDef NVIC_InitStructure;
   
+#if 1  
   /* Enable and GPIOD clock */
   USB_Disconnect_Config();
+#endif  
+
   
+
   /* MAL configuration */
   MAL_Config();
 
