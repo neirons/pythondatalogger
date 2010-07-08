@@ -234,15 +234,6 @@ void Board_main(void)
             FLASH_Lock();
             
             
-            //Each 10 point 
-            if(record_count % 10 == 0)
-            {
-                Enable_SDcard();
-                NAND_FAT();  
-                CreateDataLoggerFile();                
-                Disable_SDcard();        
-                          
-            }            
         }
         
       /* Disable DMA1 ,DMA2 clock */
@@ -262,6 +253,11 @@ void Board_main(void)
         /*
         if there is usb connect, copy the data to sdcard. and start the mass storage
         */
+        
+        
+        NAND_FAT();  
+        CreateDataLoggerFile();                
+
         Mass_Storage_Start ();     
 
         while( bDeviceState != CONFIGURED)
@@ -500,13 +496,10 @@ void CreateDataLoggerFile()
     FIL*  pfile = &g_file_datalogger;
     
     /* Create destination file on the drive 0 */
-    res = f_open(pfile, "0:datalogger.bin", FA_OPEN_ALWAYS|FA_WRITE);
+    res = f_open(pfile, "0:datalogger.bin", FA_CREATE_ALWAYS|FA_WRITE);
     if (res) die(res);
     
-    res = f_lseek(pfile, pfile->fsize,0);
-
-    
-    for(i =record_count - 10;i<record_count;i++)
+    for(i =0;i<record_count;i++)
     {
         value = *(uint16_t*)(DATA_LOGGER_ADDRESS_START + i * 2);
         res = f_write(pfile, &value, sizeof(value), &bw);
