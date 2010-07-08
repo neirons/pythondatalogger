@@ -62,6 +62,9 @@ uint16_t GetBatteryInfo();
 void Test_Flash();
 void Enable_SDcard();
 void Disable_SDcard();
+void Led_Red_Flink(uint8_t count);
+
+void Led_Green_Flink(uint8_t count);
 
 #endif /* __MAIN_H */
 
