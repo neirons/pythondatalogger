@@ -186,7 +186,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 
 #define PI 3.1415926535897931
-	if (_access ("data.bin", 0) != 0) 
+	if (_access ("datalogger.bin", 0) != 0) 
 	{
 		for(int i =0;i<m_TotalPoint;i++)
 		{
@@ -204,10 +204,21 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 		for(int i =0;i<m_TotalPoint;i++)
 		{
-            cfile.Read(&rd_value,sizeof(unsigned short));
-            convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
-            m_Data[i] = GetTemperature(convert_value);
-                
+            if(cfile.Read(&rd_value,sizeof(unsigned short)) == sizeof(unsigned short) )
+            {
+            
+                rd_value = rd_value + 1;
+                if(rd_value == 0)
+                    rd_value = 1;
+                convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
+                m_Data[i] = GetTemperature(convert_value);
+            }    
+            else
+            {
+                m_TotalPoint = i ;
+                break;
+
+            }
 /*
 
     3300 * rd_value
@@ -240,7 +251,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
     cfile.Read(&batter_value,sizeof(unsigned short));
     cfile.Close();
 
-	m_Battery.SetBatteryLevel(33,(batter_value * 3300/4096)/100);
+	m_Battery.SetBatteryLevel(33,((batter_value + 1) * 3300/4096)/100);
 
 	m_Graph.SetData(m_Days,m_Data,m_TotalPoint,m_Average);
 
