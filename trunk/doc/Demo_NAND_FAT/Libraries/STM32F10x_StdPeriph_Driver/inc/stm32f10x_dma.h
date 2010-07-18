@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
-  * @file  stm32f10x_dma.h
+  * @file    stm32f10x_dma.h
   * @author  MCD Application Team
-  * @version  V3.0.0
-  * @date  04/06/2009
-  * @brief  This file contains all the functions prototypes for the DMA firmware 
-  *         library.
+  * @version V3.3.0
+  * @date    04/16/2010
+  * @brief   This file contains all the functions prototypes for the DMA firmware 
+  *          library.
   ******************************************************************************
   * @copy
   *
@@ -16,17 +16,21 @@
   * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
   * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
-  * <h2><center>&copy; COPYRIGHT 2009 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2010 STMicroelectronics</center></h2>
   */ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F10x_DMA_H
 #define __STM32F10x_DMA_H
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver
   * @{
   */
 
@@ -44,17 +48,39 @@
 
 typedef struct
 {
-  uint32_t DMA_PeripheralBaseAddr;
-  uint32_t DMA_MemoryBaseAddr;
-  uint32_t DMA_DIR;
-  uint32_t DMA_BufferSize;
-  uint32_t DMA_PeripheralInc;
-  uint32_t DMA_MemoryInc;
-  uint32_t DMA_PeripheralDataSize;
-  uint32_t DMA_MemoryDataSize;
-  uint32_t DMA_Mode;
-  uint32_t DMA_Priority;
-  uint32_t DMA_M2M;
+  uint32_t DMA_PeripheralBaseAddr; /*!< Specifies the peripheral base address for DMAy Channelx. */
+
+  uint32_t DMA_MemoryBaseAddr;     /*!< Specifies the memory base address for DMAy Channelx. */
+
+  uint32_t DMA_DIR;                /*!< Specifies if the peripheral is the source or destination.
+                                        This parameter can be a value of @ref DMA_data_transfer_direction */
+
+  uint32_t DMA_BufferSize;         /*!< Specifies the buffer size, in data unit, of the specified Channel. 
+                                        The data unit is equal to the configuration set in DMA_PeripheralDataSize
+                                        or DMA_MemoryDataSize members depending in the transfer direction. */
+
+  uint32_t DMA_PeripheralInc;      /*!< Specifies whether the Peripheral address register is incremented or not.
+                                        This parameter can be a value of @ref DMA_peripheral_incremented_mode */
+
+  uint32_t DMA_MemoryInc;          /*!< Specifies whether the memory address register is incremented or not.
+                                        This parameter can be a value of @ref DMA_memory_incremented_mode */
+
+  uint32_t DMA_PeripheralDataSize; /*!< Specifies the Peripheral data width.
+                                        This parameter can be a value of @ref DMA_peripheral_data_size */
+
+  uint32_t DMA_MemoryDataSize;     /*!< Specifies the Memory data width.
+                                        This parameter can be a value of @ref DMA_memory_data_size */
+
+  uint32_t DMA_Mode;               /*!< Specifies the operation mode of the DMAy Channelx.
+                                        This parameter can be a value of @ref DMA_circular_normal_mode.
+                                        @note: The circular buffer mode cannot be used if the memory-to-memory
+                                              data transfer is configured on the selected Channel */
+
+  uint32_t DMA_Priority;           /*!< Specifies the software priority for the DMAy Channelx.
+                                        This parameter can be a value of @ref DMA_priority_level */
+
+  uint32_t DMA_M2M;                /*!< Specifies if the DMAy Channelx will be used in memory-to-memory transfer.
+                                        This parameter can be a value of @ref DMA_memory_to_memory */
 }DMA_InitTypeDef;
 
 /**
@@ -65,18 +91,18 @@ typedef struct
   * @{
   */
 
-#define IS_DMA_ALL_PERIPH(PERIPH) (((*(uint32_t*)&(PERIPH)) == DMA1_Channel1_BASE) || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA1_Channel2_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA1_Channel3_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA1_Channel4_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA1_Channel5_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA1_Channel6_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA1_Channel7_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA2_Channel1_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA2_Channel2_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA2_Channel3_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA2_Channel4_BASE)  || \
-                                   ((*(uint32_t*)&(PERIPH)) == DMA2_Channel5_BASE))
+#define IS_DMA_ALL_PERIPH(PERIPH) (((PERIPH) == DMA1_Channel1) || \
+                                   ((PERIPH) == DMA1_Channel2) || \
+                                   ((PERIPH) == DMA1_Channel3) || \
+                                   ((PERIPH) == DMA1_Channel4) || \
+                                   ((PERIPH) == DMA1_Channel5) || \
+                                   ((PERIPH) == DMA1_Channel6) || \
+                                   ((PERIPH) == DMA1_Channel7) || \
+                                   ((PERIPH) == DMA2_Channel1) || \
+                                   ((PERIPH) == DMA2_Channel2) || \
+                                   ((PERIPH) == DMA2_Channel3) || \
+                                   ((PERIPH) == DMA2_Channel4) || \
+                                   ((PERIPH) == DMA2_Channel5))
 
 /** @defgroup DMA_data_transfer_direction 
   * @{
@@ -190,10 +216,6 @@ typedef struct
 #define DMA_IT_TE                          ((uint32_t)0x00000008)
 #define IS_DMA_CONFIG_IT(IT) ((((IT) & 0xFFFFFFF1) == 0x00) && ((IT) != 0x00))
 
-/** 
-  * @brief  For DMA1
-  */
-
 #define DMA1_IT_GL1                        ((uint32_t)0x00000001)
 #define DMA1_IT_TC1                        ((uint32_t)0x00000002)
 #define DMA1_IT_HT1                        ((uint32_t)0x00000004)
@@ -222,10 +244,6 @@ typedef struct
 #define DMA1_IT_TC7                        ((uint32_t)0x02000000)
 #define DMA1_IT_HT7                        ((uint32_t)0x04000000)
 #define DMA1_IT_TE7                        ((uint32_t)0x08000000)
-
-/** 
-  * @brief  For DMA2
-  */
 
 #define DMA2_IT_GL1                        ((uint32_t)0x10000001)
 #define DMA2_IT_TC1                        ((uint32_t)0x10000002)
@@ -282,11 +300,6 @@ typedef struct
 /** @defgroup DMA_flags_definition 
   * @{
   */
-
-/** 
-  * @brief  For DMA1
-  */
-
 #define DMA1_FLAG_GL1                      ((uint32_t)0x00000001)
 #define DMA1_FLAG_TC1                      ((uint32_t)0x00000002)
 #define DMA1_FLAG_HT1                      ((uint32_t)0x00000004)
@@ -315,10 +328,6 @@ typedef struct
 #define DMA1_FLAG_TC7                      ((uint32_t)0x02000000)
 #define DMA1_FLAG_HT7                      ((uint32_t)0x04000000)
 #define DMA1_FLAG_TE7                      ((uint32_t)0x08000000)
-
-/** 
-  * @brief  For DMA2
-  */
 
 #define DMA2_FLAG_GL1                      ((uint32_t)0x10000001)
 #define DMA2_FLAG_TC1                      ((uint32_t)0x10000002)
@@ -408,6 +417,10 @@ void DMA_ClearFlag(uint32_t DMA_FLAG);
 ITStatus DMA_GetITStatus(uint32_t DMA_IT);
 void DMA_ClearITPendingBit(uint32_t DMA_IT);
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif /*__STM32F10x_DMA_H */
 /**
   * @}
@@ -421,4 +434,4 @@ void DMA_ClearITPendingBit(uint32_t DMA_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2010 STMicroelectronics *****END OF FILE****/

@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
-  * @file  stm32f10x_tim.h
+  * @file    stm32f10x_tim.h
   * @author  MCD Application Team
-  * @version  V3.0.0
-  * @date  04/06/2009
-  * @brief  This file contains all the functions prototypes for the TIM firmware 
-  *         library.
+  * @version V3.3.0
+  * @date    04/16/2010
+  * @brief   This file contains all the functions prototypes for the TIM firmware 
+  *          library.
   ******************************************************************************
   * @copy
   *
@@ -16,17 +16,21 @@
   * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
   * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
-  * <h2><center>&copy; COPYRIGHT 2009 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2010 STMicroelectronics</center></h2>
   */ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F10x_TIM_H
 #define __STM32F10x_TIM_H
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver
   * @{
   */
 
@@ -39,17 +43,34 @@
   */ 
 
 /** 
-  * @brief  TIM Time Base Init structure definition  
+  * @brief  TIM Time Base Init structure definition
+  * @note   This sturcture is used with all TIMx except for TIM6 and TIM7.    
   */
 
 typedef struct
 {
-  uint16_t TIM_Prescaler;
-  uint16_t TIM_CounterMode;
-  uint16_t TIM_Period;
-  uint16_t TIM_ClockDivision;
-  uint8_t TIM_RepetitionCounter;
-} TIM_TimeBaseInitTypeDef;
+  uint16_t TIM_Prescaler;         /*!< Specifies the prescaler value used to divide the TIM clock.
+                                       This parameter can be a number between 0x0000 and 0xFFFF */
+
+  uint16_t TIM_CounterMode;       /*!< Specifies the counter mode.
+                                       This parameter can be a value of @ref TIM_Counter_Mode */
+
+  uint16_t TIM_Period;            /*!< Specifies the period value to be loaded into the active
+                                       Auto-Reload Register at the next update event.
+                                       This parameter must be a number between 0x0000 and 0xFFFF.  */ 
+
+  uint16_t TIM_ClockDivision;     /*!< Specifies the clock division.
+                                      This parameter can be a value of @ref TIM_Clock_Division_CKD */
+
+  uint8_t TIM_RepetitionCounter;  /*!< Specifies the repetition counter value. Each time the RCR downcounter
+                                       reaches zero, an update event is generated and counting restarts
+                                       from the RCR value (N).
+                                       This means in PWM mode that (N+1) corresponds to:
+                                          - the number of PWM periods in edge-aligned mode
+                                          - the number of half PWM period in center-aligned mode
+                                       This parameter must be a number between 0x00 and 0xFF. 
+                                       @note This parameter is valid only for TIM1 and TIM8. */
+} TIM_TimeBaseInitTypeDef;       
 
 /** 
   * @brief  TIM Output Compare Init structure definition  
@@ -57,14 +78,33 @@ typedef struct
 
 typedef struct
 {
-  uint16_t TIM_OCMode;
-  uint16_t TIM_OutputState;
-  uint16_t TIM_OutputNState;
-  uint16_t TIM_Pulse;
-  uint16_t TIM_OCPolarity;
-  uint16_t TIM_OCNPolarity;
-  uint16_t TIM_OCIdleState;
-  uint16_t TIM_OCNIdleState;
+  uint16_t TIM_OCMode;        /*!< Specifies the TIM mode.
+                                   This parameter can be a value of @ref TIM_Output_Compare_and_PWM_modes */
+
+  uint16_t TIM_OutputState;   /*!< Specifies the TIM Output Compare state.
+                                   This parameter can be a value of @ref TIM_Output_Compare_state */
+
+  uint16_t TIM_OutputNState;  /*!< Specifies the TIM complementary Output Compare state.
+                                   This parameter can be a value of @ref TIM_Output_Compare_N_state
+                                   @note This parameter is valid only for TIM1 and TIM8. */
+
+  uint16_t TIM_Pulse;         /*!< Specifies the pulse value to be loaded into the Capture Compare Register. 
+                                   This parameter can be a number between 0x0000 and 0xFFFF */
+
+  uint16_t TIM_OCPolarity;    /*!< Specifies the output polarity.
+                                   This parameter can be a value of @ref TIM_Output_Compare_Polarity */
+
+  uint16_t TIM_OCNPolarity;   /*!< Specifies the complementary output polarity.
+                                   This parameter can be a value of @ref TIM_Output_Compare_N_Polarity
+                                   @note This parameter is valid only for TIM1 and TIM8. */
+
+  uint16_t TIM_OCIdleState;   /*!< Specifies the TIM Output Compare pin state during Idle state.
+                                   This parameter can be a value of @ref TIM_Output_Compare_Idle_State
+                                   @note This parameter is valid only for TIM1 and TIM8. */
+
+  uint16_t TIM_OCNIdleState;  /*!< Specifies the TIM Output Compare pin state during Idle state.
+                                   This parameter can be a value of @ref TIM_Output_Compare_N_Idle_State
+                                   @note This parameter is valid only for TIM1 and TIM8. */
 } TIM_OCInitTypeDef;
 
 /** 
@@ -73,48 +113,169 @@ typedef struct
 
 typedef struct
 {
-  uint16_t TIM_Channel;
-  uint16_t TIM_ICPolarity;
-  uint16_t TIM_ICSelection;
-  uint16_t TIM_ICPrescaler;
-  uint16_t TIM_ICFilter;
+
+  uint16_t TIM_Channel;      /*!< Specifies the TIM channel.
+                                  This parameter can be a value of @ref TIM_Channel */
+
+  uint16_t TIM_ICPolarity;   /*!< Specifies the active edge of the input signal.
+                                  This parameter can be a value of @ref TIM_Input_Capture_Polarity */
+
+  uint16_t TIM_ICSelection;  /*!< Specifies the input.
+                                  This parameter can be a value of @ref TIM_Input_Capture_Selection */
+
+  uint16_t TIM_ICPrescaler;  /*!< Specifies the Input Capture Prescaler.
+                                  This parameter can be a value of @ref TIM_Input_Capture_Prescaler */
+
+  uint16_t TIM_ICFilter;     /*!< Specifies the input capture filter.
+                                  This parameter can be a number between 0x0 and 0xF */
 } TIM_ICInitTypeDef;
 
 /** 
-  * @brief  BDTR structure definition  
+  * @brief  BDTR structure definition 
+  * @note   This sturcture is used only with TIM1 and TIM8.    
   */
 
 typedef struct
 {
-  uint16_t TIM_OSSRState;
-  uint16_t TIM_OSSIState;
-  uint16_t TIM_LOCKLevel; 
-  uint16_t TIM_DeadTime;
-  uint16_t TIM_Break;
-  uint16_t TIM_BreakPolarity;
-  uint16_t TIM_AutomaticOutput;
+
+  uint16_t TIM_OSSRState;        /*!< Specifies the Off-State selection used in Run mode.
+                                      This parameter can be a value of @ref OSSR_Off_State_Selection_for_Run_mode_state */
+
+  uint16_t TIM_OSSIState;        /*!< Specifies the Off-State used in Idle state.
+                                      This parameter can be a value of @ref OSSI_Off_State_Selection_for_Idle_mode_state */
+
+  uint16_t TIM_LOCKLevel;        /*!< Specifies the LOCK level parameters.
+                                      This parameter can be a value of @ref Lock_level */ 
+
+  uint16_t TIM_DeadTime;         /*!< Specifies the delay time between the switching-off and the
+                                      switching-on of the outputs.
+                                      This parameter can be a number between 0x00 and 0xFF  */
+
+  uint16_t TIM_Break;            /*!< Specifies whether the TIM Break input is enabled or not. 
+                                      This parameter can be a value of @ref Break_Input_enable_disable */
+
+  uint16_t TIM_BreakPolarity;    /*!< Specifies the TIM Break Input pin polarity.
+                                      This parameter can be a value of @ref Break_Polarity */
+
+  uint16_t TIM_AutomaticOutput;  /*!< Specifies whether the TIM Automatic Output feature is enabled or not. 
+                                      This parameter can be a value of @ref TIM_AOE_Bit_Set_Reset */
 } TIM_BDTRInitTypeDef;
 
 /** @defgroup TIM_Exported_constants 
   * @{
   */
 
-#define IS_TIM_ALL_PERIPH(PERIPH) (((*(uint32_t*)&(PERIPH)) == TIM1_BASE) || \
-                                   ((*(uint32_t*)&(PERIPH)) == TIM2_BASE) || \
-                                   ((*(uint32_t*)&(PERIPH)) == TIM3_BASE) || \
-                                   ((*(uint32_t*)&(PERIPH)) == TIM4_BASE) || \
-                                   ((*(uint32_t*)&(PERIPH)) == TIM5_BASE) || \
-                                   ((*(uint32_t*)&(PERIPH)) == TIM6_BASE) || \
-                                   ((*(uint32_t*)&(PERIPH)) == TIM7_BASE) || \
-                                   ((*(uint32_t*)&(PERIPH)) == TIM8_BASE))
-#define IS_TIM_18_PERIPH(PERIPH) (((*(uint32_t*)&(PERIPH)) == TIM1_BASE) || \
-                                  ((*(uint32_t*)&(PERIPH)) == TIM8_BASE))
-#define IS_TIM_123458_PERIPH(PERIPH) (((*(uint32_t*)&(PERIPH)) == TIM1_BASE) || \
-                                      ((*(uint32_t*)&(PERIPH)) == TIM2_BASE) || \
-                                      ((*(uint32_t*)&(PERIPH)) == TIM3_BASE) || \
-                                      ((*(uint32_t*)&(PERIPH)) == TIM4_BASE) || \
-                                      ((*(uint32_t*)&(PERIPH)) == TIM5_BASE) || \
-                                      ((*(uint32_t*)&(PERIPH)) == TIM8_BASE))
+#define IS_TIM_ALL_PERIPH(PERIPH) (((PERIPH) == TIM1) || \
+                                   ((PERIPH) == TIM2) || \
+                                   ((PERIPH) == TIM3) || \
+                                   ((PERIPH) == TIM4) || \
+                                   ((PERIPH) == TIM5) || \
+                                   ((PERIPH) == TIM6) || \
+                                   ((PERIPH) == TIM7) || \
+                                   ((PERIPH) == TIM8) || \
+                                   ((PERIPH) == TIM9) || \
+                                   ((PERIPH) == TIM10)|| \
+                                   ((PERIPH) == TIM11)|| \
+                                   ((PERIPH) == TIM12)|| \
+                                   ((PERIPH) == TIM13)|| \
+                                   ((PERIPH) == TIM14)|| \
+                                   ((PERIPH) == TIM15)|| \
+                                   ((PERIPH) == TIM16)|| \
+                                   ((PERIPH) == TIM17))
+
+/* LIST1: TIM 1 and 8 */
+#define IS_TIM_LIST1_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
+                                      ((PERIPH) == TIM8))
+
+/* LIST2: TIM 1, 8, 15 16 and 17 */
+#define IS_TIM_LIST2_PERIPH(PERIPH) (((PERIPH) == TIM1) || \
+                                     ((PERIPH) == TIM8) || \
+                                     ((PERIPH) == TIM15)|| \
+                                     ((PERIPH) == TIM16)|| \
+                                     ((PERIPH) == TIM17)) 
+
+/* LIST3: TIM 1, 2, 3, 4, 5 and 8 */
+#define IS_TIM_LIST3_PERIPH(PERIPH) (((PERIPH) == TIM1) || \
+                                     ((PERIPH) == TIM2) || \
+                                     ((PERIPH) == TIM3) || \
+                                     ((PERIPH) == TIM4) || \
+                                     ((PERIPH) == TIM5) || \
+                                     ((PERIPH) == TIM8)) 
+									                                 
+/* LIST4: TIM 1, 2, 3, 4, 5, 8, 15, 16 and 17 */
+#define IS_TIM_LIST4_PERIPH(PERIPH) (((PERIPH) == TIM1) || \
+                                     ((PERIPH) == TIM2) || \
+                                     ((PERIPH) == TIM3) || \
+                                     ((PERIPH) == TIM4) || \
+                                     ((PERIPH) == TIM5) || \
+                                     ((PERIPH) == TIM8) || \
+                                     ((PERIPH) == TIM15)|| \
+                                     ((PERIPH) == TIM16)|| \
+                                     ((PERIPH) == TIM17))
+
+/* LIST5: TIM 1, 2, 3, 4, 5, 8 and 15 */                                            
+#define IS_TIM_LIST5_PERIPH(PERIPH) (((PERIPH) == TIM1) || \
+                                     ((PERIPH) == TIM2) || \
+                                     ((PERIPH) == TIM3) || \
+                                     ((PERIPH) == TIM4) || \
+                                     ((PERIPH) == TIM5) || \
+                                     ((PERIPH) == TIM8) || \
+                                     ((PERIPH) == TIM15)) 
+
+/* LIST6: TIM 1, 2, 3, 4, 5, 8, 9, 12 and 15 */
+#define IS_TIM_LIST6_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
+                                      ((PERIPH) == TIM2) || \
+                                      ((PERIPH) == TIM3) || \
+                                      ((PERIPH) == TIM4) || \
+                                      ((PERIPH) == TIM5) || \
+                                      ((PERIPH) == TIM8) || \
+                                      ((PERIPH) == TIM9) || \
+									  ((PERIPH) == TIM12)|| \
+                                      ((PERIPH) == TIM15))
+
+/* LIST7: TIM 1, 2, 3, 4, 5, 6, 7, 8, 9, 12 and 15 */
+#define IS_TIM_LIST7_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
+                                      ((PERIPH) == TIM2) || \
+                                      ((PERIPH) == TIM3) || \
+                                      ((PERIPH) == TIM4) || \
+                                      ((PERIPH) == TIM5) || \
+                                      ((PERIPH) == TIM6) || \
+                                      ((PERIPH) == TIM7) || \
+                                      ((PERIPH) == TIM8) || \
+                                      ((PERIPH) == TIM9) || \
+                                      ((PERIPH) == TIM12)|| \
+                                      ((PERIPH) == TIM15))                                    
+
+/* LIST8: TIM 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16 and 17 */                                        
+#define IS_TIM_LIST8_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
+                                      ((PERIPH) == TIM2) || \
+                                      ((PERIPH) == TIM3) || \
+                                      ((PERIPH) == TIM4) || \
+                                      ((PERIPH) == TIM5) || \
+                                      ((PERIPH) == TIM8) || \
+                                      ((PERIPH) == TIM9) || \
+                                      ((PERIPH) == TIM10)|| \
+                                      ((PERIPH) == TIM11)|| \
+                                      ((PERIPH) == TIM12)|| \
+                                      ((PERIPH) == TIM13)|| \
+                                      ((PERIPH) == TIM14)|| \
+                                      ((PERIPH) == TIM15)|| \
+                                      ((PERIPH) == TIM16)|| \
+                                      ((PERIPH) == TIM17))
+
+/* LIST9: TIM 1, 2, 3, 4, 5, 6, 7, 8, 15, 16, and 17 */
+#define IS_TIM_LIST9_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
+                                      ((PERIPH) == TIM2) || \
+                                      ((PERIPH) == TIM3) || \
+                                      ((PERIPH) == TIM4) || \
+                                      ((PERIPH) == TIM5) || \
+                                      ((PERIPH) == TIM6) || \
+                                      ((PERIPH) == TIM7) || \
+                                      ((PERIPH) == TIM8) || \
+                                      ((PERIPH) == TIM15)|| \
+                                      ((PERIPH) == TIM16)|| \
+                                      ((PERIPH) == TIM17))  
+                                                                                                                                                                                                                          
 /**
   * @}
   */ 
@@ -236,7 +397,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup TIM_Output_Compare_states 
+/** @defgroup TIM_Output_Compare_state 
   * @{
   */
 
@@ -248,7 +409,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Output_Compare_N_States 
+/** @defgroup TIM_Output_Compare_N_state 
   * @{
   */
 
@@ -260,7 +421,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Capture_Compare_States 
+/** @defgroup TIM_Capture_Compare_state 
   * @{
   */
 
@@ -272,7 +433,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Capture_Compare_N_States 
+/** @defgroup TIM_Capture_Compare_N_state 
   * @{
   */
 
@@ -320,7 +481,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup Lock_levels 
+/** @defgroup Lock_level 
   * @{
   */
 
@@ -336,7 +497,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup OSSI:_Off-State_Selection_for_Idle_mode_states 
+/** @defgroup OSSI_Off_State_Selection_for_Idle_mode_state 
   * @{
   */
 
@@ -348,7 +509,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup OSSR:_Off-State_Selection_for_Run_mode_states 
+/** @defgroup OSSR_Off_State_Selection_for_Run_mode_state 
   * @{
   */
 
@@ -400,9 +561,11 @@ typedef struct
   * @{
   */
 
-#define TIM_ICSelection_DirectTI           ((uint16_t)0x0001)
-#define TIM_ICSelection_IndirectTI         ((uint16_t)0x0002)
-#define TIM_ICSelection_TRC                ((uint16_t)0x0003)
+#define TIM_ICSelection_DirectTI           ((uint16_t)0x0001) /*!< TIM Input 1, 2, 3 or 4 is selected to be 
+                                                                   connected to IC1, IC2, IC3 or IC4, respectively */
+#define TIM_ICSelection_IndirectTI         ((uint16_t)0x0002) /*!< TIM Input 1, 2, 3 or 4 is selected to be
+                                                                   connected to IC2, IC1, IC4 or IC3, respectively. */
+#define TIM_ICSelection_TRC                ((uint16_t)0x0003) /*!< TIM Input 1, 2, 3 or 4 is selected to be connected to TRC. */
 #define IS_TIM_IC_SELECTION(SELECTION) (((SELECTION) == TIM_ICSelection_DirectTI) || \
                                         ((SELECTION) == TIM_ICSelection_IndirectTI) || \
                                         ((SELECTION) == TIM_ICSelection_TRC))
@@ -414,10 +577,10 @@ typedef struct
   * @{
   */
 
-#define TIM_ICPSC_DIV1                     ((uint16_t)0x0000)
-#define TIM_ICPSC_DIV2                     ((uint16_t)0x0004)
-#define TIM_ICPSC_DIV4                     ((uint16_t)0x0008)
-#define TIM_ICPSC_DIV8                     ((uint16_t)0x000C)
+#define TIM_ICPSC_DIV1                     ((uint16_t)0x0000) /*!< Capture performed each time an edge is detected on the capture input. */
+#define TIM_ICPSC_DIV2                     ((uint16_t)0x0004) /*!< Capture performed once every 2 events. */
+#define TIM_ICPSC_DIV4                     ((uint16_t)0x0008) /*!< Capture performed once every 4 events. */
+#define TIM_ICPSC_DIV8                     ((uint16_t)0x000C) /*!< Capture performed once every 8 events. */
 #define IS_TIM_IC_PRESCALER(PRESCALER) (((PRESCALER) == TIM_ICPSC_DIV1) || \
                                         ((PRESCALER) == TIM_ICPSC_DIV2) || \
                                         ((PRESCALER) == TIM_ICPSC_DIV4) || \
@@ -439,13 +602,7 @@ typedef struct
 #define TIM_IT_Trigger                     ((uint16_t)0x0040)
 #define TIM_IT_Break                       ((uint16_t)0x0080)
 #define IS_TIM_IT(IT) ((((IT) & (uint16_t)0xFF00) == 0x0000) && ((IT) != 0x0000))
-#define IS_TIM_PERIPH_IT(PERIPH, TIM_IT) ((((((*(uint32_t*)&(PERIPH)) == TIM2_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||\
-                                            (((*(uint32_t*)&(PERIPH)) == TIM4_BASE)) || (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))))&& \
-                                            (((TIM_IT) & (uint16_t)0xFFA0) == 0x0000) && ((TIM_IT) != 0x0000)) ||\
-                                            (((((*(uint32_t*)&(PERIPH)) == TIM1_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM8_BASE))))&& \
-                                            (((TIM_IT) & (uint16_t)0xFF00) == 0x0000) && ((TIM_IT) != 0x0000)) ||\
-                                            (((((*(uint32_t*)&(PERIPH)) == TIM6_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM7_BASE))))&& \
-                                            (((TIM_IT) & (uint16_t)0xFFFE) == 0x0000) && ((TIM_IT) != 0x0000)))
+
 #define IS_TIM_GET_IT(IT) (((IT) == TIM_IT_Update) || \
                            ((IT) == TIM_IT_CC1) || \
                            ((IT) == TIM_IT_CC2) || \
@@ -560,13 +717,7 @@ typedef struct
 #define TIM_DMA_COM                        ((uint16_t)0x2000)
 #define TIM_DMA_Trigger                    ((uint16_t)0x4000)
 #define IS_TIM_DMA_SOURCE(SOURCE) ((((SOURCE) & (uint16_t)0x80FF) == 0x0000) && ((SOURCE) != 0x0000))
-#define IS_TIM_PERIPH_DMA(PERIPH, SOURCE) ((((((*(uint32_t*)&(PERIPH)) == TIM2_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||\
-                                            (((*(uint32_t*)&(PERIPH)) == TIM4_BASE)) || (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))))&& \
-                                            (((SOURCE) & (uint16_t)0xA0FF) == 0x0000) && ((SOURCE) != 0x0000)) ||\
-                                            (((((*(uint32_t*)&(PERIPH)) == TIM1_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM8_BASE))))&& \
-                                            (((SOURCE) & (uint16_t)0x80FF) == 0x0000) && ((SOURCE) != 0x0000)) ||\
-                                            (((((*(uint32_t*)&(PERIPH)) == TIM6_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM7_BASE))))&& \
-                                            (((SOURCE) & (uint16_t)0xFEFF) == 0x0000) && ((SOURCE) != 0x0000)))
+
 /**
   * @}
   */ 
@@ -692,13 +843,7 @@ typedef struct
 #define TIM_EventSource_Trigger            ((uint16_t)0x0040)
 #define TIM_EventSource_Break              ((uint16_t)0x0080)
 #define IS_TIM_EVENT_SOURCE(SOURCE) ((((SOURCE) & (uint16_t)0xFF00) == 0x0000) && ((SOURCE) != 0x0000))
-#define IS_TIM_PERIPH_EVENT(PERIPH, EVENT) ((((((*(uint32_t*)&(PERIPH)) == TIM2_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||\
-                                            (((*(uint32_t*)&(PERIPH)) == TIM4_BASE)) || (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))))&& \
-                                            (((EVENT) & (uint16_t)0xFFA0) == 0x0000) && ((EVENT) != 0x0000)) ||\
-                                            (((((*(uint32_t*)&(PERIPH)) == TIM1_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM8_BASE))))&& \
-                                            (((EVENT) & (uint16_t)0xFF00) == 0x0000) && ((EVENT) != 0x0000)) ||\
-                                            (((((*(uint32_t*)&(PERIPH)) == TIM6_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM7_BASE))))&& \
-                                            (((EVENT) & (uint16_t)0xFFFE) == 0x0000) && ((EVENT) != 0x0000)))
+
 /**
   * @}
   */ 
@@ -707,8 +852,10 @@ typedef struct
   * @{
   */
 
-#define TIM_UpdateSource_Global            ((uint16_t)0x0000)
-#define TIM_UpdateSource_Regular           ((uint16_t)0x0001)
+#define TIM_UpdateSource_Global            ((uint16_t)0x0000) /*!< Source of update is the counter overflow/underflow
+                                                                   or the setting of UG bit, or an update generation
+                                                                   through the slave mode controller. */
+#define TIM_UpdateSource_Regular           ((uint16_t)0x0001) /*!< Source of update is counter overflow/underflow. */
 #define IS_TIM_UPDATE_SOURCE(SOURCE) (((SOURCE) == TIM_UpdateSource_Global) || \
                                       ((SOURCE) == TIM_UpdateSource_Regular))
 /**
@@ -772,41 +919,6 @@ typedef struct
                                     ((SOURCE) == TIM_TRGOSource_OC2Ref) || \
                                     ((SOURCE) == TIM_TRGOSource_OC3Ref) || \
                                     ((SOURCE) == TIM_TRGOSource_OC4Ref))
-#define IS_TIM_PERIPH_TRGO(PERIPH, TRGO)  (((((*(uint32_t*)&(PERIPH)) == TIM2_BASE)||(((*(uint32_t*)&(PERIPH)) == TIM1_BASE))||\
-                                           (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM4_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM6_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM7_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM8_BASE))) && \
-                                           ((TRGO) == TIM_TRGOSource_Reset)) ||\
-                                           ((((*(uint32_t*)&(PERIPH)) == TIM2_BASE)||(((*(uint32_t*)&(PERIPH)) == TIM1_BASE))||\
-                                           (((*(uint32_t*)&(PERIPH)) == TIM6_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM7_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM4_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM8_BASE))) && \
-                                           ((TRGO) == TIM_TRGOSource_Enable)) ||\
-                                           ((((*(uint32_t*)&(PERIPH)) == TIM2_BASE)||(((*(uint32_t*)&(PERIPH)) == TIM1_BASE))||\
-                                           (((*(uint32_t*)&(PERIPH)) == TIM6_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM7_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM4_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM8_BASE))) && \
-                                           ((TRGO) == TIM_TRGOSource_Update)) ||\
-                                           ((((*(uint32_t*)&(PERIPH)) == TIM2_BASE)||(((*(uint32_t*)&(PERIPH)) == TIM1_BASE))||\
-                                           (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM4_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM8_BASE))) && \
-                                           ((TRGO) == TIM_TRGOSource_OC1)) ||\
-                                           ((((*(uint32_t*)&(PERIPH)) == TIM2_BASE)||(((*(uint32_t*)&(PERIPH)) == TIM1_BASE))||\
-                                           (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM4_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM8_BASE))) && \
-                                           ((TRGO) == TIM_TRGOSource_OC1Ref)) ||\
-                                           ((((*(uint32_t*)&(PERIPH)) == TIM2_BASE)||(((*(uint32_t*)&(PERIPH)) == TIM1_BASE))||\
-                                           (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM4_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM8_BASE))) && \
-                                           ((TRGO) == TIM_TRGOSource_OC2Ref)) ||\
-                                           ((((*(uint32_t*)&(PERIPH)) == TIM2_BASE)||(((*(uint32_t*)&(PERIPH)) == TIM1_BASE))||\
-                                           (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM4_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM8_BASE))) && \
-                                           ((TRGO) == TIM_TRGOSource_OC3Ref)) ||\
-                                           ((((*(uint32_t*)&(PERIPH)) == TIM2_BASE)||(((*(uint32_t*)&(PERIPH)) == TIM1_BASE))||\
-                                           (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM4_BASE))|| \
-                                           (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))||(((*(uint32_t*)&(PERIPH)) == TIM8_BASE))) && \
-                                           ((TRGO) == TIM_TRGOSource_OC4Ref)))
 /**
   * @}
   */ 
@@ -867,32 +979,9 @@ typedef struct
                                ((FLAG) == TIM_FLAG_CC2OF) || \
                                ((FLAG) == TIM_FLAG_CC3OF) || \
                                ((FLAG) == TIM_FLAG_CC4OF))
-#define IS_TIM_CLEAR_FLAG(PERIPH, TIM_FLAG) ((((((*(uint32_t*)&(PERIPH)) == TIM2_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM3_BASE))||\
-                                            (((*(uint32_t*)&(PERIPH)) == TIM4_BASE)) || (((*(uint32_t*)&(PERIPH)) == TIM5_BASE))))&& \
-                                            (((TIM_FLAG) & (uint16_t)0xE1A0) == 0x0000) && ((TIM_FLAG) != 0x0000)) ||\
-                                            (((((*(uint32_t*)&(PERIPH)) == TIM1_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM8_BASE))))&& \
-                                            (((TIM_FLAG) & (uint16_t)0xE100) == 0x0000) && ((TIM_FLAG) != 0x0000)) ||\
-                                            (((((*(uint32_t*)&(PERIPH)) == TIM6_BASE) || (((*(uint32_t*)&(PERIPH)) == TIM7_BASE))))&& \
-                                            (((TIM_FLAG) & (uint16_t)0xFFFE) == 0x0000) && ((TIM_FLAG) != 0x0000)))
-#define IS_TIM_PERIPH_FLAG(PERIPH, TIM_FLAG)  (((((*(uint32_t*)&(PERIPH))==TIM2_BASE) || ((*(uint32_t*)&(PERIPH)) == TIM3_BASE) ||\
-                                                 ((*(uint32_t*)&(PERIPH)) == TIM4_BASE) || ((*(uint32_t*)&(PERIPH))==TIM5_BASE) || \
-                                                 ((*(uint32_t*)&(PERIPH))==TIM1_BASE) || ((*(uint32_t*)&(PERIPH))==TIM8_BASE)) &&\
-                                                 (((TIM_FLAG) == TIM_FLAG_CC1) || ((TIM_FLAG) == TIM_FLAG_CC2) ||\
-                                                 ((TIM_FLAG) == TIM_FLAG_CC3) || ((TIM_FLAG) == TIM_FLAG_CC4) || \
-                                                 ((TIM_FLAG) == TIM_FLAG_Trigger))) ||\
-                                                 ((((*(uint32_t*)&(PERIPH))==TIM2_BASE) || ((*(uint32_t*)&(PERIPH)) == TIM3_BASE) || \
-                                                 ((*(uint32_t*)&(PERIPH)) == TIM4_BASE) || ((*(uint32_t*)&(PERIPH))==TIM5_BASE) ||\
-                                                 ((*(uint32_t*)&(PERIPH))==TIM1_BASE)|| ((*(uint32_t*)&(PERIPH))==TIM8_BASE) || \
-                                                 ((*(uint32_t*)&(PERIPH))==TIM7_BASE) || ((*(uint32_t*)&(PERIPH))==TIM6_BASE)) && \
-                                                 (((TIM_FLAG) == TIM_FLAG_Update))) ||\
-                                                 ((((*(uint32_t*)&(PERIPH))==TIM1_BASE) || ((*(uint32_t*)&(PERIPH)) == TIM8_BASE)) &&\
-                                                 (((TIM_FLAG) == TIM_FLAG_COM) || ((TIM_FLAG) == TIM_FLAG_Break))) ||\
-                                                 ((((*(uint32_t*)&(PERIPH))==TIM2_BASE) || ((*(uint32_t*)&(PERIPH)) == TIM3_BASE) || \
-                                                 ((*(uint32_t*)&(PERIPH)) == TIM4_BASE) || ((*(uint32_t*)&(PERIPH))==TIM5_BASE) || \
-                                                 ((*(uint32_t*)&(PERIPH))==TIM1_BASE) || ((*(uint32_t*)&(PERIPH))==TIM8_BASE)) &&\
-                                                 (((TIM_FLAG) == TIM_FLAG_CC1OF) || ((TIM_FLAG) == TIM_FLAG_CC2OF) ||\
-                                                 ((TIM_FLAG) == TIM_FLAG_CC3OF) || ((TIM_FLAG) == TIM_FLAG_CC4OF))))
-
+                               
+                               
+#define IS_TIM_CLEAR_FLAG(TIM_FLAG) ((((TIM_FLAG) & (uint16_t)0xE100) == 0x0000) && ((TIM_FLAG) != 0x0000))
 /**
   * @}
   */ 
@@ -1024,6 +1113,10 @@ void TIM_ClearFlag(TIM_TypeDef* TIMx, uint16_t TIM_FLAG);
 ITStatus TIM_GetITStatus(TIM_TypeDef* TIMx, uint16_t TIM_IT);
 void TIM_ClearITPendingBit(TIM_TypeDef* TIMx, uint16_t TIM_IT);
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif /*__STM32F10x_TIM_H */
 /**
   * @}
@@ -1037,4 +1130,4 @@ void TIM_ClearITPendingBit(TIM_TypeDef* TIMx, uint16_t TIM_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2010 STMicroelectronics *****END OF FILE****/

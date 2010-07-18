@@ -16,6 +16,28 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+
+#define	ABIN_CPU_UPGRADE2HIGHSPEED_OPTION	1
+
+#define	SYSTEM_RELEASE_OPTION	1
+#define ABIN_DEBUG  0
+
+
+#if ABIN_DEBUG
+#include <stdio.h>
+#include "stm3210e_eval.h"
+#endif
+
+
+#if ABIN_DEBUG
+#define sys_printf	printf
+#endif
+
+
+#if ABIN_CPU_UPGRADE2HIGHSPEED_OPTION
+void UpgradeToHighSpeed(void);
+
+#endif
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -51,15 +73,40 @@ void RTC_Init(void);
 
 
 #define DATA_PAGES 32
-
-#define DATA_LOGGER_ADDRESS_START  ((uint32_t)0x08008000)
-
+#if 0 /*abin@*/
+#define DATA_LOGGER_ADDRESS_START  ((uint32_t)0x08008000)/*32K*/
+#else
+#define DATA_LOGGER_ADDRESS_START  ((uint32_t)0x08028000)/*160K*/
+#endif
 
 #define FLASH_READY_ADDRESS  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * DATA_PAGES + 10 )
 #define REOCRD_COUNT_ADDRESS  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * (DATA_PAGES + 2 + 10))
 
 #define COPY_FILE_ADDRESS  ((uint32_t)DATA_LOGGER_ADDRESS_START + 1024 * (DATA_PAGES + 4 + 10))
 
+
+#if ABIN_DEBUG
+/*
+typedef enum 
+{
+  COM1 = 0,
+  COM2 = 1
+} COM_TypeDef;   
+*/
+USART_InitTypeDef USART_InitStructure;
+
+#ifdef __GNUC__
+  /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+     set to 'Yes') calls __io_putchar() */
+  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+
+
+
+
+#endif
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -73,10 +120,14 @@ void RTC_Init(void);
 *******************************************************************************/
 int main(void)
 {
+
+
   Board_main();
 }
 void Board_main(void)
 {   
+  
+  
     uint8_t i;
     uint16_t flash_flag = 0;
     uint16_t copy_file_flag = 0;
@@ -92,11 +143,22 @@ void Board_main(void)
     
     if(HSEStartUpStatus == SUCCESS)
     {
+    #if 0
         /* Enable Prefetch Buffer */
         FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
-        
+	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);
         /* Flash 2 wait state */
         FLASH_SetLatency(FLASH_Latency_2);
+
+	#else
+     FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Enable);
+	        /* Flash 2 wait state */
+        /*FLASH_SetLatency(FLASH_Latency_2);*/
+	FLASH_SetLatency(FLASH_Latency_0);	/*abin@ */
+	#endif
+        
+
         
         /* HCLK = SYSCLK */
         RCC_HCLKConfig(RCC_SYSCLK_Div1); 
@@ -106,14 +168,17 @@ void Board_main(void)
         
         /* PCLK1 = HCLK/2 */
         RCC_PCLK1Config(RCC_HCLK_Div2);
-        
+
+
+	#if 0
         /* PLLCLK = 8MHz * 9 = 72 MHz */
-        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_2);
+	/*abin:note*/
+        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
 //        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_8);
         
         /* Enable PLL */ 
         RCC_PLLCmd(ENABLE);
-        
+      
         /* Wait till PLL is ready */
         while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
         {
@@ -121,11 +186,21 @@ void Board_main(void)
         
         /* Select PLL as system clock source */
         RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-        
-        /* Wait till PLL is used as system clock source */
+	        /* Wait till PLL is used as system clock source */
         while(RCC_GetSYSCLKSource() != 0x08)
         {
-        }
+        }	
+	#else
+ RCC_PLLCmd(DISABLE);
+	        /* Select HSE as system clock source */
+        RCC_SYSCLKConfig(RCC_SYSCLKSource_HSE);
+	        /* Wait till PLL is used as system clock source */
+        while(RCC_GetSYSCLKSource() != 0x04)
+        {
+        }	
+         #endif
+		  
+
     }
     
     /* Enable GPIOA, GPIOB, and AFIO clocks */
@@ -147,18 +222,36 @@ void Board_main(void)
     /* Clear Tamper pin Event(TE) pending flag */
     BKP_ClearFlag();
 
+     #if ABIN_DEBUG
+  USART_InitStructure.USART_BaudRate = 115200;
+  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+  USART_InitStructure.USART_Parity = USART_Parity_No;
+  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+
+  STM_EVAL_COMInit(COM1, &USART_InitStructure);
+
+  /* Output a message on Hyperterminal using printf function */
+  //sys_printf("\n\r abin 8M is ok moify flash latency :USART Init end \n\r");    
+    
+#endif 
   
     /*------------------- Resources Initialization -----------------------------*/
     /* GPIO Configuration */
     GPIO_Config();
-    
+  //sys_printf("\n\r abin mul2 :GPIO_Config \n\r");    
+
+#if ABIN_CPU_UPGRADE2HIGHSPEED_OPTION
    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
    if(USB_Plugin_State == 1)
    {
+       //sys_printf("\n\r abin switch to high speed !!\n\r"); 
       UpgradeToHighSpeed(); 
      
    }
-    
+#endif
+
     /* Interrupt Configuration */
     InterruptConfig();
     
@@ -190,12 +283,17 @@ void Board_main(void)
     
 
     USB_Disconnect_Config();       
-    GPIO_SetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);
+    GPIO_SetBits(USB_DISCONNECT, USB_DISCONNECT_PIN);/*???abin@20100714*/
     
     WakupPin_Init();
+    
+          //sys_printf("\n\r abin before CheckPowerOnReason\n\r"); 
     CheckPowerOnReason();
 
-  
+
+      //sys_printf("\n\r abin after CheckPowerOnReason\n\r");    
+    
+      
     Board_ADC_Init();        
 
         
@@ -203,24 +301,26 @@ void Board_main(void)
     flash_flag = *(uint16_t *)FLASH_READY_ADDRESS;
     if( flash_flag != FLAG_FLASH_READY)
     {
+    	     //sys_printf("\n\r abin ready to erase flash \n\r");  
         FLASH_Unlock();
         FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
         //Erase the 32 page 32K
         for(i = 0;i< DATA_PAGES;i++)
         {
-            FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);
+        	 //sys_printf("\n\r abin ready to erase aa"); 
+            FLASH_ErasePage(DATA_LOGGER_ADDRESS_START + i * 1024);/*数据在Page1...page32存放*/
         }
-        FLASH_ErasePage(FLASH_READY_ADDRESS);
+        FLASH_ErasePage(FLASH_READY_ADDRESS); /*abin@20100715 没添加保护*/
         FLASH_ProgramHalfWord(FLASH_READY_ADDRESS , FLAG_FLASH_READY);
 
         FLASH_ErasePage(REOCRD_COUNT_ADDRESS);        
         FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , 0x0000);
         
         FLASH_Lock();
-
+         //sys_printf("\n\r abin mul2 :erase flash end!!!\n\r"); 
     }
     
-    
+     //sys_printf("\n\r abin ready to erase flash end \n\r");  
     USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
     
     if(USB_Plugin_State == 0)
@@ -235,11 +335,14 @@ void Board_main(void)
             //Do nothing....          
           while(1)
           {
+           //sys_printf("\n\r sample end !!!!!!!!!!!!!!!!!!!!!\n\r"); 
             Led_One_By_One(4);
+			/*应该进入standy 模式 abin@20100715*/
           }
         }
         else
         {
+        //sys_printf("\n\r abin ready to add sample count \n\r");  
             FLASH_Unlock();
             FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	        
             FLASH_ProgramHalfWord(DATA_LOGGER_ADDRESS_START + record_count * 2, GetTemperature());
@@ -251,13 +354,19 @@ void Board_main(void)
             FLASH_ProgramHalfWord(REOCRD_COUNT_ADDRESS , record_count);
             FLASH_Lock();
             
-            
+            //sys_printf("\n\r abin add sample count :end\n\r"); 
         }
         
 
-      
+      	     //sys_printf("\n\r %000\n\r");
       GPIO_SetBits(GPIOA, GPIO_Pin_1);
+	  #if 0
       Delay(25);
+	  #else
+      Delay(5);
+	  
+	  #endif
+	  	     //sys_printf("\n\r %111\n\r");
 
     }
     else
@@ -288,14 +397,15 @@ void Board_main(void)
                }
                
                USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
-               while(    USB_Plugin_State == 1)
+               while(    USB_Plugin_State == 1)/* U-DISK success ,then CPU Loop in here*/
               {
                         USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
                         Led_One_By_One(1);
+                         //sys_printf("\n\r abin :mul2  u disk !!!\n\r"); 
               }
               PowerOff();    
               Write_Copy_File_Flag(FLAG_FILE_NO_COPYED);                    
-
+               
         }
         else
         {
@@ -304,8 +414,9 @@ void Board_main(void)
               NAND_FAT();  
               CreateDataLoggerFile();                          
               Write_Copy_File_Flag(FLAG_FILE_COPYED);
+              //sys_printf("\n\r abin :mul2  NAND_FAT!!!\n\r"); 
         }
-
+         //sys_printf("\n\r abin :mul2  Disable_SDcard!!!\n\r"); 
         Disable_SDcard();        
         BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF); 
         PWR_EnterSTANDBYMode();    
@@ -314,12 +425,14 @@ void Board_main(void)
         //NVIC_SystemReset();    
     }
     
-    
+     //sys_printf("\n\r @111 \n\r"); 
     /* Set the RTC Alarm after 60s */
     RTC_SetAlarm(RTC_GetCounter()+ 3);
+	     //sys_printf("\n\r @222:RTC_GetCounter()=0x%x \n\r",RTC_GetCounter()); 
+
     /* Wait until last write operation on RTC registers has finished */
     RTC_WaitForLastTask();
-    
+    	     //sys_printf("\n\r @333\n\r");
     PWR_EnterSTANDBYMode();    
     
     
@@ -385,8 +498,9 @@ void InterruptConfig(void)
 
 void SysTick_Configuration(void)
 {
-    /* Setup SysTick Timer for 10 msec interrupts  */
-    if (SysTick_Config(SystemFrequency / 100))
+    /* Setup SysTick Timer for 10 msec interrupts  */ 
+   /* if (SysTick_Config(SystemFrequency / 100))*/ /*abin@20100711 mask*/
+    if (SysTick_Config(SystemCoreClock / 100))
     { 
         /* Capture error */ 
         while (1);
@@ -767,13 +881,14 @@ Led_Both(4);
    USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
    if(USB_Plugin_State == 1)
    {
+        //sys_printf("\n\r CheckPowerOnReason :USB_Plugin_State == 1!!!\n\r"); 
         Delay(15);
         USB_Plugin_State = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);     
         if(USB_Plugin_State == 1)
         {
               /* usb wake up*/
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);  
-
+                 //sys_printf("\n\r CheckPowerOnReason :USB_Plugin_State == 1 ret\n\r"); 
                 return ;
         }
    }
@@ -782,14 +897,18 @@ Led_Both(4);
     if (RCC_GetFlagStatus(RCC_FLAG_PORRST) != RESET)    
     {
       
-      
+       //sys_printf("\n\r CheckPowerOnReason :!= RESET \n\r"); 
         /*First time power on .*/
         GPIO_SetBits(GPIOA, GPIO_Pin_1);
         GPIO_SetBits(GPIOA, GPIO_Pin_2);
+        
+        //sys_printf("\n\r CheckPowerOnReason :!= RESET bef delay 200 \n\r"); 
         Delay(50 * 4);
+         //sys_printf("\n\r CheckPowerOnReason :!= RESET  after  200 \n\r"); 
         BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);    
         
         RCC_ClearFlag();
+         //sys_printf("\n\r CheckPowerOnReason :!= RESET standy \n\r");
         /* power off standby*/
         PWR_EnterSTANDBYMode();
 
@@ -800,6 +919,7 @@ Led_Both(4);
         {
             if(FLAG_POWER_ON == BKP_ReadBackupRegister(BKP_POWER_ON))
             {
+              //sys_printf("\n\r CheckPowerOnReason :Power off,enter  standby mode \n\r");
                 //Power off
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF);  
                 
@@ -808,6 +928,7 @@ Led_Both(4);
             }
             else
             {
+               //sys_printf("\n\r CheckPowerOnReason :Power on\n\r");
                 //Power on
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);             
                 Led_Power_On();                
@@ -819,13 +940,15 @@ Led_Both(4);
         {
             if(FLAG_POWER_ON == BKP_ReadBackupRegister(BKP_POWER_ON))
             {
+                // PLUG OUT USB ,then  press Wake up key  will call this code 
+                 //sys_printf("\n\r CheckPowerOnReason :FLAG_POWER_ON == BKP_ReadBackupRegister(BKP_POWER_ON)\n\r");
                 //power on with rtc or wake up pin -- need to data logger
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_ON);             
                 
             }
             else
             {
-              
+               //sys_printf("\n\r CheckPowerOnReason :write FLAG_POWER_OFF, enter standyby \n\r");
                 BKP_WriteBackupRegister(BKP_POWER_ON, FLAG_POWER_OFF); 
                 //continue to power off  mode.
                 PWR_EnterSTANDBYMode();    
@@ -986,11 +1109,54 @@ void Write_Copy_File_Flag(uint16_t flag)
     FLASH_Lock();
 
 }
+
+
+#if ABIN_DEBUG
+
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART */
+  USART_SendData(EVAL_COM1, (uint8_t) ch);
+
+  /* Loop until the end of transmission */
+  while (USART_GetFlagStatus(EVAL_COM1, USART_FLAG_TC) == RESET)
+  {}
+
+  return ch;
+}
+
+#ifdef  USE_FULL_ASSERT
+
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t* file, uint32_t line)
+{ 
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+
+  /* Infinite loop */
+  while (1)
+  {
+  }
+}
+#endif
+#endif
+
+
+
+
+#if ABIN_CPU_UPGRADE2HIGHSPEED_OPTION
 void UpgradeToHighSpeed()
 {
           /* Enable Prefetch Buffer */
         FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
-        
+        FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);/*abin@*/
         /* Flash 2 wait state */
         FLASH_SetLatency(FLASH_Latency_2);
         
@@ -1024,3 +1190,6 @@ void UpgradeToHighSpeed()
         }
 
 }
+
+
+#endif

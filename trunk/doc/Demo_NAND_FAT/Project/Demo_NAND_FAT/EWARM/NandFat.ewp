@@ -29,8 +29,8 @@
         </option>
         <option>
           <name>Variant</name>
-          <version>11</version>
-          <state>35</state>
+          <version>13</version>
+          <state>36</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -91,7 +91,7 @@
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>5.40.0.51529</state>
+          <state>5.41.0.51757</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -285,6 +285,9 @@
           <state>$PROJ_DIR$\..\..\..\Libraries\CMSIS\Core\CM3</state>
           <state>$PROJ_DIR$\..\..\..\Libraries\STM32_USB-FS-Device_Driver\inc</state>
           <state>$PROJ_DIR$\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\inc</state>
+          <state>$PROJ_DIR$\..\..\..\Utilities\STM32_EVAL</state>
+          <state>$PROJ_DIR$\..\..\..\Utilities\STM32_EVAL\Common</state>
+          <state>$PROJ_DIR$\..\..\..\Utilities\STM32_EVAL\STM3210E_EVAL</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -313,7 +316,7 @@
         <option>
           <name>CCOptStrategy</name>
           <version>0</version>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>CCOptLevelSlave</name>
@@ -822,8 +825,8 @@
         </option>
         <option>
           <name>Variant</name>
-          <version>11</version>
-          <state>35</state>
+          <version>13</version>
+          <state>36</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -884,7 +887,7 @@
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>5.40.0.51529</state>
+          <state>5.41.0.51757</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -1079,6 +1082,8 @@
           <state>$PROJ_DIR$\..\..\..\Libraries\CMSIS\Core\CM3</state>
           <state>$PROJ_DIR$\..\..\..\Libraries\STM32_USB-FS-Device_Driver\inc</state>
           <state>$PROJ_DIR$\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\inc</state>
+          <state>$PROJ_DIR$\..\..\..\Utilities\STM32_EVAL\STM3210E_EVAL</state>
+          <state>$PROJ_DIR$\..\..\..\Utilities\STM32_EVAL</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1653,6 +1658,12 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c</name>
+    </file>
+  </group>
+  <group>
+    <name>STM32_Debug</name>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\Utilities\STM32_EVAL\STM3210E_EVAL\stm3210e_eval.c</name>
     </file>
   </group>
   <group>

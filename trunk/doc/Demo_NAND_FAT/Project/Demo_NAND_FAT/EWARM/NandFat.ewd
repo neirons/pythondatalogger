@@ -45,7 +45,7 @@
         </option>
         <option>
           <name>MemFile</name>
-          <state>$TOOLKIT_DIR$\CONFIG\debugger\ST\iostm32f10xxe.ddf</state>
+          <state>$TOOLKIT_DIR$\CONFIG\debugger\ST\iostm32f10xxE.ddf</state>
         </option>
         <option>
           <name>RunToEnable</name>
@@ -89,7 +89,7 @@
         </option>
         <option>
           <name>OCLastSavedByProductVersion</name>
-          <state>5.40.0.51529</state>
+          <state>5.41.0.51757</state>
         </option>
         <option>
           <name>OCDownloadAttachToProgram</name>
@@ -117,7 +117,7 @@
         </option>
         <option>
           <name>FlashLoadersV3</name>
-          <state>$TOOLKIT_DIR$\config\flashloader\ST\FlashSTM32F10xxE.board</state>
+          <state>$TOOLKIT_DIR$\config\flashloader\ST\FlashSTM32F10xxC.board</state>
         </option>
         <option>
           <name>OCImagesSuppressCheck1</name>
@@ -403,7 +403,7 @@
         </option>
         <option>
           <name>CCJLinkResetList</name>
-          <version>0</version>
+          <version>2</version>
           <state>7</state>
         </option>
         <option>
@@ -599,12 +599,20 @@
       <name>STLINK_ID</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>0</version>
+        <version>1</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
           <name>OCDriverInfo</name>
           <state>1</state>
+        </option>
+        <option>
+          <name>CCSTLinkInterfaceRadio</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>CCSTLinkInterfaceCmdLine</name>
+          <state>0</state>
         </option>
       </data>
     </settings>
@@ -1089,7 +1097,7 @@
         </option>
         <option>
           <name>CCJLinkResetList</name>
-          <version>0</version>
+          <version>2</version>
           <state>5</state>
         </option>
         <option>
@@ -1285,12 +1293,20 @@
       <name>STLINK_ID</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>0</version>
+        <version>1</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>0</debug>
         <option>
           <name>OCDriverInfo</name>
           <state>1</state>
+        </option>
+        <option>
+          <name>CCSTLinkInterfaceRadio</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>CCSTLinkInterfaceCmdLine</name>
+          <state>0</state>
         </option>
       </data>
     </settings>
