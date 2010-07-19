@@ -265,6 +265,9 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 	log.WriteLog(csLog);
 
+
+
+    SetUTCTime();
 //	m_Battery.MoveWindow(rect.left,rect.top,rect.Width(),rect.Height());
 	// TODO: Add extra initialization here
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -853,5 +856,17 @@ double CDataLoggerDlg::GetTemperature(int value)
     }
 
     return (index - 50.0);
+
+}
+
+void CDataLoggerDlg::SetUTCTime()
+{
+    TIME_ZONE_INFORMATION tz;
+    GetTimeZoneInformation(&tz);
+    CString utc;
+    utc.Format("%d",-(tz.Bias/60));
+    SetDlgItemText(IDC_HOURS,utc);
+    		
+
 
 }

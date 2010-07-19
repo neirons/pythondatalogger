@@ -68,6 +68,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 private:
+	void SetUTCTime();
 	double GetTemperature(int value);
 	void ClearData();
 	void SaveToTxtFile(CString txtfilename);
