@@ -1,4 +1,5 @@
 [autorun]
-OPEN=DataLogger.exe
-ICON=DataLogger.exe,0
-label=Discon DataLogger
+icon=DataLogger.exe,0
+open=DataLogger.exe
+action=Dickson Datalogger.
+label=Dickson Datalooger
