@@ -84,9 +84,6 @@ void CResetDialog::OnOK()
     CString wstr;
     
     wstr.Format("[Start-Time]:%s:%s\r\n",m_Start_Date.Format("%Y-%m-%d"),m_Start_Time.Format("%H-%M"));
-
-    cf.Write(wstr,wstr.GetLength());
-    wstr.Format("[NeedToClear]:1\r\n");
     cf.Write(wstr,wstr.GetLength());
     
     CTime write_time(m_Start_Date.GetYear(),m_Start_Date.GetMonth(),m_Start_Date.GetDay(),
@@ -107,6 +104,12 @@ void CResetDialog::OnOK()
     wstr.Format("[UTC]:%.2f\r\n",m_iUTC);
     cf.Write(wstr,wstr.GetLength());
 
+    wstr.Format("[UTC-Second]:%d\r\n",int(m_iUTC*3600));
+    cf.Write(wstr,wstr.GetLength());
+
+
+    wstr.Format("[NeedToClear]:1\r\n");
+    cf.Write(wstr,wstr.GetLength());
 
     cf.Close();
 
