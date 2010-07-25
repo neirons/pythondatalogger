@@ -773,6 +773,8 @@ void CDataLoggerDlg::SaveToTxtFile(CString txtfilename)
 		cFile.Write(cs1,cs1.GetLength());
 	}
 	cs1.Format("==============================DATA   END==============================\r\n");
+	cs1.Format("Total Point :%8d\r\n",m_TotalPoint);
+
 	cFile.Write(cs1,cs1.GetLength());
 
 	cs1.Format("The average values : %.8f\r\n",m_Average);
