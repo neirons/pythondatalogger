@@ -83,7 +83,7 @@ BEGIN
                     SS_NOPREFIX
     LTEXT           "Copyright (C) 2010",IDC_STATIC,40,25,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
-    LTEXT           "svnr:135",IDC_STATIC,135,10,32,8
+    LTEXT           "svnr:136",IDC_STATIC,135,10,32,8
 END
 
 IDD_DATALOGGER_DIALOG DIALOGEX 0, 0, 447, 328
@@ -172,19 +172,17 @@ CAPTION "Reset the Start Date and UTC Offset"
 FONT 10, "System"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,36,85,50,14
-    LTEXT           "Start Date/Time Stamp/Time Zone:",IDC_STATIC_START_TIME,
-                    8,17,112,8
-    LTEXT           "UTC Offset(in hours):",IDC_STATIC_HOURS,10,41,70,8
+    LTEXT           "Start Date:",IDC_STATIC_START_TIME,8,17,35,8
+    LTEXT           "UTC Offset(in hours):",IDC_STATIC_HOURS,10,59,70,8
     CONTROL         "DateTimePicker1",IDC_DATE,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,125,15,100,15
-    EDITTEXT        IDC_EDIT_UTC,125,40,100,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    DTS_RIGHTALIGN | WS_TABSTOP,125,17,100,12
+    EDITTEXT        IDC_EDIT_UTC,125,59,100,12,ES_AUTOHSCROLL | ES_READONLY | 
                     ES_NUMBER
     PUSHBUTTON      "Cancel",IDCANCEL,145,85,50,14
-    LTEXT           "Sample Rate(in minute):",IDC_STATIC_SAMPLE_RATE,10,60,
-                    79,8
+    LTEXT           "Start Time",IDC_STATIC_SAMPLE_RATE,10,39,34,8
     CONTROL         "DateTimePicker1",IDC_TIME,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,126,60,
-                    100,13
+                    DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,125,39,
+                    100,12
 END
 
 
