@@ -79,22 +79,32 @@ void CResetDialog::OnOK()
 	strFilePath=GetCurrentDirectory(256,strBuff); //Get current path
 	strFilePath.Format("%s\\startime.ini",strBuff);
 
-    CFile cf;
-    cf.Open(strFilePath,CFile::modeReadWrite|CFile::modeCreate);
-    CString wstr;
-    
-    wstr.Format("[Start-Time]:%s:%s\r\n",m_Start_Date.Format("%Y-%m-%d"),m_Start_Time.Format("%H-%M"));
-    cf.Write(wstr,wstr.GetLength());
-    
+    CTime ct = CTime::GetCurrentTime();
+
     CTime write_time(m_Start_Date.GetYear(),m_Start_Date.GetMonth(),m_Start_Date.GetDay(),
         m_Start_Time.GetHour(),m_Start_Time.GetMinute(),m_Start_Time.GetSecond());
 
+    if(write_time <ct)
+    {
+        AfxMessageBox("Please select start time after current date");
+        return;
+    }
+    CFile cf;
+    cf.Open(strFilePath,CFile::modeReadWrite|CFile::modeCreate);
+    CString wstr;
     time_t ob = write_time.GetTime();
+
+    wstr.Format("[Start-Time]:%s:%s\r\n",m_Start_Date.Format("%Y-%m-%d"),m_Start_Time.Format("%H-%M"));
+    cf.Write(wstr,wstr.GetLength());
+
     wstr.Format("[Start-Time-Second]:%ld\r\n",ob);    
     cf.Write(wstr,wstr.GetLength());
 
 
-    CTime ct = CTime::GetCurrentTime();
+
+    wstr.Format("[Current-Time]:%s:%s\r\n",ct.Format("%Y-%m-%d"),ct.Format("%H-%M"));
+    cf.Write(wstr,wstr.GetLength());
+
     time_t osBinaryTime = ct.GetTime();
     wstr.Format("[Current-Time-Second]:%ld\r\n",osBinaryTime);
     cf.Write(wstr,wstr.GetLength());
