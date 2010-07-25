@@ -86,9 +86,9 @@ void CResetDialog::OnOK()
     CTime ct = CTime::GetCurrentTime();
 
     CTime write_time(m_Start_Date.GetYear(),m_Start_Date.GetMonth(),m_Start_Date.GetDay(),
-        m_Start_Time.GetHour(),m_Start_Time.GetMinute(),m_Start_Time.GetSecond());
+        m_Start_Time.GetHour(),m_Start_Time.GetMinute(),m_Start_Time.GetSecond() + 10);
 
-    if(write_time <ct)
+    if(write_time<ct)
     {
         AfxMessageBox("Please select start time after current date");
         return;
