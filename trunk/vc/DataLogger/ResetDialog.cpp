@@ -19,9 +19,13 @@ CResetDialog::CResetDialog(CWnd* pParent /*=NULL*/)
 	: CDialog(CResetDialog::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CResetDialog)
-	m_Start_Date = 0;
-	m_Start_Time = 0;
+	//m_Start_Date = 0;
+	//m_Start_Time = 0;
 	//}}AFX_DATA_INIT
+    
+    m_Start_Time =  CTime::GetCurrentTime();
+    m_Start_Date =  CTime::GetCurrentTime();
+    
     TIME_ZONE_INFORMATION tz;
     GetTimeZoneInformation(&tz);
     m_iUTC = -(tz.Bias/60.0);
