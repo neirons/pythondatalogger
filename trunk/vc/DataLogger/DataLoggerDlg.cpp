@@ -419,12 +419,12 @@ void CDataLoggerDlg::OnButtonClear()
 	if(dlg.DoModal() == IDOK)
 	{
 //		ClearData();
-		CDialog::OnCancel();
+
 		CResetDialog dlg;
-		dlg.DoModal();
-
-		AfxMessageBox("The Report Logger has been successfully cleared.\nUnplug the Logger from the USB, and replace the\ncap. Press the Start button when you are ready to \nbegin logging",MB_OK|MB_ICONINFORMATION);
-
+		if(IDOK ==dlg.DoModal())
+        {
+		    AfxMessageBox("The Report Logger has been successfully cleared.\nUnplug the Logger from the USB, and replace the\ncap. Press the Start button when you are ready to \nbegin logging",MB_OK|MB_ICONINFORMATION);
+        }
 	}
 	else
 	{
