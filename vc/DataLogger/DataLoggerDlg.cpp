@@ -759,7 +759,14 @@ void CDataLoggerDlg::SaveToTxtFile(CString txtfilename)
 	{
 		for(int j = 0;j < 10;j++)
 		{
-			cs2.Format("%.8f,",m_Data[i +j]);
+            if((i +j) < m_TotalPoint)
+            {            
+			    cs2.Format("%.8f,",m_Data[i +j]);
+            }
+            else
+            {
+			    cs2.Format("%.8f",0.0);
+            }
 			cs1 += cs2;
 		}
 		cs1 += "\r\n";
