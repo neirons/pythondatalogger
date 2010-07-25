@@ -765,7 +765,7 @@ void CDataLoggerDlg::SaveToTxtFile(CString txtfilename)
             }
             else
             {
-			    cs2.Format("%.8f",0.0);
+			    cs2.Format("%.8f,",0.0);
             }
 			cs1 += cs2;
 		}
