@@ -51,6 +51,7 @@ public:
 // Implementation
 protected:
 	//{{AFX_MSG(CAboutDlg)
+	virtual void OnOK();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -70,7 +71,6 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 	//{{AFX_MSG_MAP(CAboutDlg)
-		// No message handlers
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -864,9 +864,14 @@ void CDataLoggerDlg::SetUTCTime()
     TIME_ZONE_INFORMATION tz;
     GetTimeZoneInformation(&tz);
     CString utc;
-    utc.Format("%d",-(tz.Bias/60));
+    utc.Format("%.2f",-(tz.Bias/60.0));
     SetDlgItemText(IDC_HOURS,utc);
-    		
 
+}
 
+void CAboutDlg::OnOK() 
+{
+	// TODO: Add extra validation here
+	
+	CDialog::OnOK();
 }

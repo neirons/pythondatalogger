@@ -19,8 +19,9 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CResetDialog)
 	enum { IDD = IDD_RESET_DIALOG };
-	int		m_iUTC;
-	int		m_iMinute;
+	float	m_iUTC;
+	CTime	m_Start_Date;
+	CTime	m_Start_Time;
 	//}}AFX_DATA
 
 
@@ -36,7 +37,9 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CResetDialog)
-		// NOTE: the ClassWizard will add member functions here
+	virtual BOOL OnInitDialog();
+	afx_msg void OnCancelMode();
+	virtual void OnOK();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
