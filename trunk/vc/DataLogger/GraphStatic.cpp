@@ -331,7 +331,13 @@ void CGraphStatic::DrawPixcel(CDC& memdc,double x, double y)
 #else
 	 GetPoint(x,y);
 //	 TRACE("r_x = %f,r_y=%f\n",x,y);
-	 memdc.SetPixel(round(x),round(y),RGB(0,0,255));
+     for(int i = 0;i<4;i++)
+     {
+        for(int j = 0;j<4;j++)
+        {
+	        memdc.SetPixel(round(x+i),round(y+j),RGB(0,0,255));
+        }
+     }
 #endif	 
 }
 

@@ -188,6 +188,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 #define PI 3.1415926535897931
 	if (_access ("datalogger.bin", 0) != 0) 
 	{
+        m_TotalPoint = 20;
 		for(int i =0;i<m_TotalPoint;i++)
 		{
 			m_Data[i] = 42.0+10*cos(2*PI/m_TotalPoint * i);
@@ -268,6 +269,15 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 
     SetUTCTime();
+
+    char   szUser[80];  
+    DWORD   cbUser   =   80;  
+    GetUserName   (szUser,   &cbUser);
+
+    this->SetDlgItemText(IDC_PRINTED_BY,szUser);
+    TRACE("user name is %s",szUser);
+    
+    
 //	m_Battery.MoveWindow(rect.left,rect.top,rect.Width(),rect.Height());
 	// TODO: Add extra initialization here
 	return TRUE;  // return TRUE  unless you set the focus to a control
