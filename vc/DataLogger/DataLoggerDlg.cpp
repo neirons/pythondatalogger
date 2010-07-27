@@ -164,22 +164,23 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	switch(m_Days)
 	{
 	case 1:
-		m_TotalPoint = 1440;
+//		m_TotalPoint = 1440;
+        m_MaxPoint = 1440;
 		break;
 	case 3:
-		m_TotalPoint = 4320;
+		m_MaxPoint = 4320;
 		break;
 	case 7:
-		m_TotalPoint = 10080;
+		m_MaxPoint = 10080;
 		break;
 	case 10:
 	case 20:
 	case 40:
 	case 90:
-		m_TotalPoint = 14400;
+		m_MaxPoint = 14400;
 		break;
 	case 75:
-		m_TotalPoint = 15428;
+		m_MaxPoint = 15428;
 		break;
 	}
 
@@ -188,7 +189,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 #define PI 3.1415926535897931
 	if (_access ("datalogger.bin", 0) != 0) 
 	{
-        m_TotalPoint = 20;
+        m_TotalPoint = 1440;
 		for(int i =0;i<m_TotalPoint;i++)
 		{
 			m_Data[i] = 42.0+10*cos(2*PI/m_TotalPoint * i);
@@ -203,7 +204,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 		cfile.Open("datalogger.bin",CFile::modeRead|CFile::typeBinary);
 
-		for(int i =0;i<m_TotalPoint;i++)
+		for(int i =0;i<m_MaxPoint;i++)
 		{
             if(cfile.Read(&rd_value,sizeof(unsigned short)) == sizeof(unsigned short) )
             {
@@ -254,7 +255,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 	m_Battery.SetBatteryLevel(33,((batter_value + 1) * 3300/4096)/100);
 
-	m_Graph.SetData(m_Days,m_Data,m_TotalPoint,m_Average);
+	m_Graph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,m_Average);
 
 	CString csHour;
 	csHour.Format("%d",Days*24);
@@ -840,7 +841,7 @@ void CDataLoggerDlg::ClearData()
 	SetDlgItemText(IDC_PRINTED_BY,str);
 	SetDlgItemText(IDC_DATE_TIME,str);
 	SetDlgItemText(IDC_SHIP_NOTE,str);
-	m_Graph.SetData(m_Days,m_Data,m_TotalPoint,0);
+	m_Graph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,0);
 
 	m_Graph.Invalidate();
 

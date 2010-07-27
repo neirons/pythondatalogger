@@ -102,11 +102,12 @@ int CGraphStatic::GetXAxisCharsIndex()
 	return ret;
 	
 }
-void CGraphStatic::SetData(int days,double* pData,int totalpoint,double average)
+void CGraphStatic::SetData(int days,double* pData,int maxpoint,int totalpoint,double average)
 {
 	m_Days = days;
 	m_pData = pData;
 	m_TotalPoint = totalpoint;
+    m_MaxPoint = maxpoint;
 	m_Average = average;
 
 	switch(m_Days)
@@ -304,7 +305,8 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 	memdc.SetTextColor(old_color);
 	memdc.SetBkColor(old_bkcolor);
 
-	x0 = m_TotalPoint;
+//	x0 = m_TotalPoint;
+    x0 = m_MaxPoint;
 	y0 = m_Average;
 	GetPoint(x0,y0);
 	memdc.LineTo(round(x0),round(y0));
@@ -354,7 +356,7 @@ int CGraphStatic::round(double f)
 
 void CGraphStatic::GetPoint(double &x, double &y)
 {
-	 double MultiplyOnX = ((double)m_xpixel)/((double)m_TotalPoint);	
+	 double MultiplyOnX = ((double)m_xpixel)/((double)m_MaxPoint);	
 
 	 double MultiplyOnY = m_ypixel/30.0;
 
