@@ -30,7 +30,7 @@ public:
 // Implementation
 public:
 
-	void SetData(int days,double* pData,int totalpoint,double average);
+	void SetData(int days,double* pData,int maxpoint,int totalpoint,double average);
 	virtual ~CGraphStatic();
 
 	// Generated message map functions
@@ -62,6 +62,7 @@ private:
 
 	double* m_pData;
 	int m_TotalPoint;
+    int m_MaxPoint;
 	double m_Average;
 
 	DECLARE_MESSAGE_MAP()

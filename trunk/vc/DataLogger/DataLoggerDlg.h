@@ -43,6 +43,7 @@ public:
 	CFont		m_fontPrinter;
 	double m_Data[MAX_POINT];
 	int m_TotalPoint;
+    int m_MaxPoint;
 	double m_Average;
 	int m_Days;
 
