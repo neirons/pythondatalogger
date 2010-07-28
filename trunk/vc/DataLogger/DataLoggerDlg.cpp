@@ -198,10 +198,15 @@ BOOL CDataLoggerDlg::OnInitDialog()
 			sum += m_Data[i];
 		}
 #else
-        m_TotalPoint = 30;
+        m_TotalPoint = 60;
 		for(int i =0;i<m_TotalPoint;i++)
 		{
-			m_Data[i] = 30 + i;
+			m_Data[i] = 30 + i ;
+            if(m_Data[i] > 60)
+                m_Data[i] = m_Data[i] - 30;
+            if(m_Data[i] > 60)
+                m_Data[i] = m_Data[i] - 30;
+
 			sum += m_Data[i];
 		}
 

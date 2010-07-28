@@ -332,7 +332,7 @@ void CGraphStatic::DrawPixcel(CDC& memdc,double x, double y)
 	 memdc.SetPixel(round(r_x),round(r_y),RGB(0,0,255));
 #else
 	CPen DataPen,*pOldPen;
-    DataPen.CreatePen(PS_SOLID,1, RGB(0, 255, 0));
+    DataPen.CreatePen(PS_SOLID,1, RGB(0, 0, 255));
 	pOldPen=memdc.SelectObject(&DataPen);
 
      if(x == 0)
