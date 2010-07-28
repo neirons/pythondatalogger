@@ -16,6 +16,8 @@
 #define DEFAULT_PDF_FILE_EXTENSION      109
 #define DEFAULT_TXT_FILE_EXTENSION      110
 #define DEFAULT_FILE_NAME               111
+#define IDS_WINDOWS_XML_FILES           112
+#define DEFAULT_XML_FILE_EXTENSION      113
 #define IDR_MAINFRAME                   128
 #define IDD_SAVE_DIALOG                 129
 #define IDD_EXIT_DIALOG                 131
