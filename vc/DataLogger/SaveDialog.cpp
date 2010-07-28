@@ -94,6 +94,12 @@ void CSaveDialog::OnButtonBrowse()
 		csDefaultExt.LoadString(DEFAULT_TXT_FILE_EXTENSION);
 		//Txt File
 		break;
+	case 4:
+		csFilter.LoadString(IDS_WINDOWS_XML_FILES);
+		csDefaultExt.LoadString(DEFAULT_XML_FILE_EXTENSION);
+		//Txt File
+		break;
+
 	}
 
 	CFileDialog dlg(FALSE, csDefaultExt, csDeafultFileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, csFilter, NULL);

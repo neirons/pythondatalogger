@@ -397,6 +397,11 @@ void CDataLoggerDlg::OnButtonSave()
 			SaveToTxtFile(csFileName);
 			//Txt file
 			break;
+        case 4:
+			SaveToXMLFile(csFileName);
+
+            break;
+
 		default:
 			TRACE("unknow error");
 		}
@@ -913,4 +918,43 @@ void CAboutDlg::OnOK()
 	// TODO: Add extra validation here
 	
 	CDialog::OnOK();
+}
+
+void CDataLoggerDlg::SaveToXMLFile(CString xmlfilename)
+{
+	CFile cFile(xmlfilename,CFile::modeCreate|CFile::modeWrite);
+	CString cs1,cs2;
+    cs1.Format("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+    cFile.Write(cs1,cs1.GetLength());
+
+    cs1.Format("<root>\n");
+    cFile.Write(cs1,cs1.GetLength());
+
+    cs1.Format("<TotalPoint>%d</TotalPoint>\n",m_TotalPoint);
+    cFile.Write(cs1,cs1.GetLength());
+	
+	cs1.Format("<Average>%.8f</Average>\n",m_Average);
+	cFile.Write(cs1,cs1.GetLength());
+
+    
+    GetDlgItemText(IDC_PRINTED_BY,cs2);
+	cs1.Format("<Printby>%s</Printby>\n",cs2);
+	cFile.Write(cs1,cs1.GetLength());
+
+    cs1.Format("<Data>\n");		
+    cFile.Write(cs1,cs1.GetLength());
+
+	for (int i = 0;i< m_TotalPoint;i++)
+	{
+        cs1.Format("<point id=\"%d\">%.8f</point>\n",i,m_Data[i]);
+    	cFile.Write(cs1,cs1.GetLength());
+	}
+    cs1.Format("</Data>\n");		
+    cFile.Write(cs1,cs1.GetLength());
+
+    cs1.Format("</root>\n");		
+    cFile.Write(cs1,cs1.GetLength());
+
+	cFile.Close();
+
 }

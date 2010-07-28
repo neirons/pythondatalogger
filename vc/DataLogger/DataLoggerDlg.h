@@ -69,6 +69,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 private:
+	void SaveToXMLFile(CString txtfilename);
 	void SetUTCTime();
 	double GetTemperature(int value);
 	void ClearData();
