@@ -331,15 +331,34 @@ void CGraphStatic::DrawPixcel(CDC& memdc,double x, double y)
 	 TRACE("r_x = %f,r_y=%f\n",r_x,r_y);
 	 memdc.SetPixel(round(r_x),round(r_y),RGB(0,0,255));
 #else
-	 GetPoint(x,y);
-//	 TRACE("r_x = %f,r_y=%f\n",x,y);
-     for(int i = 0;i<4;i++)
+	CPen DataPen,*pOldPen;
+    DataPen.CreatePen(PS_SOLID,1, RGB(0, 255, 0));
+	pOldPen=memdc.SelectObject(&DataPen);
+
+     if(x == 0)
      {
-        for(int j = 0;j<4;j++)
+
+	        GetPoint(x,y);
+            memdc.MoveTo(x,y);
+
+     }
+     else
+     {
+	        GetPoint(x,y);
+            memdc.LineTo(x,y);
+     }
+
+
+//	 TRACE("r_x = %f,r_y=%f\n",x,y);
+     for(int i = -2;i<3;i++)
+     {
+        for(int j = -2;j<3;j++)
         {
 	        memdc.SetPixel(round(x+i),round(y+j),RGB(0,0,255));
         }
      }
+     memdc.SelectObject(pOldPen);
+
 #endif	 
 }
 

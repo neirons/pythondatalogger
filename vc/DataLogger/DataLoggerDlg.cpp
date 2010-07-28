@@ -189,12 +189,25 @@ BOOL CDataLoggerDlg::OnInitDialog()
 #define PI 3.1415926535897931
 	if (_access ("datalogger.bin", 0) != 0) 
 	{
-        m_TotalPoint = 1440;
+
+#if 0
+        m_TotalPoint = 144;
 		for(int i =0;i<m_TotalPoint;i++)
 		{
 			m_Data[i] = 42.0+10*cos(2*PI/m_TotalPoint * i);
 			sum += m_Data[i];
 		}
+#else
+        m_TotalPoint = 30;
+		for(int i =0;i<m_TotalPoint;i++)
+		{
+			m_Data[i] = 30 + i;
+			sum += m_Data[i];
+		}
+
+#endif 
+
+
 	}
 	else
 	{
@@ -436,6 +449,7 @@ void CDataLoggerDlg::OnButtonClear()
         {
 		    AfxMessageBox("The Report Logger has been successfully cleared.\nUnplug the Logger from the USB, and replace the\ncap. Press the Start button when you are ready to \nbegin logging",MB_OK|MB_ICONINFORMATION);
         }
+		CDialog::OnCancel();
 	}
 	else
 	{
