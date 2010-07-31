@@ -809,23 +809,29 @@ void CDataLoggerDlg::SaveToTxtFile(CString txtfilename)
 	cFile.Write(cs1,cs1.GetLength());
 
 	cs1.Empty();
-	for (int i = 0;i< m_TotalPoint;i+=10)
+
+    int j = 0;
+
+	for (int i = 0;i< m_TotalPoint;i++)
 	{
-		for(int j = 0;j < 10;j++)
-		{
-            if((i +j) < m_TotalPoint)
-            {            
-			    cs2.Format("%.8f,",m_Data[i +j]);
-            }
-            else
-            {
-			    cs2.Format("%.8f,",0.0);
-            }
-			cs1 += cs2;
-		}
-		cs1 += "\r\n";
-		cFile.Write(cs1,cs1.GetLength());
+
+        j = j ++;
+	    cs2.Format("%.8f,",m_Data[i]);
+	    cs1 += cs2;
+
+        if(j % 10 == 0)
+        {            
+		    cs1 += "\r\n";
+		    cFile.Write(cs1,cs1.GetLength());
+            j = 0;
+            cs1.Empty();
+        }
+
 	}
+	cs1 += "\r\n";
+	cFile.Write(cs1,cs1.GetLength());
+
+
 	cs1.Format("==============================DATA   END==============================\r\n");
 	cs1.Format("Total Point :%8d\r\n",m_TotalPoint);
 
@@ -1000,6 +1006,8 @@ void CDataLoggerDlg::DisplayStartTime()
     CFile cfile;
     cfile.Open("startime.ini",CFile::modeRead);
     cfile.Read(buf,sizeof(buf));
+    buf[23] = ' ';
+    buf[26] = ':';
     csStartTime.Format("%s",&buf[13]);
     SetDlgItemText(IDC_START_TIME,csStartTime);
     cfile.Close();
