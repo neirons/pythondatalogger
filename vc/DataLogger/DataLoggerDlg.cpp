@@ -275,17 +275,6 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
     //Check the low voltage.
     mBatteryLevel = ((batter_value + 1) * 3000/4096)/100;
-    if(mBatteryLevel < 26)
-    {
-
-        CWarningDialog dlg;
-        if(dlg.DoModal() == IDOK)
-        {
-
-            CDialog::OnCancel();
-        }
-
-    }   
 
 	m_BatteryGraph.SetBatteryLevel(10,mBatteryLevel);
     
@@ -470,6 +459,17 @@ int   CDataLoggerDlg::GetEncoderClsid(const   WCHAR*   format,   CLSID*   pClsid
 
 void CDataLoggerDlg::OnButtonClear() 
 {
+    if(mBatteryLevel < 26)
+    {
+
+        CWarningDialog dlg;
+        if(dlg.DoModal() == IDOK)
+        {
+            return ;
+        }
+
+    }
+
 	CClearDialog dlg;
 	if(dlg.DoModal() == IDOK)
 	{
