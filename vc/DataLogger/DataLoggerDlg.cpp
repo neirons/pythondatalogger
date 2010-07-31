@@ -91,8 +91,8 @@ void CDataLoggerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDataLoggerDlg)
-	DDX_Control(pDX, IDC_BATTERY, m_Battery);
-	DDX_Control(pDX, IDC_STATIC_GRAPH, m_Graph);
+	DDX_Control(pDX, IDC_BATTERY, m_BatteryGraph);
+	DDX_Control(pDX, IDC_STATIC_GRAPH, m_DataGraph);
 	//}}AFX_DATA_MAP
 }
 
@@ -273,7 +273,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
     //Check the low voltage.
     mBatteryLevel = ((batter_value + 1) * 3300/4096)/100;
-    if(mBatteryLevel < 15)
+    if(mBatteryLevel < 26)
     {
 
         CWarningDialog dlg;
@@ -285,10 +285,10 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
     }   
 
-	m_Battery.SetBatteryLevel(33,((batter_value + 1) * 3300/4096)/100);
+	m_BatteryGraph.SetBatteryLevel(33,((batter_value + 1) * 3300/4096)/100);
     
 
-	m_Graph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,m_Average);
+	m_DataGraph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,m_Average);
 
 	CString csHour;
 	csHour.Format("%d",Days*24);
@@ -385,7 +385,7 @@ void CDataLoggerDlg::OnButtonSave()
 	SaveWindowToBitmap((CWnd*)this, 0,rect_report.top - 5,m_SaveGraph);
 	
 	CBitmap PdfGraph;
-	SaveWindowToBitmap((CWnd*)&m_Graph, 0,0,PdfGraph);
+	SaveWindowToBitmap((CWnd*)&m_DataGraph, 0,0,PdfGraph);
 
 	if(IDOK == dlg.DoModal())
 	{
@@ -880,9 +880,9 @@ void CDataLoggerDlg::ClearData()
 	SetDlgItemText(IDC_PRINTED_BY,str);
 	SetDlgItemText(IDC_DATE_TIME,str);
 	SetDlgItemText(IDC_SHIP_NOTE,str);
-	m_Graph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,0);
+	m_DataGraph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,0);
 
-	m_Graph.Invalidate();
+	m_DataGraph.Invalidate();
 
 }
 

@@ -25,8 +25,8 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDataLoggerDlg)
 	enum { IDD = IDD_DATALOGGER_DIALOG };
-	CBatteryStatic	m_Battery;
-	CGraphStatic	m_Graph;
+	CBatteryStatic	m_BatteryGraph;
+	CGraphStatic	m_DataGraph;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
