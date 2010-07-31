@@ -261,7 +261,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 	}
 
-	m_Average=sum/m_TotalPoint;
+	m_AverageTemperature=sum/m_TotalPoint;
 	
 
 	CFile cfile;
@@ -272,7 +272,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
     cfile.Close();
 
     //Check the low voltage.
-    mBatteryLevel = ((batter_value + 1) * 3300/4096)/100;
+    mBatteryLevel = ((batter_value + 1) * 3000/4096)/100;
     if(mBatteryLevel < 26)
     {
 
@@ -285,10 +285,10 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
     }   
 
-	m_BatteryGraph.SetBatteryLevel(33,((batter_value + 1) * 3300/4096)/100);
+	m_BatteryGraph.SetBatteryLevel(30,mBatteryLevel);
     
 
-	m_DataGraph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,m_Average);
+	m_DataGraph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,m_AverageTemperature);
 
 	CString csHour;
 	csHour.Format("%d",Days*24);
@@ -837,7 +837,7 @@ void CDataLoggerDlg::SaveToTxtFile(CString txtfilename)
 
 	cFile.Write(cs1,cs1.GetLength());
 
-	cs1.Format("The average values : %.8f\r\n",m_Average);
+	cs1.Format("The average values : %.8f\r\n",m_AverageTemperature);
 	cFile.Write(cs1,cs1.GetLength());
 
 	
@@ -958,7 +958,7 @@ void CDataLoggerDlg::SaveToXMLFile(CString xmlfilename)
     cs1.Format("<TotalPoint>%d</TotalPoint>\n",m_TotalPoint);
     cFile.Write(cs1,cs1.GetLength());
 	
-	cs1.Format("<Average>%.8f</Average>\n",m_Average);
+	cs1.Format("<Average>%.8f</Average>\n",m_AverageTemperature);
 	cFile.Write(cs1,cs1.GetLength());
 
     

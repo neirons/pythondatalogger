@@ -83,7 +83,7 @@ BEGIN
                     SS_NOPREFIX
     LTEXT           "Copyright (C) 2010",IDC_STATIC,40,25,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
-    LTEXT           "svnr:150",IDC_STATIC,135,10,32,8
+    LTEXT           "svnr:151",IDC_STATIC,135,10,32,8
 END
 
 IDD_DATALOGGER_DIALOG DIALOGEX 0, 0, 447, 328
@@ -97,7 +97,7 @@ BEGIN
     PUSHBUTTON      "Print",IDC_PRINT,64,11,50,14
     PUSHBUTTON      "Exit",IDCANCEL,184,11,50,14
     PUSHBUTTON      "Clear Logger",IDC_BUTTON_CLEAR,124,11,50,14
-    LTEXT           "Mybattery",IDC_BATTERY,297,10,132,24
+    LTEXT           "Mybattery",IDC_BATTERY,297,10,120,24
     LTEXT           "Data Report:",IDC_STATIC_DATA_REPORT,10,41,42,8
     LTEXT           "",IDC_DATA_REPORT,59,41,164,8
     LTEXT           "Battery Level",IDC_STATIC,245,14,45,8
