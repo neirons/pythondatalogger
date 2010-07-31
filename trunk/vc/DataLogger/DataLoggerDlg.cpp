@@ -312,6 +312,10 @@ BOOL CDataLoggerDlg::OnInitDialog()
     TRACE("user name is %s",szUser);
     
     
+
+    DisplayCurrentTime();
+    DisplayStartTime();
+
 //	m_Battery.MoveWindow(rect.left,rect.top,rect.Width(),rect.Height());
 	// TODO: Add extra initialization here
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -971,5 +975,33 @@ void CDataLoggerDlg::SaveToXMLFile(CString xmlfilename)
     cFile.Write(cs1,cs1.GetLength());
 
 	cFile.Close();
+
+}
+
+void CDataLoggerDlg::DisplayCurrentTime()
+{
+    CTime ct = CTime::GetCurrentTime();
+
+    CString cstr_time ;
+    cstr_time.Format("%04d-%02d-%02d %02d:%02d:%02d",ct.GetYear(),ct.GetMonth(),ct.GetDay(),
+        ct.GetHour(),ct.GetMinute(),ct.GetSecond());
+
+    SetDlgItemText(IDC_DATE_TIME,cstr_time);
+    
+}
+
+void CDataLoggerDlg::DisplayStartTime()
+{
+
+    char buf[] = "[Start-Time]:3010-07-28:09-54";
+    CString csStartTime;
+
+
+    CFile cfile;
+    cfile.Open("startime.ini",CFile::modeRead);
+    cfile.Read(buf,sizeof(buf));
+    csStartTime.Format("%s",&buf[13]);
+    SetDlgItemText(IDC_START_TIME,csStartTime);
+    cfile.Close();
 
 }

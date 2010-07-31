@@ -69,6 +69,8 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 private:
+	void DisplayStartTime();
+	void DisplayCurrentTime();
 	int mBatteryLevel;
 	void SaveToXMLFile(CString txtfilename);
 	void SetUTCTime();
