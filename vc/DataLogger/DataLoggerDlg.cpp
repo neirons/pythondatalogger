@@ -232,6 +232,8 @@ BOOL CDataLoggerDlg::OnInitDialog()
                     rd_value = 1;
                 convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
                 m_Data[i] = GetTemperature(convert_value);
+                m_TotalPoint = i ;
+
             }    
             else
             {

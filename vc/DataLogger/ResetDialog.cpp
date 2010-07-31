@@ -127,7 +127,8 @@ void CResetDialog::OnOK()
 
     cf.Close();
 
-
+    cf.Remove("datalogger.bin");
+    
 
     CDialog::OnOK();
 }
