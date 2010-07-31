@@ -1000,18 +1000,22 @@ void CDataLoggerDlg::DisplayCurrentTime()
 
 void CDataLoggerDlg::DisplayStartTime()
 {
-
+    
     char buf[] = "[Start-Time]:3010-07-28:09-54";
     CString csStartTime;
-
-
-    CFile cfile;
-    cfile.Open("startime.ini",CFile::modeRead);
-    cfile.Read(buf,sizeof(buf));
-    buf[23] = ' ';
-    buf[26] = ':';
-    csStartTime.Format("%s",&buf[13]);
-    SetDlgItemText(IDC_START_TIME,csStartTime);
-    cfile.Close();
-
+    if (_access ("startime.ini", 0) != 0) 
+    {
+        csStartTime.Format("No starttime.ini file in  your udisk");        
+    }
+    else
+    {
+        CFile cfile;
+        cfile.Open("startime.ini",CFile::modeRead);
+        cfile.Read(buf,sizeof(buf));
+        buf[23] = ' ';
+        buf[26] = ':';
+        csStartTime.Format("%s",&buf[13]);
+        cfile.Close();
+    }
+    SetDlgItemText(IDC_START_TIME,csStartTime);    
 }
