@@ -218,7 +218,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 	{
 		CFile cfile;
         unsigned short rd_value;
-        unsigned short convert_value;
+        unsigned long convert_value;
 
 		cfile.Open("datalogger.bin",CFile::modeRead|CFile::typeBinary);
 
@@ -228,8 +228,12 @@ BOOL CDataLoggerDlg::OnInitDialog()
             {
             
                 rd_value = rd_value + 1;
+
                 if(rd_value == 0)
                     rd_value = 1;
+
+                TRACE("i = %d,rd_value = %d\n",i,rd_value);
+
                 convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
                 m_Data[i] = GetTemperature(convert_value);
                 m_TotalPoint = i ;
