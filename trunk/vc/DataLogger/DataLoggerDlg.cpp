@@ -287,7 +287,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
     }   
 
-	m_BatteryGraph.SetBatteryLevel(30,mBatteryLevel);
+	m_BatteryGraph.SetBatteryLevel(10,mBatteryLevel);
     
 
 	m_DataGraph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,m_AverageTemperature);

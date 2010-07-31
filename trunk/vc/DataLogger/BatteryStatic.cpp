@@ -91,6 +91,6 @@ void CBatteryStatic::OnPaint()
 void CBatteryStatic::SetBatteryLevel(int maxlevel,int batterylevel)
 {
 	m_MaxLevel = maxlevel;
-	m_BatteryLevel=batterylevel;
+	m_BatteryLevel = batterylevel - 20;
 }
 
