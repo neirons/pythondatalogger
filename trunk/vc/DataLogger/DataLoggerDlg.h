@@ -44,7 +44,7 @@ public:
 	double m_Data[MAX_POINT];
 	int m_TotalPoint;
     int m_MaxPoint;
-	double m_Average;
+	double m_AverageTemperature;
 	int m_Days;
 
 // Implementation
