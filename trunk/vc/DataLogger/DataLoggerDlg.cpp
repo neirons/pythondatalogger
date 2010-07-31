@@ -22,7 +22,7 @@
 #include "ResetDialog.h"
 #include "LogFile.h"
 #include "Temperature_Const.h"
-
+#include "WarningDialog.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -271,7 +271,22 @@ BOOL CDataLoggerDlg::OnInitDialog()
     cfile.Read(&batter_value,sizeof(unsigned short));
     cfile.Close();
 
+    //Check the low voltage.
+    mBatteryLevel = ((batter_value + 1) * 3300/4096)/100;
+    if(mBatteryLevel < 15)
+    {
+
+        CWarningDialog dlg;
+        if(dlg.DoModal() == IDOK)
+        {
+
+            CDialog::OnCancel();
+        }
+
+    }   
+
 	m_Battery.SetBatteryLevel(33,((batter_value + 1) * 3300/4096)/100);
+    
 
 	m_Graph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,m_Average);
 
