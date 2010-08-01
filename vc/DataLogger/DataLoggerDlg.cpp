@@ -221,6 +221,9 @@ BOOL CDataLoggerDlg::OnInitDialog()
         unsigned long convert_value;
 
 		cfile.Open("datalogger.bin",CFile::modeRead|CFile::typeBinary);
+//        m_MaxPoint = 4096;
+        memset(m_Data,0,sizeof(m_Data));
+        int iDataindex = 0;
 
 		for(int i =0;i<m_MaxPoint;i++)
 		{
@@ -228,20 +231,21 @@ BOOL CDataLoggerDlg::OnInitDialog()
             {
             
                 rd_value = rd_value + 1;
-
-                if(rd_value == 0)
-                    rd_value = 1;
-
-                TRACE("i = %d,rd_value = %d\n",i,rd_value);
+                if(rd_value <2500 || rd_value > 3700)
+                    continue;
 
                 convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
-                m_Data[i] = GetTemperature(convert_value);
-                m_TotalPoint = i ;
+                m_Data[iDataindex] = GetTemperature(convert_value);
+                if(iDataindex > 3560)
+                    TRACE("iDataindex = %d,rd_value = %d,convert_value = %d ,m_Data[%d] = %f\n",iDataindex,rd_value,convert_value,iDataindex,m_Data[iDataindex]);
+                iDataindex++;
+                m_TotalPoint = iDataindex ;
+
 
             }    
             else
             {
-                m_TotalPoint = i ;
+                m_TotalPoint = iDataindex ;
                 break;
 
             }
@@ -267,6 +271,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 	}
 
+    TRACE("m_TotalPoint = %d\n",m_TotalPoint);
 	m_AverageTemperature=sum/m_TotalPoint;
 	
 
