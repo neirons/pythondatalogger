@@ -198,14 +198,10 @@ BOOL CDataLoggerDlg::OnInitDialog()
 			sum += m_Data[i];
 		}
 #else
-        m_TotalPoint = 60;
+        m_TotalPoint = 600;
 		for(int i =0;i<m_TotalPoint;i++)
 		{
-			m_Data[i] = 30 + i ;
-            if(m_Data[i] > 60)
-                m_Data[i] = m_Data[i] - 30;
-            if(m_Data[i] > 60)
-                m_Data[i] = m_Data[i] - 30;
+			m_Data[i] = 55 ;
 
 			sum += m_Data[i];
 		}
@@ -918,10 +914,10 @@ double CDataLoggerDlg::GetTemperature(int value)
     int index;
 
     if(value_double >= TEMPERATURE_TABLE[0])
-        return -50.0;
+        return -50.0* 9.0/5.0 + 32.0;
 
     if(value_double <= TEMPERATURE_TABLE[size - 1])
-        return (size-50.0);
+        return (size-50.0)* 9.0/5.0 + 32.0;
 
     for(int i=0;i<size;i++)
     {
@@ -939,7 +935,7 @@ double CDataLoggerDlg::GetTemperature(int value)
         }
     }
 
-    return (index - 50.0);
+    return (index - 50.0) * 9.0/5.0 + 32.0;
 
 }
 
