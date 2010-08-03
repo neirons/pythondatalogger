@@ -127,8 +127,16 @@ void CResetDialog::OnOK()
 
     cf.Close();
 
-    cf.Remove("datalogger.bin");
-    
+    CFileStatus fs;
+    if (!CFile::GetStatus("datalogger.bin", fs)) 
+    {
+        ;//Do nothing
+    }
+    else
+    {
+        cf.Remove("datalogger.bin");
+    }
+
 
     CDialog::OnOK();
 }
