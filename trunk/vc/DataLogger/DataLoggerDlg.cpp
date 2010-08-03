@@ -231,13 +231,16 @@ BOOL CDataLoggerDlg::OnInitDialog()
             {
             
                 rd_value = rd_value + 1;
-                if(rd_value <2500 || rd_value > 3700)
-                    continue;
+                if(rd_value == 0)
+                    rd_value = 1;
+                
+//                if(rd_value <2500 || rd_value > 3700)
+//                    continue;
 
                 convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
                 m_Data[iDataindex] = GetTemperature(convert_value);
-                if(iDataindex > 3560)
-                    TRACE("iDataindex = %d,rd_value = %d,convert_value = %d ,m_Data[%d] = %f\n",iDataindex,rd_value,convert_value,iDataindex,m_Data[iDataindex]);
+//                if(iDataindex > 3560)
+//                    TRACE("iDataindex = %d,rd_value = %d,convert_value = %d ,m_Data[%d] = %f\n",iDataindex,rd_value,convert_value,iDataindex,m_Data[iDataindex]);
                 iDataindex++;
                 m_TotalPoint = iDataindex ;
 
@@ -474,6 +477,7 @@ void CDataLoggerDlg::OnButtonClear()
         CWarningDialog dlg;
         if(dlg.DoModal() == IDOK)
         {
+            CDialog::OnOK();
             return ;
         }
 
