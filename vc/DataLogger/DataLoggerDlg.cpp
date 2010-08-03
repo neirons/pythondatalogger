@@ -234,7 +234,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
 //                    continue;
 
                 convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
-                m_Data[iDataindex] = GetTemperature(convert_value);
+                m_Data[iDataindex] = GetTemperature(convert_value) * 9.0/5.0 + 32.0;
 //                if(iDataindex > 3560)
 //                    TRACE("iDataindex = %d,rd_value = %d,convert_value = %d ,m_Data[%d] = %f\n",iDataindex,rd_value,convert_value,iDataindex,m_Data[iDataindex]);
                 iDataindex++;
@@ -914,10 +914,10 @@ double CDataLoggerDlg::GetTemperature(int value)
     int index;
 
     if(value_double >= TEMPERATURE_TABLE[0])
-        return -50.0* 9.0/5.0 + 32.0;
+        return -50.0;
 
     if(value_double <= TEMPERATURE_TABLE[size - 1])
-        return (size-50.0)* 9.0/5.0 + 32.0;
+        return (size-50.0);
 
     for(int i=0;i<size;i++)
     {
@@ -935,7 +935,7 @@ double CDataLoggerDlg::GetTemperature(int value)
         }
     }
 
-    return (index - 50.0) * 9.0/5.0 + 32.0;
+    return (index - 50.0) ;
 
 }
 
