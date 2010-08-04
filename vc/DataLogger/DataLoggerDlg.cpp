@@ -233,7 +233,9 @@ BOOL CDataLoggerDlg::OnInitDialog()
 //                if(rd_value <2500 || rd_value > 3700)
 //                    continue;
 
-                convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
+//                convert_value = ((4096 - rd_value)* 100 * 1000 ) / rd_value;
+                convert_value = (4096 * 100 * 1000 * 3.0)/(3.25 * (rd_value + 1)) - 100 * 1000;
+
                 m_Data[iDataindex] = GetTemperature(convert_value) * 9.0/5.0 + 32.0;
 //                if(iDataindex > 3560)
 //                    TRACE("iDataindex = %d,rd_value = %d,convert_value = %d ,m_Data[%d] = %f\n",iDataindex,rd_value,convert_value,iDataindex,m_Data[iDataindex]);
