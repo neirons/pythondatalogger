@@ -127,14 +127,24 @@ void CResetDialog::OnOK()
 
     cf.Close();
 
+
+    CString   path=AfxGetApp()-> m_pszHelpFilePath;
+    CString   str=AfxGetApp()-> m_pszExeName;
+    path = path.Left(path.GetLength()-str.GetLength()-4); 
+    
+    CString data_path;
+    data_path.Format("%s/datalogger.bin",path);
+
+
     CFileStatus fs;
-    if (!CFile::GetStatus("datalogger.bin", fs)) 
+
+    if (!CFile::GetStatus(data_path, fs)) 
     {
         ;//Do nothing
     }
     else
     {
-        cf.Remove("datalogger.bin");
+        cf.Remove(data_path);
     }
 
 
