@@ -77,11 +77,14 @@ void CResetDialog::OnOK()
 {
 	// TODO: Add extra validation here
     this->UpdateData(TRUE);
+    
+    CString   path=AfxGetApp()-> m_pszHelpFilePath;
+    CString   str=AfxGetApp()-> m_pszExeName;
+    path = path.Left(path.GetLength()-str.GetLength()-4); 
+
 
 	CString strFilePath;
-	char strBuff[256];
-	strFilePath=GetCurrentDirectory(256,strBuff); //Get current path
-	strFilePath.Format("%s\\startime.ini",strBuff);
+	strFilePath.Format("%s\\startime.ini",path);
 
     CTime ct = CTime::GetCurrentTime();
 
@@ -128,9 +131,6 @@ void CResetDialog::OnOK()
     cf.Close();
 
 
-    CString   path=AfxGetApp()-> m_pszHelpFilePath;
-    CString   str=AfxGetApp()-> m_pszExeName;
-    path = path.Left(path.GetLength()-str.GetLength()-4); 
     
     CString data_path;
     data_path.Format("%s/datalogger.bin",path);
