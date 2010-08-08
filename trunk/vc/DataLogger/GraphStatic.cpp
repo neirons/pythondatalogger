@@ -190,8 +190,8 @@ void CGraphStatic::DrawGridAndText(CPaintDC& dc)
 	CString str1;
 	CRect rect1;
 
-	char pFDegree[][20] = {"60.0","55.0","50.0","45.0","40.0","35.0","30.0"};
-	char pCDegree[][20] = {"15.5","12.7","10.0","7.2","4.4","1.7","-1.0"};
+    CString csText;
+    int degree ;
 	for( int i = 0;i<m_YGrid + 1;i++)
 	{
 
@@ -199,7 +199,13 @@ void CGraphStatic::DrawGridAndText(CPaintDC& dc)
 		rect1.top = y_start - 10;
 		rect1.right = x_start;
 		rect1.bottom = y_start + 30;
-		memdc.DrawText(pFDegree[i],&rect1,DT_LEFT);
+        
+        degree = int(m_Min + ((m_YGrid - i) * 1.0 * (m_Max - m_Min))/m_YGrid);
+        
+        csText.Format("%d",degree);
+//		memdc.DrawText(pFDegree[i],&rect1,DT_LEFT);
+		memdc.DrawText(csText,&rect1,DT_LEFT);
+        
 		memdc.MoveTo(x_start,y_start);
 		memdc.LineTo(x_end,y_end);
 
@@ -207,7 +213,12 @@ void CGraphStatic::DrawGridAndText(CPaintDC& dc)
 		rect1.top = y_end  - 10;
 		rect1.right = rect1.left + 30;
 		rect1.bottom = rect1.top + 30;
-		memdc.DrawText(pCDegree[i],&rect1,DT_LEFT);
+//		memdc.DrawText(pCDegree[i],&rect1,DT_LEFT);
+        degree = int((degree - 32.0) * 5.0/9.0);
+        csText.Format("%d",degree);
+
+        memdc.DrawText(csText,&rect1,DT_LEFT);
+
 		y_start += (rect.Height() - m_TopOffset - m_BottomOffset)/m_YGrid;
 		y_end = y_start;
 
@@ -306,7 +317,7 @@ void CGraphStatic::DrawData(CPaintDC& dc)
 	memdc.SetBkColor(old_bkcolor);
 
 //	x0 = m_TotalPoint;
-    x0 = m_MaxPoint;
+    x0 = m_MaxPoint - 1;
 	y0 = m_Average;
 	GetPoint(x0,y0);
 	memdc.LineTo(round(x0),round(y0));
@@ -375,11 +386,21 @@ int CGraphStatic::round(double f)
 
 void CGraphStatic::GetPoint(double &x, double &y)
 {
-	 double MultiplyOnX = ((double)m_xpixel)/((double)m_MaxPoint);	
+	 double MultiplyOnX = ((double)m_xpixel)/((double)m_MaxPoint - 1);	
 
-	 double MultiplyOnY = m_ypixel/30.0;
+	 double MultiplyOnY = m_ypixel/(m_Max - m_Min);
 
-	 y = -((y-30)*MultiplyOnY);
+	 y = -((y-m_Min)*MultiplyOnY);
 	 x = x * MultiplyOnX;
 
+}
+
+void CGraphStatic::SetMaxMin(double max, double min)
+{
+    double fullrange;
+    fullrange = (max - min) * 1.1;
+    
+    m_Max = max + fullrange * 0.05;
+    m_Min = min - fullrange * 0.05;
+    
 }

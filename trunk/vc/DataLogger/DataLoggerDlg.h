@@ -87,6 +87,9 @@ private:
 	CBitmap m_SaveGraph;
 
 
+    double m_Min;
+    double m_Max;
+
 };
 
 //{{AFX_INSERT_LOCATION}}
