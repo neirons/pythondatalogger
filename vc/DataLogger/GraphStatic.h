@@ -29,6 +29,7 @@ public:
 
 // Implementation
 public:
+	void SetMaxMin(double max,double min);
 
 	void SetData(int days,double* pData,int maxpoint,int totalpoint,double average);
 	virtual ~CGraphStatic();
@@ -64,6 +65,8 @@ private:
 	int m_TotalPoint;
     int m_MaxPoint;
 	double m_Average;
+    double m_Max;
+    double m_Min;
 
 	DECLARE_MESSAGE_MAP()
 };

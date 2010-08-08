@@ -84,6 +84,8 @@ CDataLoggerDlg::CDataLoggerDlg(CWnd* pParent /*=NULL*/)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
+    m_Min = 100.0;
+    m_Max = -100.0;
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
@@ -217,7 +219,7 @@ BOOL CDataLoggerDlg::OnInitDialog()
         unsigned long convert_value;
 
 		cfile.Open("datalogger.bin",CFile::modeRead|CFile::typeBinary);
-//        m_MaxPoint = 4096;
+//        m_MaxPoint = 60;
         memset(m_Data,0,sizeof(m_Data));
         int iDataindex = 0;
 
@@ -237,6 +239,18 @@ BOOL CDataLoggerDlg::OnInitDialog()
                 convert_value = (4096 * 100 * 1000 * 3.0)/(3.25 * (rd_value + 1)) - 100 * 1000;
 
                 m_Data[iDataindex] = GetTemperature(convert_value) * 9.0/5.0 + 32.0;
+
+//                m_Data[iDataindex] = i * 2 + 10;
+                if(m_Data[iDataindex] > m_Max)
+                    m_Max = m_Data[iDataindex];
+                
+                if(m_Data[iDataindex] < m_Min)
+                    m_Min = m_Data[iDataindex];
+
+                
+    			sum += m_Data[iDataindex];
+
+
 //                if(iDataindex > 3560)
 //                    TRACE("iDataindex = %d,rd_value = %d,convert_value = %d ,m_Data[%d] = %f\n",iDataindex,rd_value,convert_value,iDataindex,m_Data[iDataindex]);
                 iDataindex++;
@@ -266,7 +280,6 @@ BOOL CDataLoggerDlg::OnInitDialog()
                rd_value
 
 */
-			sum += m_Data[i];
 		}
         cfile.Close();
 
@@ -288,6 +301,8 @@ BOOL CDataLoggerDlg::OnInitDialog()
 
 	m_BatteryGraph.SetBatteryLevel(10,mBatteryLevel);
     
+    
+    m_DataGraph.SetMaxMin(m_Max,m_Min);
 
 	m_DataGraph.SetData(m_Days,m_Data,m_MaxPoint,m_TotalPoint,m_AverageTemperature);
 
