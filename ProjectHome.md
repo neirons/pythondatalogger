@@ -1,0 +1,1 @@
+This project is a pyqt application use QPainter to draw the line.
